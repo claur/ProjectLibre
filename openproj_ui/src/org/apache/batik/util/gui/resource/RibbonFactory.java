@@ -161,7 +161,7 @@ public class RibbonFactory extends ResourceManager {
 		List<String> bandNames = (List<String>)getStringList(name);
 		for (String bandName : bandNames){
 			AbstractRibbonBand<?> band=createRibbonBand(bandName, customBandsGenerator);
-			ribbonBands.add(band);
+			if (band!=null) ribbonBands.add(band);
 		}
 		AbstractRibbonBand<?>[] bands=ribbonBands.toArray(new AbstractRibbonBand<?>[ribbonBands.size()]);		
 		
@@ -222,15 +222,35 @@ public class RibbonFactory extends ResourceManager {
 
 		return result;
 	}
-	public AbstractRibbonBand<?> createFlowRibbonBand(String name) throws MissingResourceException, ResourceFormatException, MissingListenerException {
+	
+	public AbstractRibbonBand<?> createFlowRibbonBand(String name, CustomRibbonBandGenerator customBandsGenerator) throws MissingResourceException, ResourceFormatException, MissingListenerException {
 		String title=getString(name+".Title");
 		JFlowRibbonBand result=new JFlowRibbonBand(title,null);
+
+		JComponent customComponent=customBandsGenerator.createRibbonComponent(name);
+		if (customComponent!=null){
+			JRibbonComponent ribbonComponent;
+			if (customComponent instanceof JRibbonComponent)
+				ribbonComponent=(JRibbonComponent)customComponent;
+			else ribbonComponent=new JRibbonComponent(customComponent);
+			result.addFlowComponent(ribbonComponent);
+			return result;
+		}		
 		
 		@SuppressWarnings("unchecked")
 		List<String> buttons = (List<String>)getStringList(name);
 		//int i=0;
 		for (String s : buttons){
-			if (!s.equals(SEPARATOR)) {
+			if (s.equals(SEPARATOR)) {
+			} else {
+				RibbonElementPriority priority=RibbonElementPriority.MEDIUM;
+				if (s.endsWith(".TOP")){
+					priority=RibbonElementPriority.TOP;
+					s=s.substring(0, s.length()-4);
+				}else if (s.endsWith(".LOW")){
+					priority=RibbonElementPriority.LOW;
+					s=s.substring(0, s.length()-4);
+				}
 				AbstractCommandButton button =  createCommandButton(s);
 //				boolean visible = true;
 //				try {
@@ -243,15 +263,18 @@ public class RibbonFactory extends ResourceManager {
 				
 			}
 		}
-				
+		
 		List<RibbonBandResizePolicy> resizePolicies = new ArrayList<RibbonBandResizePolicy>();
 		resizePolicies.add(new CoreRibbonResizePolicies.FlowTwoRows(result.getControlPanel()));
 		result.setResizePolicies(resizePolicies);	
-				
+						
 		
 
 		return result;
 	}
+
+	
+	
 	
 	/**
 	 * Creates ribbon band
