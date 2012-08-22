@@ -1,0 +1,83 @@
+<project default="dist" basedir=".">
+	<property file="build.properties"/>
+
+	<path id="compile.class.path">
+		<fileset dir="../openproj_contrib">
+			<include name="openproj-contrib.jar" />
+			<include name="openproj-script.jar" />
+		</fileset>
+		<fileset dir="../openproj_contrib/lib/exchange">
+			<include name="*.jar" />
+			<exclude name="mpop.jar" />
+		</fileset>
+		<fileset dir="../openproj_core">
+			<include name="dist/openproj-core.jar" />
+		</fileset>
+	</path>
+
+	<target name="prepare">
+		<mkdir dir="${build}"/>
+	 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="../openproj_contrib/ant-lib/ant-contrib.jar"/>
+	</target>
+	
+	<target name="core">
+		<ant antfile="../openproj_core/build.xml" target="dist" inheritAll="false"/>
+	</target>
+
+	<target name="contrib1">
+		<if>
+		 <equals arg1="${build_contrib}" arg2="true" />
+		 <then>
+			<ant antfile="../openproj_contrib/build.xml" target="contrib" inheritAll="false"/>
+			<ant antfile="../openproj_contrib/build.xml" target="script" inheritAll="false"/>
+			<!--ant antfile="../openproj_contrib/build.xml" target="reports" inheritAll="false"/-->
+		</then>
+	  </if>
+	</target>
+	<target name="contrib2">
+		<if>
+		 <equals arg1="${build_contrib}" arg2="true" />
+		 <then>
+			<!--ant antfile="../openproj_contrib/build.xml" target="exchange" inheritAll="false"/-->
+		</then>
+	  </if>
+	</target>
+
+	
+	<target name="build" depends="prepare,core">
+		<javac destdir="${build}"
+			classpathref="compile.class.path"
+			debug="off"
+			nowarn="on"
+			source="1.5"
+			target="1.5">
+				<src path="${src}" />
+				<include name="**/*" />
+				<exclude name="**/version.properties" />
+				<exclude name="test/**" />
+		</javac>
+	</target>
+	
+	
+	<target name="lib" depends="build">
+		<jar jarfile="../openproj_contrib/lib/exchange/mpop.jar">
+			<zipfileset dir="${build}" >
+				<include name="**/*" />
+			</zipfileset>
+			<metainf dir="../openproj_build/license">
+				<include name="**" />
+			</metainf>
+		</jar>   
+	</target>
+	
+	<target name="dist" depends="prepare,contrib1,lib,contrib2">
+	</target>
+	
+
+	<target name="clean">
+		<delete dir="${build}"/>
+		<delete file="../openproj_contrib/lib/exchange/mpop.jar" />
+		<ant antfile="../openproj_core/build.xml" target="clean" inheritAll="false"/>
+	</target>
+
+</project>

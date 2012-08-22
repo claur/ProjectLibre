@@ -1,0 +1,1234 @@
+# The contents of this file are subject to the Common Public Attribution License 
+# Version 1.0 (the "License"); you may not use this file except in compliance with 
+# the License. You may obtain a copy of the License at 
+# http://www.projity.com/license . The License is based on the Mozilla Public 
+# License Version 1.1 but Sections 14 and 15 have been added to cover use of 
+# software over a computer network and provide for limited attribution for the 
+# Original Developer. In addition, Exhibit A has been modified to be consistent 
+# with Exhibit B.
+
+# Software distributed under the License is distributed on an "AS IS" basis, 
+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the 
+# specific language governing rights and limitations under the License. The 
+# Original Code is OpenProj. The Original Developer is the Initial Developer and 
+# is Projity, Inc. All portions of the code written by Projity are Copyright (c) 
+# 2006, 2007. All Rights Reserved. Contributors Projity, Inc.
+
+# Alternatively, the contents of this file may be used under the terms of the 
+# Projity End-User License Agreeement (the Projity License), in which case the 
+# provisions of the Projity License are applicable instead of those above. If you 
+# wish to allow use of your version of this file only under the terms of the 
+# Projity License and not to allow others to use your version of this file under 
+# the CPAL, indicate your decision by deleting the provisions above and replace 
+# them with the notice and other provisions required by the Projity  License. If 
+# you do not delete the provisions above, a recipient may use your version of this 
+# file under either the CPAL or the Projity License.
+
+# [NOTE: The text of this license may differ slightly from the text of the notices 
+# in Exhibits A and B of the license at http://www.projity.com/license. You should 
+# use the latest text at http://www.projity.com/license for your modifications.
+# You may not remove this license text from the source files.]
+
+# Attribution Information: Attribution Copyright Notice: Copyright й 2006, 2007 
+# Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
+# an open source solution from Projity. Attribution URL: http://www.projity.com 
+# Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
+# alternatives listed on http://www.projity.com/logo
+
+# Display of Attribution Information is required in Larger Works which are defined 
+# in the CPAL as a work which combines Covered Code or portions thereof with code 
+# not governed by the terms of the CPAL. However, in addition to the other notice 
+# obligations, all copies of the Covered Code in Executable and Source Code form 
+# distributed must, as a form of attribution of the original author, include on 
+# each user interface screen the "OpenProj" logo visible to all users.  The 
+# OpenProj logo should be located horizontally aligned with the menu bar and left 
+# justified on the top left of the screen adjacent to the File menu.  The logo 
+# must be at least 100 x 25 pixels.  When users click on the "OpenProj" logo it 
+# must direct them back to http://www.projity.com.  
+
+##########################################################
+##########################################################
+##########################################################
+#This file is in codepage 1251. It is useful for the translator wishing to modify the text
+##########################################################
+##########################################################
+##########################################################
+
+##########################################################
+#A big thank you to Marat Latypov for the Russian translation                                         #
+##########################################################
+
+# The lines to change have the following suffixes
+# .text
+# .tooltip
+# .tip
+# .mnemonic
+# .accelerator
+# Other lines must not be changed
+# Note that the mnemonic should correspond to the first letter of the text, and the accelerator should be CTRL+(first letter).  
+# The ... after some text items should be preserved in the translation.
+# All comments should be kept as is. Comments are lines starting with #
+ 
+PaletteMenu = Palette LookAndFeel FullScreen
+Palette.type        = ITEM
+Palette.text   = Панель инструментов...
+Palette.icon        = menu24.palette
+Palette.action      = PaletteAction
+
+LookAndFeel.type        = ITEM
+LookAndFeel.text   = Вид...
+LookAndFeel.icon        = menu24.palette
+LookAndFeel.action      = LookAndFeelAction
+
+FullScreen.type        = ITEM
+FullScreen.text   = Открыть новое окно броузера на полный экран
+FullScreen.icon        = menu24.fullScreen
+FullScreen.action      = FullScreenAction
+
+Refresh.type        = ITEM
+Refresh.text   = Обновить
+Refresh.icon        = menu24.refresh
+Refresh.action      = RefreshAction
+
+
+StandardMenuBar =  OpenProj File Edit View Insert Tools Project Help
+ServerStandardMenuBar = ServerFile Edit View ServerInsert ServerTools Project Help
+SFMenuBar = SFTracking
+
+# File menu ################
+File = NewProject OpenProject CloseProject - SaveProject SaveProjectAs - Print PrintPreview - Exit
+File.type = MENU
+File.text = Файл
+File.mnemonic = F
+
+ServerFile = NewProject OpenProject CloseProject - SaveProject SaveProjectAs - ImportMSProject ExportMSProject - Print PrintPreview - Exit
+ServerFile.type = MENU
+ServerFile.text = Файл
+ServerFile.mnemonic = F
+
+NewProject.type        = ITEM
+NewProject.text        = Новый проект...
+NewProject.icon        = menu.new
+NewProject.mnemonic    = N
+NewProject.action      = NewProjectAction
+NewProject.accelerator = Ctrl+N
+
+OpenProject.type        = ITEM
+OpenProject.text        = Открыть...
+OpenProject.icon        = menu.open
+OpenProject.mnemonic    = O
+OpenProject.action      = OpenProjectAction
+OpenProject.accelerator = Ctrl+O
+
+ImportMSProject.type        = ITEM
+ImportMSProject.text        = Импорт из MS Project...
+ImportMSProject.mnemonic    = M
+ImportMSProject.action      = ImportMSProjectAction
+ImportMSProject.icon      = menu.import
+
+ExportMSProject.type        = ITEM
+ExportMSProject.text        = Экспорт в MS Project...
+ExportMSProject.mnemonic    = E
+ExportMSProject.action      = ExportMSProjectAction
+ExportMSProject.icon      = menu.export
+
+
+CloseProject.type        = ITEM
+CloseProject.text        = Закрыть
+CloseProject.mnemonic    = C
+CloseProject.action      = CloseProjectAction
+
+OpenProj.type= ITEM
+OpenProj.text =
+OpenProj.action = OpenProjAction
+OpenProj.icon=logo.OpenProj
+OpenProj.tooltip=Go to Projity.com
+
+SaveProject.type        = ITEM
+SaveProject.text        = Сохранить
+SaveProject.icon        = menu.save
+SaveProject.mnemonic    = S
+SaveProject.action      = SaveProjectAction
+SaveProject.accelerator = Ctrl+S
+
+SaveProjectAs.type        = ITEM
+SaveProjectAs.text        = Сохранить как
+SaveProjectAs.icon        = menu.saveAs
+SaveProjectAs.mnemonic    = A
+SaveProjectAs.action      = SaveProjectAsAction
+SaveProjectAs.accelerator = Ctrl+A
+
+
+DelegateTasks.action      = DelegateTasksAction
+
+
+Print.type        = ITEM
+Print.text        = Печать...
+Print.icon        = menu.print
+Print.mnemonic    = P
+Print.action      = PrintAction
+Print.accelerator = Ctrl+P
+
+PrintPreview.type        = ITEM
+PrintPreview.text        = Предварительный просмотр
+PrintPreview.icon        = menu.printPreview
+PrintPreview.mnemonic    = V
+PrintPreview.action      = PrintPreviewAction
+
+Exit.type        = ITEM
+Exit.text        = Выход
+Exit.mnemonic    = X
+Exit.action      = ExitAction
+
+
+# Edit menu ################
+Edit = Cut Copy Paste - Delete - Link Unlink - Undo Redo
+Edit.type = MENU
+Edit.text = Правка
+Edit.mnemonic = E
+
+Undo.type        = ITEM
+Undo.text        = Отменить правку
+Undo.icon        = menu.undo
+Undo.mnemonic    = U
+Undo.action      = UndoAction
+Undo.accelerator = Ctrl+Z
+Undo.enabled = false
+
+Redo.type        = ITEM
+Redo.text        = Вернуть правку
+Redo.icon        = menu.redo
+Redo.mnemonic    = Y
+Redo.action      = RedoAction
+Redo.accelerator = Ctrl+Y
+Redo.enabled = false
+
+Cut.type        = ITEM
+Cut.text        = Вырезать
+Cut.icon        = menu.cut
+Cut.mnemonic    = T
+Cut.action      = CutAction
+Cut.accelerator = Ctrl+X
+
+Copy.type        = ITEM
+Copy.text        = Копировать
+Copy.icon        = menu.copy
+Copy.mnemonic    = C
+Copy.action      = CopyAction
+Copy.accelerator = Ctrl+C
+
+Paste.type        = ITEM
+Paste.text        = Вставить
+Paste.icon        = menu.paste
+Paste.mnemonic    = P
+Paste.action      = PasteAction
+Paste.accelerator = Ctrl+V
+
+Delete.type        = ITEM
+Delete.text        = Удалить
+Delete.icon        = menu.delete
+Delete.mnemonic    = D
+Delete.action      = DeleteAction
+
+Link.type        = ITEM
+Link.text        = Добавить связь 
+Link.icon	= menu.link
+Link.mnemonic    = L
+Link.action      = LinkAction
+
+Unlink.type        = ITEM
+Unlink.text        = Убрать связь
+Unlink.icon     = menu.unlink
+Unlink.mnemonic    = N
+Unlink.action      = UnlinkAction
+
+Split.type        = ITEM
+Split.text        = Разделить
+Split.mnemonic    = K
+Split.action      = SplitAction
+
+
+# View menu ################
+View = Gantt TrackingGantt Network Resources Projects WBS RBS Report TaskUsageDetail ResourceUsageDetail - Histogram Charts TaskUsage ResourceUsage NoSubWindow - ZoomIn ZoomOut ScrollToTask
+View.type = MENU
+View.text = Вид
+View.mnemonic = V
+
+Gantt.type        = RADIO
+Gantt.text        = Диаграмма Ганта
+Gantt.mnemonic    = G
+Gantt.action      = GanttAction
+Gantt.selected	  = true
+
+TrackingGantt.type        = RADIO
+TrackingGantt.text        = Диаграмма Ганта с отслеживанием
+#TrackingGantt.mnemonic    = B
+TrackingGantt.action      = TrackingGanttAction
+TrackingGantt.selected	  = false
+
+TaskUsageDetail.type        = RADIO
+TaskUsageDetail.text        = Детализация использования задачи
+#TaskUsageDetail.mnemonic    = D
+TaskUsageDetail.action      = TaskUsageDetailAction
+TaskUsageDetail.selected	  = false
+
+ResourceUsageDetail.type        = RADIO
+ResourceUsageDetail.text        = Детализация использования ресурсов
+#ResourceUsageDetail.mnemonic    = D
+ResourceUsageDetail.action      = ResourceUsageDetailAction
+ResourceUsageDetail.selected	  = false
+
+Network.type        = RADIO
+Network.text        = Сетевой график
+Network.mnemonic    = E
+Network.action      = NetworkAction
+Network.selected	  = false
+
+WBS.type        = RADIO
+WBS.text        = WBS 
+WBS.mnemonic    = W
+WBS.action      = WBSAction
+WBS.selected	  = false
+
+RBS.type        = RADIO
+RBS.text        = RBS 
+RBS.mnemonic    = B
+RBS.action      = RBSAction
+RBS.selected	  = false
+
+Report.type        = RADIO
+Report.text        = Отчёты
+#Report.mnemonic    = R
+Report.action      = ReportAction
+Report.selected	  = false
+
+Resources.type        = RADIO
+Resources.text        = Ресурсы
+Resources.mnemonic    = R
+Resources.action      = ResourcesAction
+
+Projects.type        = RADIO
+Projects.text        = Проекты
+Projects.mnemonic    = P
+Projects.action      = ProjectsAction
+
+Histogram.type        = RADIO
+Histogram.text        = Гистограмма
+Histogram.mnemonic    = H
+Histogram.action      = HistogramAction
+Histogram.selected	  = false
+
+Charts.type        = RADIO
+Charts.text        = Графики
+Charts.mnemonic    = C
+Charts.action      = ChartsAction
+Charts.selected	  = false
+
+TaskUsage.type        = RADIO
+TaskUsage.text        = Использование задачи
+#TaskUsage.mnemonic    = T
+TaskUsage.action      = TaskUsageAction
+
+ResourceUsage.type        = RADIO
+ResourceUsage.text        = Использование ресурсов
+#ResourceUsage.mnemonic    = U
+ResourceUsage.action      = ResourceUsageAction
+
+NoSubWindow.type        = RADIO
+NoSubWindow.text        = Нет
+NoSubWindow.mnemonic    = N
+NoSubWindow.action      = NoSubWindowAction
+NoSubWindow.selected	  = true
+NoSubWindow.visible	  = false
+
+ZoomIn.type        = ITEM
+ZoomIn.text        = Увеличить
+ZoomIn.icon        = menu.zoomin
+ZoomIn.mnemonic    = I
+ZoomIn.action      = ZoomInAction
+
+ZoomOut.type        = ITEM
+ZoomOut.text        = Уменьшить
+ZoomOut.icon        = menu.zoomout
+ZoomOut.mnemonic    = O
+ZoomOut.action      = ZoomOutAction
+
+ScrollToTask.type        = ITEM
+ScrollToTask.text        = Встать на задачу
+ScrollToTask.icon        = menu.scrollToTask
+#ScrollToTask.mnemonic    = 5
+ScrollToTask.action      = ScrollToTaskAction
+
+# Insert menu ################
+Insert = InsertTask
+Insert.type = MENU
+Insert.text = Вставка
+Insert.mnemonic = I
+
+ServerInsert = InsertTask InsertProject
+ServerInsert.type = MENU
+ServerInsert.text = Вставка
+ServerInsert.mnemonic = I
+
+
+InsertTask.type        = ITEM
+InsertTask.text        = Новая задача/ресурс
+InsertTask.icon		   = menu.insertTask
+InsertTask.mnemonic    = N
+InsertTask.action      = InsertTaskAction
+InsertTask.accelerator = CTRL+K
+
+InsertResource.type        = ITEM
+InsertResource.text        = Новый ресурс
+InsertResource.mnemonic    = M
+InsertResource.action      = InsertResourceAction
+
+#not used
+InsertRecurring.type        = ITEM
+InsertRecurring.text        = Повторяющаяся задача
+InsertRecurring.mnemonic    = R
+InsertRecurring.action      = InsertRecurringAction
+
+#not used
+InsertProject.type        = ITEM
+InsertProject.text        = Проект...
+InsertProject.mnemonic    = P
+InsertProject.action      = InsertProjectAction
+
+#not used
+# Format menu ################
+Format = Font Bar Timescale Gridlines - TextStyles BarStyles - Layout
+Format.type = MENU
+Format.text = Формат
+Format.mnemonic = O
+
+Font.type        = ITEM
+Font.text        = Шрифт...
+Font.mnemonic    = F
+Font.action      = FontAction
+
+Bar.type        = ITEM
+Bar.text        = Отрезки...
+Bar.mnemonic    = B
+Bar.action      = BarAction
+
+Timescale.type        = ITEM
+Timescale.text        = Шкала времени...
+Timescale.mnemonic    = M
+Timescale.action      = TimescaleAction
+
+Gridlines.type        = ITEM
+Gridlines.text        = Линии сетки...
+Gridlines.mnemonic    = G
+Gridlines.action      = GridlinesAction
+
+TextStyles.type        = ITEM
+TextStyles.text        = Стили текста...
+TextStyles.mnemonic    = T
+TextStyles.action      = TextStylesAction
+
+BarStyles.type        = ITEM
+BarStyles.text        = Стили отрезков...
+BarStyles.mnemonic    = S
+BarStyles.action      = BarStylesAction
+
+Layout.type        = ITEM
+Layout.text        = Расположение...
+Layout.mnemonic    = L
+Layout.action      = LayoutAction
+
+# Tools menu ################
+Tools = ChangeWorkingTime - AssignResources Tracking
+Tools.type = MENU
+Tools.text = Инструменты
+Tools.mnemonic = T
+
+ServerTools = ChangeWorkingTime - AssignResources Tracking TeamFilter
+ServerTools.type = MENU
+ServerTools.text = Инструменты
+ServerTools.mnemonic = T
+
+ChangeWorkingTime.type        = ITEM
+ChangeWorkingTime.icon        = menu.changeWorkingTime
+ChangeWorkingTime.text        = Изменить время работы...
+ChangeWorkingTime.mnemonic    = H
+ChangeWorkingTime.action      = ChangeWorkingTimeAction
+
+AssignResources.type        = ITEM
+AssignResources.icon	=menu.assignResources
+AssignResources.text        = Назначить ресурсы...
+AssignResources.mnemonic    = U
+AssignResources.action      = AssignResourcesAction
+AssignResources.accelerator = Alt+F10
+
+#not used
+LevelResources.type        = ITEM
+LevelResources.text        = Выравнивание загрузки...
+LevelResources.mnemonic    = L
+LevelResources.action      = LevelResourcesAction
+
+#Tracking submenu ################
+SFTracking = UpdateTasks UpdateProject - SaveBaseline ClearBaseline
+SFTracking.type = MENU
+SFTracking.text         = <html><b>Контроль </b>&#8711;</html>
+SFTracking.Mnemonic = K
+#SFTracking.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#baselineproject
+SFTracking.demo=http://www.projity.com/docs/tutorial_video/POD_Tracking/POD_Tracking.html
+SFTracking.tooltip=Update Progress, Manage Baselines
+
+Tracking = UpdateTasks UpdateProject - SaveBaseline ClearBaseline
+Tracking.type = MENU
+Tracking.text         = Контроль 
+Tracking.Mnemonic = K
+
+TeamFilter.type = CHECK
+TeamFilter.text        = Показать только ресурсы проектной команды
+TeamFilter.mnemonic    = R
+TeamFilter.action      = TeamFilterAction
+TeamFilter.selected	  = false
+
+
+UpdateTasks.type        = ITEM
+UpdateTasks.text        = Обновить задачу
+UpdateTasks.mnemonic    = T
+UpdateTasks.action      = UpdateTasksAction
+
+UpdateProject.type        = ITEM
+UpdateProject.text        = Обновить проект
+UpdateProject.mnemonic    = P
+UpdateProject.action      = UpdateProjectAction
+
+SaveBaseline.type        = ITEM
+SaveBaseline.text        = Сохранить базовый план 
+SaveBaseline.mnemonic    = S
+SaveBaseline.action      = SaveBaselineAction
+
+ClearBaseline.type        = ITEM
+ClearBaseline.text        = Удалить базовый план
+ClearBaseline.mnemonic    = C
+ClearBaseline.action      = ClearBaselineAction
+
+#not used
+Organizer.type        = ITEM
+Organizer.text        = Органайзер...
+Organizer.mnemonic    = G
+Organizer.action      = OrganizerAction
+
+#not used
+Customize.type        = ITEM
+Customize.text        = Настройка полей...
+Customize.mnemonic    = C
+Customize.action      = CustomizeAction
+
+#not used
+Options = ScheduleOptions CalculationOptions CalendarOptions GeneralOptions EditOptions
+Options.type        = MENU
+Options.text        = Настройки...
+Options.mnemonic    = O
+
+#not used
+ScheduleOptions.type        = ITEM
+ScheduleOptions.text        = Расписание
+ScheduleOptions.mnemonic    = S
+ScheduleOptions.action      = ScheduleOptions
+
+#not used
+CalculationOptions.type        = ITEM
+CalculationOptions.text        = Калькуляция
+CalculationOptions.mnemonic    = C
+CalculationOptions.action      = CalculationOptions
+
+#not used
+CalendarOptions.type        = ITEM
+CalendarOptions.text        = Календарь
+CalendarOptions.mnemonic    = R
+CalendarOptions.action      = CalendarOptions
+
+#not used
+GeneralOptions.type        = ITEM
+GeneralOptions.text        = Общее
+GeneralOptions.mnemonic    = G
+GeneralOptions.action      = GeneralOptions
+
+#not used
+EditOptions.type        = ITEM
+EditOptions.text        = Правка
+EditOptions.mnemonic    = E
+EditOptions.action      = EditOptions
+
+
+#Project menu ################
+Project = Information Notes - ProjectInformation Documents -
+Project.type = MENU
+Project.text         = Проект
+Project.mnemonic = P
+
+#not used
+Sort.type        = ITEM
+Sort.text        = Сортировать...
+Sort.mnemonic    = S
+Sort.action      = SortAction
+
+#not used
+Filter.type        = ITEM
+Filter.text        = Фильтровать...
+Filter.mnemonic    = F
+Filter.action      = FilterAction
+
+#not used
+Group.type        = ITEM
+Group.text        = Сгруппировать...
+Group.mnemonic    = G
+Group.action      = GroupAction
+
+#not used
+#Outline submenu ################
+Outline = Indent Outdent - Expand Collapse HideAssignments ShowLevel - HideOutlineSymbols
+Outline.type = MENU
+Outline.text         = Структура
+Clear.Mnemonic = O
+
+#not used
+Indent.type        = ITEM
+Indent.text        = Увеличить отступ
+Indent.mnemonic    = I
+Indent.action      = IndentAction
+
+#not used
+Outdent.type        = ITEM
+Outdent.text        = Уменьшить отступ
+Outdent.mnemonic    = O
+Outdent.action      = OutdentAction
+
+#not used
+Expand.type        = ITEM
+Expand.text        = Развернуть
+Expand.mnemonic    = X
+Expand.action      = ExpandAction
+
+#not used
+Collapse.type        = ITEM
+Collapse.text        = Свернуть
+Collapse.mnemonic    = C
+Collapse.action      = ExpandAction
+
+#not used
+HideAssignments.type        = ITEM
+HideAssignments.text        = Спрятать назначения
+HideAssignments.mnemonic    = A
+HideAssignments.action      = HideAssignmentsAction
+
+#not used
+ShowLevel = AllChildren - Level1 Level2 Level3 Level4 Level5 Level6 Level7 Level8 Level9
+ShowLevel.type = MENU
+ShowLevel.text         = Показать
+Clear.Mnemonic = S
+
+#not used
+AllChildren.type        = ITEM
+AllChildren.text        = Всех дочерние узлы
+AllChildren.mnemonic    = A
+AllChildren.action      = AllChildrenAction
+
+#not used
+Level1.type        = ITEM
+Level1.text        = Уровень 1
+Level1.mnemonic    = 1
+Level1.action      = Level1Action
+
+#not used
+Level2.type        = ITEM
+Level2.text        = Уровень 2
+Level2.mnemonic    = 2
+Level2.action      = Level2Action
+
+#not used
+Level3.type        = ITEM
+Level3.text        = Уровень 3
+Level3.mnemonic    = 3
+Level3.action      = Level3Action
+
+#not used
+Level4.type        = ITEM
+Level4.text        = Уровень 4
+Level4.mnemonic    = 4
+Level4.action      = Level4Action
+
+#not used
+Level5.type        = ITEM
+Level5.text        = Уровень 5
+Level5.mnemonic    = 5
+Level5.action      = Level5Action
+
+#not used
+Level6.type        = ITEM
+Level6.text        = Уровень 6
+Level6.mnemonic    = 6
+Level6.action      = Level6Action
+
+#not used
+Level7.type        = ITEM
+Level7.text        = Уровень 7
+Level7.mnemonic    = 7
+Level7.action      = Level7Action
+
+#not used
+Level8.type        = ITEM
+Level8.text        = Уровень 8
+Level8.mnemonic    = 8
+Level8.action      = Level8Action
+
+#not used
+Level9.type        = ITEM
+Level9.text        = Уровень 9
+Level9.mnemonic    = 9
+Level9.action      = Level9Action
+
+#not used
+HideOutlineSymbols.type        = ITEM
+HideOutlineSymbols.text        = Спрятать символы уровней
+HideOutlineSymbols.mnemonic    = U
+HideOutlineSymbols.action      = HideOutlineSymbolsAction
+
+#not used
+Codes = DefineCode Renumber
+Codes.type = MENU
+Codes.text         = Коды уровней
+Codes.Mnemonic = C
+
+#not used
+DefineCode.type        = ITEM
+DefineCode.text        = Определить код...
+DefineCode.mnemonic    = D
+DefineCode.action      = DefineCodeAction
+
+#not used
+Renumber.type        = ITEM
+Renumber.text        = Перенумеровать...
+Renumber.mnemonic    = R
+Renumber.action      = RenumberAction
+
+Information.type        = ITEM
+Information.text        = Информация о задаче/ресурсе...
+Information.icon        = menu.Information
+Information.mnemonic    = I
+Information.action      = InformationAction
+Information.enabled = false
+
+Notes.type        = ITEM
+Notes.text        = Заметки о задаче/ресурсе...
+Notes.mnemonic    = N
+Notes.action      = NotesAction
+Notes.enabled = false
+Notes.icon=menu.notes
+
+ProjectInformation.type        = ITEM
+ProjectInformation.text        = Информация о проекте...
+ProjectInformation.mnemonic    = P
+ProjectInformation.action      = ProjectInformationAction
+
+
+Documents.type        = ITEM
+Documents.text        = Документы...
+Documents.mnemonic    = D
+Documents.hidden = true
+Documents.action      = DocumentsAction
+
+#not used
+EnterpriseResources.type        = ITEM
+EnterpriseResources.text        = Ресурсы предприятия...
+EnterpriseResources.mnemonic    = E
+EnterpriseResources.action      = EnterpriseResourcesAction
+
+
+Help = AboutProjity ProjityDocumentation TipOfTheDay
+Help.type        = MENU
+Help.text        = Помощь
+Help.mnemonic    = H
+
+AboutProjity.type        = ITEM
+AboutProjity.text        = О Projity...
+AboutProjity.mnemonic    = A
+AboutProjity.action      = AboutProjityAction
+AboutProjity.icon=infomation.icon
+
+ProjityDocumentation.type        = ITEM
+ProjityDocumentation.text        = Помощь Projity...
+ProjityDocumentation.mnemonic    = H
+ProjityDocumentation.action      = ProjityDocumentationAction
+ProjityDocumentation.icon=menu.Help
+
+TipOfTheDay.type        = ITEM
+TipOfTheDay.text        = Совет дня...
+TipOfTheDay.mnemonic    = T
+TipOfTheDay.action      = TipOfTheDayAction
+#
+# Definition of the tool bar
+#
+
+#          ToolPrint - ToolPrintPreview - \
+#        ToolCut ToolCopy ToolPaste - \
+#       ToolUndo ToolRedo - \
+
+StandardToolBar = ToolNewProject ToolOpenProject ToolSaveProject - \
+		   ToolPrint ToolPrintPreview - \
+		   ToolCut ToolCopy ToolPaste - \
+          ToolUndo ToolRedo - \
+          ToolLink ToolUnlink - \
+          ToolInformation ToolNotes ToolAssignResources ToolChangeWorkingTime - \
+          ToolZoomIn ToolZoomOut ToolScrollToTask - \
+          ToolOutdent ToolIndent
+          
+FileToolBar = ToolNewProject ToolOpenProject ToolSaveProject - \
+		   ToolImportMSProject ToolExportMSProject - \
+		   ToolPrint ToolPrintPreview 
+
+ToolNewProject.icon      = menu.new
+ToolNewProject.action    = NewProjectAction
+ToolNewProject.tooltip   = Новый проект
+
+ToolOpenProject.icon      = menu.open
+ToolOpenProject.action    = OpenProjectAction
+ToolOpenProject.tooltip   = Открыть проект
+
+ToolSaveProject.icon      = menu.save
+ToolSaveProject.action    = SaveProjectAction
+ToolSaveProject.tooltip   = Сохранить проект
+
+ToolPrint.icon      = menu.print
+ToolPrint.action    = PrintAction
+ToolPrint.tooltip   = Печать текущего документа.
+
+ToolPrintPreview.icon      = menu.printPreview
+ToolPrintPreview.action    = PrintPreviewAction
+ToolPrintPreview.tooltip   = Предварительный просмотр
+
+ToolCut.icon      = menu.cut
+ToolCut.action    = CutAction
+ToolCut.tooltip   = Вырезать
+
+ToolCopy.icon      = menu.copy
+ToolCopy.action    = CopyAction
+ToolCopy.tooltip   = Копировать
+
+ToolPaste.icon      = menu.paste
+ToolPaste.action    = PasteAction
+ToolPaste.tooltip   = Вставить
+
+ToolUndo.icon      = menu.undo
+ToolUndo.action    = UndoAction
+ToolUndo.tooltip   = Отменить правку
+
+ToolRedo.icon      = menu.redo
+ToolRedo.action    = RedoAction
+ToolRedo.tooltip   = Вернуть правку
+
+ToolLink.icon=menu.link
+ToolLink.action      = LinkAction
+ToolLink.toolip=Добавить связь
+
+ToolUnlink.icon=menu.unlink
+ToolUnlink.action      = UnlinkAction
+ToolUnlink.toolip=Убрать связь
+
+
+ToolZoomIn.icon      = menu.zoomin
+ToolZoomIn.action    = ZoomInAction
+ToolZoomIn.tooltip   = Увеличить
+
+ToolZoomOut.icon      = menu.zoomout
+ToolZoomOut.action    = ZoomOutAction
+ToolZoomOut.tooltip   = Уменьшить
+
+ToolScrollToTask.icon      = menu.scrollToTask
+ToolScrollToTask.action    = ScrollToTaskAction
+ToolScrollToTask.tooltip   = Встать на задачу
+
+ToolInformation.icon =menu.taskInformation
+ToolInformation.action =InformationAction
+ToolInformation.tooltip =Информация о задаче
+
+ToolNotes.icon =menu.notes
+ToolNotes.action =NotesAction
+ToolNotes.tooltip =Заметки
+
+ToolAssignResources.icon =menu.assignResources
+ToolAssignResources.action =AssignResourcesAction
+ToolAssignResources.tooltip=Назначить ресурсы
+#ToolAssignResources.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#assignresources2tasks
+ToolAssignResources.demo=http://www.projity.com/docs/tutorial_video/POD_AssignResources/POD_AssignResources.html
+
+ToolChangeWorkingTime.icon =menu.changeWorkingTime
+ToolChangeWorkingTime.action =ChangeWorkingTimeAction
+ToolChangeWorkingTime.tooltip=Изменить время работы
+
+ToolOutdent.icon		=menu.leftArrow
+ToolOutdent.action		=OutdentAction
+ToolOutdent.tooltip		=Уменьшить отступ
+
+ToolIndent.icon		=menu.rightArrow
+ToolIndent.action	=IndentAction
+ToolIndent.tooltip	=Увеличить отступ
+
+ToolExpand.icon		=menu.expand
+ToolExpand.action	=ExpandAction
+ToolExpand.tooltip	=Развернуть
+
+ToolCollapse.icon	=menu.collapse
+ToolCollapse.action	=CollapseAction
+ToolCollapse.tooltip	=Свернуть
+
+ToolTeamFilter.icon		=menu.showAllResourcesSmall
+ToolTeamFilter.action	=TeamFilterAction
+ToolTeamFilter.tooltip	=<font face="Dialog" size="2"><b>Переключение между показом всех ресурсов, и только тех, которые есть у команды проекта (см. Вид ресурсов, Роли Проекта)<br>Это влияет на виды: RBS, Использование ресурсов, Отчёты, Гистограммы и Графики, а также окно "Назначить ресурс"</font></b>
+ToolTeamFilter.help=http://www.projity.com/webapp/licensesAndRoles.html
+
+//These are view specific toolbars
+GanttToolBar = Tool24Indent Tool24Outdent - Tool24Link Tool24Unlink - Tool24AssignResources Tool24DelegateTasks - Tool24TaskInformation Tool24Notes - Tool24ChangeWorkingTime - Tool24InsertTask Tool24InsertProject
+TrackingGanttToolBar = Tool24Indent Tool24Outdent - Tool24Link Tool24Unlink - Tool24AssignResources Tool24DelegateTasks - Tool24TaskInformation Tool24Notes -Tool24ChangeWorkingTime -Tool24InsertTask Tool24InsertProject
+NetworkToolBar = Tool24AssignResources Tool24DelegateTasks - Tool24TaskInformation Tool24Notes - Tool24ChangeWorkingTime
+WBSToolBar = Tool24TaskInformation Tool24Notes - Tool24ChangeWorkingTime
+RBSToolBar = Tool24ResourceInformation Tool24Notes - Tool24ChangeWorkingTime
+TaskUsageDetailToolBar = Tool24Indent Tool24Outdent - Tool24Link Tool24Unlink - Tool24AssignResources Tool24DelegateTasks - Tool24TaskInformation Tool24Notes - Tool24ChangeWorkingTime - Tool24InsertTask Tool24InsertProject
+ResourceUsageDetailToolBar = Tool24Indent Tool24Outdent - Tool24ResourceInformation Tool24Notes - Tool24ChangeWorkingTime - Tool24InsertResource
+ResourceToolBar = Tool24Indent Tool24Outdent - Tool24ResourceInformation Tool24Notes - Tool24ChangeWorkingTime - Tool24InsertResource
+ReportToolBar =
+
+BigToolBar = Tool24NewProject Tool24OpenProject Tool24SaveProject Tool24SaveProjectAs Tool24CloseProject - \
+			Tool24ImportMSProject Tool24ExportMSProject - \
+		   Tool24Print Tool24PrintPreview - \
+		   Tool24Cut Tool24Copy Tool24Paste Tool24Delete - \
+          Tool24Undo Tool24Redo - \
+          Tool24ZoomIn Tool24ZoomOut Tool24ScrollToTask - \
+          Tool24ProjectInformation - \
+          Tool24TeamFilter - \
+          Tool24Help | Tool24FullScreen
+
+Tool24NewProject.icon      = menu24.new
+Tool24NewProject.action    = NewProjectAction
+Tool24NewProject.tooltip   = Новый проект
+#Tool24NewProject.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#startproject
+Tool24NewProject.demo=http://www.projity.com/docs/tutorial_video/POD_enteringProject/POD_enteringProject.html
+
+Tool24OpenProject.icon      = menu24.open
+Tool24OpenProject.action    = OpenProjectAction
+
+Tool24SaveProject.icon      = menu24.save
+Tool24SaveProject.action    = SaveProjectAction
+Tool24SaveProject.tooltip   = Сохранить проект
+
+Tool24SaveProjectAs.icon      = menu24.saveAs
+Tool24SaveProjectAs.action    = SaveProjectAsAction
+Tool24SaveProjectAs.tooltip   = Сохранить как новый проект
+
+Tool24CloseProject.icon      = menu24.closeProject
+Tool24CloseProject.action    = CloseProjectAction
+Tool24CloseProject.tooltip   = Закрыть проект
+
+Tool24Print.icon      = menu24.print
+Tool24Print.action    = PrintAction
+Tool24Print.tooltip   = Печать текущего документа.
+
+Tool24PrintPreview.icon      = menu24.printPreview
+Tool24PrintPreview.action    = PrintPreviewAction
+Tool24PrintPreview.tooltip   = Предварительны просмотр
+
+Tool24Cut.icon      = menu24.cut
+Tool24Cut.action    = CutAction
+Tool24Cut.tooltip   = Вырезать
+
+Tool24Copy.icon      = menu24.copy
+Tool24Copy.action    = CopyAction
+Tool24Copy.tooltip   = Копировать
+
+Tool24Paste.icon      = menu24.paste
+Tool24Paste.action    = PasteAction
+Tool24Paste.tooltip   = Вставить
+
+Tool24Delete.icon      = menu24.delete
+Tool24Delete.action    = DeleteAction
+Tool24Delete.tooltip   = Удалить
+
+Tool24Undo.icon      = menu24.undo
+Tool24Undo.action    = UndoAction
+Tool24Undo.tooltip   = Отменить правку
+
+Tool24Redo.icon      = menu24.redo
+Tool24Redo.action    = RedoAction
+Tool24Redo.tooltip   = Вернуть правку
+
+Tool24Link.icon=menu24.link
+Tool24Link.action      = LinkAction
+Tool24Link.tooltip=Добавить связь
+#Tool24Link.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#modifyinglinks
+Tool24Link.demo=http://www.projity.com/docs/tutorial_video/POD_LinkingTasks/POD_LinkingTasks.html
+
+
+
+Tool24Unlink.icon=menu24.unlink
+Tool24Unlink.action      = UnlinkAction
+Tool24Unlink.tooltip=Убрать связь
+#Tool24Unlink.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#modifyinglinks
+Tool24Unlink.demo=http://www.projity.com/docs/tutorial_video/POD_LinkingTasks/POD_LinkingTasks.html
+
+Tool24AssignResources.icon =menu24.assignResources
+Tool24AssignResources.action =AssignResourcesAction
+Tool24AssignResources.tooltip=Назначить ресурс
+#Tool24AssignResources.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#assignresources2tasks
+Tool24AssignResources.demo=http://www.projity.com/docs/tutorial_video/POD_AssignResources/POD_AssignResources.html
+
+Tool24DelegateTasks.icon =menu24.delegateTasks
+Tool24DelegateTasks.action =DelegateTasksAction
+Tool24DelegateTasks.tooltip=Поручить задачу
+Tool24DelegateTasks.visible=false
+
+Tool24ZoomIn.icon      = menu24.zoomin
+Tool24ZoomIn.action    = ZoomInAction
+Tool24ZoomIn.tooltip   = Увеличить
+
+Tool24ZoomOut.icon      = menu24.zoomout
+Tool24ZoomOut.action    = ZoomOutAction
+Tool24ZoomOut.tooltip   = Уменьшить
+
+Tool24ScrollToTask.icon      = menu24.scrollToTask
+Tool24ScrollToTask.action    = ScrollToTaskAction
+Tool24ScrollToTask.tooltip   = Встать на задачу
+
+Tool24ImportMSProject.icon      = menu24.import
+Tool24ImportMSProject.action      = ImportMSProjectAction
+Tool24ImportMSProject.tooltip   = Импорт из MS Project или Planner
+
+Tool24ExportMSProject.icon      = menu24.export
+Tool24ExportMSProject.action      = ExportMSProjectAction
+Tool24ExportMSProject.tooltip   = Экспорт в MS Project
+
+Tool24Help.icon      = menu24.help
+Tool24Help.action      = ProjityDocumentationAction
+Tool24Help.tooltip   = Помощь
+
+Tool24Outdent.icon		=menu24.outdent
+Tool24Outdent.action		=OutdentAction
+Tool24Outdent.tooltip		=Уменьшить отступ 
+#Tool24Outdent.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#createsummarylevels
+Tool24Outdent.demo=http://www.projity.com/docs/tutorial_video/POD_SummaryTask/POD_SummaryTask.html
+
+Tool24Indent.icon		=menu24.indent
+Tool24Indent.action	=IndentAction
+Tool24Indent.tooltip	=Увелисить отступ
+#Tool24Indent.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#createsummarylevels
+Tool24Indent.demo=http://www.projity.com/docs/tutorial_video/POD_SummaryTask/POD_SummaryTask.html
+
+Tool24TaskInformation.icon		=menu24.taskInformation
+Tool24TaskInformation.action	=InformationAction
+Tool24TaskInformation.tooltip	=Информация о задаче
+
+Tool24ResourceInformation.icon		=menu24.resourceInformation
+Tool24ResourceInformation.action	=InformationAction
+Tool24ResourceInformation.tooltip	=Информация о ресурсе
+
+Tool24ProjectInformation.icon		=menu24.projectInformation
+Tool24ProjectInformation.action	=ProjectInformationAction
+Tool24ProjectInformation.tooltip	=Информация о проекте
+
+Tool24TeamFilter.icon		=menu24.showAllResources
+Tool24TeamFilter.action	=TeamFilterAction
+Tool24TeamFilter.tooltip	=<font face="Dialog" size="2"><b>Переключение между показом всех ресурсов, или только тех, которые есть у команды проекта (см. Вид ресурсов, Роли Проекта)<br>Это влияет на виды: RBS, Использование ресурсов, Отчёты, Гистограммы и Графики, а также окно "Назначить ресурс"</font></b>
+Tool24TeamFilter.help=http://www.projity.com/webapp/licensesAndRoles.html
+
+Tool24Notes.icon =menu24.notes
+Tool24Notes.action =NotesAction
+Tool24Notes.tooltip =Заметки...
+
+Tool24ChangeWorkingTime.icon =menu24.changeWorkingTime
+Tool24ChangeWorkingTime.action =ChangeWorkingTimeAction
+Tool24ChangeWorkingTime.tooltip=Изменить время работы
+
+Tool24InsertTask.icon =menu24.insertTask
+Tool24InsertTask.action =InsertTaskAction
+Tool24InsertTask.tooltip =Вставить задачу
+#Tool24InsertTask.help=http://www.proijty.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#enteringactivities
+Tool24InsertTask.demo=http://www.projity.com/docs/tutorial_video/POD_AddingActivities/POD_AddingActivities.html
+
+
+Tool24InsertProject.icon =menu24.insertProject
+Tool24InsertProject.action =InsertProjectAction
+Tool24InsertProject.tooltip =Вставить субпроект
+
+Tool24InsertResource.icon =menu24.insertResource
+Tool24InsertResource.action =InsertResourceAction
+Tool24InsertResource.tooltip =Вставить ресурс
+
+Tool24Palette.icon =menu24.palette
+Tool24Palette.action =PaletteAction
+Tool24Palette.tooltip =Изменить панель инструментов
+
+Tool24FullScreen.icon =menu24.fullScreen
+Tool24FullScreen.action =FullScreenAction
+Tool24FullScreen.tooltip =Открыть в новом окне броузера
+
+Tool24Refresh.icon =menu24.refresh
+Tool24Refresh.action =RefreshAction
+Tool24Refresh.tooltip =Обновить
+
+TransformChooseBar = ChooseFilter ChooseSort ChooseGroup
+
+ChooseFilter.action = FilterAction
+ChooseFilter.tooltip   = Фильтровать
+#ChooseFilter.help=http://hosted/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#filters
+ChooseFilter.demo=http://www.projity.com/docs/tutorial_video/POD_FilterSort/POD_FilterSort.html
+
+ChooseSort.action = SortAction
+ChooseSort.tooltip   = Сортировать
+#ChooseSort.help=http://hosted/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#sorting
+ChooseSort.demo=http://www.projity.com/docs/tutorial_video/POD_FilterSort/POD_FilterSort.html
+
+ChooseGroup.action = GroupAction
+ChooseGroup.tooltip   = Группировать
+#ChooseGroup.help=http://hosted/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#grouping
+ChooseGroup.demo=http://www.projity.com/docs/tutorial_video/POD_FilterSort/POD_FilterSort.html
+
+ViewToolBarNoSubView = ToolGantt ToolTrackingGantt ToolNetwork ToolResources ToolProjects ToolWBS ToolRBS ToolReport ToolTaskUsageDetail ToolResourceUsageDetail - ToolNoSubWindow ToolHistogram ToolCharts ToolTaskUsage ToolResourceUsage 
+
+ViewToolBar = ToolGantt ToolTrackingGantt ToolNetwork ToolResources ToolProjects ToolWBS ToolRBS ToolReport ToolTaskUsageDetail ToolResourceUsageDetail - ToolHistogram ToolCharts ToolTaskUsage ToolResourceUsage 
+
+ToolGantt.icon =view.gantt
+ToolGantt.action =GanttAction
+ToolGantt.tooltip=Диаграмма Ганта
+ToolGantt.type=TOGGLE
+
+ToolTrackingGantt.icon =view.trackingGantt
+ToolTrackingGantt.action =TrackingGanttAction
+ToolTrackingGantt.tooltip=Диаграмма Ганта с отслеживанием
+ToolTrackingGantt.type=TOGGLE
+
+ToolTaskUsageDetail.icon =view.taskUsage
+ToolTaskUsageDetail.action =TaskUsageDetailAction
+ToolTaskUsageDetail.tooltip=Использование задачи
+ToolTaskUsageDetail.type=TOGGLE
+
+ToolResourceUsageDetail.icon =view.resourceUsage
+ToolResourceUsageDetail.action =ResourceUsageDetailAction
+ToolResourceUsageDetail.tooltip=Использование ресурса
+ToolResourceUsageDetail.type=TOGGLE
+
+ToolNetwork.icon =view.network
+ToolNetwork.action =NetworkAction
+ToolNetwork.tooltip=Сетевой график
+ToolNetwork.type=TOGGLE
+
+ToolResources.icon =view.resources
+ToolResources.action =ResourcesAction
+ToolResources.tooltip=Ресурсы
+ToolResources.type=TOGGLE
+
+ToolProjects.icon =view.projects
+ToolProjects.action =ProjectsAction
+ToolProjects.tooltip=Проекты
+ToolProjects.type=TOGGLE
+
+ToolWBS.icon =view.WBS
+ToolWBS.action =WBSAction
+ToolWBS.tooltip=WBS
+ToolWBS.type=TOGGLE
+
+ToolRBS.icon =view.RBS
+ToolRBS.action =RBSAction
+ToolRBS.tooltip=RBS
+ToolRBS.type=TOGGLE
+
+ToolReport.icon =view.report
+ToolReport.action =ReportAction
+ToolReport.tooltip=Отчёты
+ToolReport.type=TOGGLE
+
+ToolHistogram.icon =view.histogram
+ToolHistogram.action =HistogramAction
+ToolHistogram.tooltip=Гистограммы
+ToolHistogram.type=TOGGLE
+
+ToolCharts.icon =view.charts
+ToolCharts.action =ChartsAction
+ToolCharts.tooltip=Графики
+ToolCharts.type=TOGGLE
+
+ToolTaskUsage.icon =view.taskUsage
+ToolTaskUsage.action =TaskUsageAction
+ToolTaskUsage.tooltip=Использование задачи
+ToolTaskUsage.type=TOGGLE
+
+ToolResourceUsage.icon =view.resourceUsage
+ToolResourceUsage.action =ResourceUsageAction
+ToolResourceUsage.tooltip=Использование ресурса
+ToolResourceUsage.type=TOGGLE
+
+ToolNoSubWindow.icon =view.noSubWindow
+ToolNoSubWindow.action =NoSubWindowAction
+ToolNoSubWindow.tooltip=Нет окон 
+ToolNoSubWindow.type=TOGGLE
+
+ToolImportMSProject.icon      = menu.import
+ToolImportMSProject.action      = ImportMSProjectAction
+ToolImportMSProject.tip   = Импорт из MS Project или Planner
+
+ToolExportMSProject.icon      = menu.export
+ToolExportMSProject.action      = ExportMSProjectAction
+ToolExportMSProject.tip   = Экспорт в MS Project
+
+
+
+
+
+PrintPreviewToolBar = PrintPreviewFirst PrintPreviewBack PrintPreviewForward PrintPreviewUp PrintPreviewDown PrintPreviewLast - \
+		   PrintPreviewZoomIn PrintPreviewZoomReset PrintPreviewZoomOut - \
+		   PrintPreviewFormat PrintPreviewPrint
+
+PrintPreviewFirst.icon=print.first
+PrintPreviewFirst.action=PrintPreviewFirstAction
+PrintPreviewFirst.tip=Первая страница
+
+PrintPreviewBack.icon=print.back
+PrintPreviewBack.action=PrintPreviewBackAction
+PrintPreviewBack.tip=Предыдущая страница
+
+PrintPreviewForward.icon      = print.forward
+PrintPreviewForward.action    = PrintPreviewForwardAction
+PrintPreviewForward.tip   = Следующая страница
+
+PrintPreviewLast.icon      = print.last
+PrintPreviewLast.action    = PrintPreviewLastAction
+PrintPreviewLast.tip   = Последняя страница
+
+PrintPreviewDown.icon      = print.down
+PrintPreviewDown.action    = PrintPreviewDownAction
+PrintPreviewDown.tip   = Предыдущая страница
+
+PrintPreviewUp.icon      = print.up
+PrintPreviewUp.action    = PrintPreviewUpAction
+PrintPreviewUp.tip   = Следующая страница
+
+PrintPreviewZoomOut.icon      = print.zoomOut
+PrintPreviewZoomOut.action    = PrintPreviewZoomOutAction
+PrintPreviewZoomOut.tip   = Уменьшить
+
+PrintPreviewZoomReset.icon      = print.zoomReset
+PrintPreviewZoomReset.action    = PrintPreviewZoomResetAction
+PrintPreviewZoomReset.tip   = Восстановить масштаб
+
+PrintPreviewZoomIn.icon      = print.zoomIn
+PrintPreviewZoomIn.action    = PrintPreviewZoomInAction
+PrintPreviewZoomIn.tip   = Увеличить
+
+PrintPreviewFormat.icon      = print.format
+PrintPreviewFormat.action    = PrintPreviewFormatAction
+PrintPreviewFormat.tip   = Установки страницы
+
+PrintPreviewPrint.icon      = print.print
+PrintPreviewPrint.action    = PrintPreviewPrintAction
+PrintPreviewPrint.tip   = Печать
+
+manageResources.tooltip   = Пул управления ресурсами
+#manageResources.help=http://www.projity.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm
+manageResources.demo=http://www.projity.com/docs/tutorial_video/POD_ResourcePool/POD_ResourcePool.html
+
+
+

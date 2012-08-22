@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jasperreports/jasperreports.jar"/>
+	<classpathentry kind="lib" path="lib/jasperreports/bsh.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="lib/jdnc-0_7-all.jar"/>
+	<classpathentry kind="lib" path="lib/exchange/jakarta-poi.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type" />
+
+  
+  <title>Building OpenProj</title>
+
+</head>
+
+<body>
+
+<p style="margin-bottom: 0in;" align="center"><font size="5"><b>Building
+OpenProj</b></font></p>
+
+
+
+
+
+<p style="margin-bottom: 0in;"><b>Prerequisites</b><br />
+<a href="http://java.sun.com/javase/downloads/index.jsp">Apache
+Ant<br />
+Sun Java
+JDK 1.5 or later</a></p>
+
+
+<p style="margin-bottom: 0in;"><b>Source</b><br />
+OpenProj consists of several
+independent projects. You will need to get <u>all</u> of them from
+CVS:</p>
+
+
+<p style="margin-bottom: 0in;"><b>openproj_build</b>: Project used to
+package and build all of the projects</p>
+
+
+<p style="margin-bottom: 0in;"><b>openproj_core</b>: The core project
+management objects and algorithms as well as as general purpose code
+for managing hierarchies and preferences</p>
+
+
+<p style="margin-bottom: 0in;"><b>openproj_ui</b>: The Swing GUI &ndash;
+all of the views and dialogs</p>
+
+
+<p style="margin-bottom: 0in;"><b>openproj_reports</b>: Code which
+uses JasperReports to display the report view</p>
+
+
+<p style="margin-bottom: 0in;"><b>openproj_contrib</b>: Libraries and
+modifications to the libraries used by openproj.  The libraries are
+shrunk into smaller ones by ProGuard.</p>
+
+
+<p style="margin-bottom: 0in;">* Note that the openproj version of
+	mpxj is slightly modified to support importing large xml files.  At
+	the request of the leader of the mpxj project, we are not publishing
+	our source here to avoid forking mpxj. He will integrate our code in
+	the next release.  Nevertheless, if you want it, please post on the
+	developer forum and we'll get it to you.</p>
+
+
+
+<p style="margin-bottom: 0in;">We use Eclipse for our development, so
+you will find Eclipse projects for each project.</p>
+
+
+
+<p style="margin-bottom: 0in;"><b>Building and Running</b><br />
+Go to the openproj_build project, and
+just  . This builds everything.  You can also run inside Eclipse. The
+main method is com.projity.Main.main() in openproj_ui.</p>
+
+
+
+
+
+<p style="margin-bottom: 0in;"><b>Translating</b><br />
+There are two properties files which
+need to be translated to localize the application. They are:<br />
+com.projity.strings client.properties
+in openproj_core<br />
+com.projity.menu menu.properties in
+openproj_ui</p>
+
+
+<p style="margin-bottom: 0in;">There are instructions in each file. If
+you're interested in translating, please let us know so we can
+coordinate the efforts.</p>
+</body>
+
+</html>

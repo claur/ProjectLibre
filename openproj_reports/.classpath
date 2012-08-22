@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openproj_core"/>
+	<classpathentry kind="lib" path="/openproj_contrib/lib/jasperreports/bsh.jar"/>
+	<classpathentry exported="true" kind="lib" path="/openproj_contrib/lib/jasperreports/jasperreports.jar"/>
+	<classpathentry kind="lib" path="/openproj_contrib/lib/jasperreports/jdt-compiler.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openproj_contrib"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

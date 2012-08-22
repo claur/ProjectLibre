@@ -1,0 +1,474 @@
+<project name="projectlibre" default="dist" basedir=".">
+
+	<property file="build-override.properties"/>
+	<property file="build.properties"/>
+
+	<path id="compile.class.path">
+		<fileset dir="../openproj_contrib">
+			<include name="openproj-contrib.jar" />
+			<include name="openproj-script.jar" />
+			<!--include name="openproj-exchange.jar" /-->
+			<include name="openproj-reports.jar" />
+		</fileset>
+	</path>
+
+	<target name="contrib">
+	 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="../openproj_contrib/ant-lib/ant-contrib.jar"/>
+		<if>
+		 <equals arg1="${build_contrib}" arg2="true" />
+		 <then>
+			<ant antfile="../openproj_contrib/build.xml" target="dist" inheritAll="false"/>
+		</then>
+	  </if>
+	</target>
+
+	<target name="prepare">
+		<mkdir dir="${build}"/>
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${packages}"/>
+	</target>
+
+	<target name="compile" depends="prepare,contrib">
+		<javac destdir="${build}"
+			classpathref="compile.class.path"
+			debug="off"
+			nowarn="on"
+			source="1.5"
+			target="1.5">
+				<src path="${src_pl_core}" />
+				<src path="${src_core}" />
+				<src path="${src_ui}" />
+				<src path="${src_reports}" />
+				<src path="${src_pl_exchange}" />
+				<src path="${src_exchange}" />
+				<src path="${src_ext}" />
+				<include name="**/*.java" />
+				<!--exclude name="**/version.properties" / -->
+				<exclude name="test/**" />
+		</javac>
+	</target>
+	
+	<target name="build" depends="compile">
+		<copy todir="${build}">
+			<fileset dir="${src_pl_core}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${src_core}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${src_ui}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${src_reports}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${src_pl_exchange}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${src_exchange}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<copy file="src/com/projity/version/version.properties" toFile="${build}/com/projity/version/version.properties" overwrite="true">
+		  <filterset>
+			<filter token="version" value="${version}"/>
+		  </filterset>
+		</copy>
+
+	</target>
+
+
+	<target name="lib" depends="build">
+		<jar jarfile="${dist}/projectlibre.jar">
+			<zipfileset dir="${build}" >
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="." >
+				<include name="license/**" />
+			</zipfileset>
+
+			<manifest>
+				<attribute name="Main-Class" value="com.projity.main.Main"/>
+				<attribute name="Class-Path" value="lib/openproj-contrib.jar lib/openproj-script.jar lib/openproj-reports.jar"/>
+			</manifest>
+
+			<metainf dir="license">
+				<include name="**" />
+			</metainf>
+		</jar>
+	</target>
+
+
+	<target name="dist" depends="lib">
+	 	<mkdir dir="${dist}/lib"/>
+		  <copy todir="${dist}/lib">
+		    <fileset dir="../openproj_contrib/">
+		    	<include name="*.jar" />
+		  	</fileset>
+		  </copy>
+	</target>
+
+	<target name="dir" depends="dist">
+		<copy todir="${packages}/projectlibre-${version}">
+			<fileset dir="${dist}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${resources}">
+				<include name="projectlibre.sh"/>
+				<include name="projectlibre.bat"/>
+				<include name="sample/**"/>
+			</fileset>
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/projectlibre-${version}" file="${resources}/readme.html" >
+			<filterset>
+				<filter token="version" value="${version}"/>
+				<filter token="version_name" value="${version_name}"/>
+			</filterset>
+		</copy>
+	</target>
+
+	<target name="tar" depends="dir">
+		<exec executable="chmod"> <!-- to preserve permissions -->
+			<arg value="+x"/>
+			<arg value="${packages}/projectlibre-${version}/openproj.sh"/>
+		</exec>
+		<exec executable="tar"> <!-- to preserve permissions -->
+			<arg value="--numeric-owner"/>
+			<arg value="--owner=0"/>
+			<arg value="--group=0"/>
+			<arg value="-czf"/>
+			<arg value="${packages}/projectlibre-${version}.tar.gz"/>
+			<arg value="-C"/>
+			<arg value="${packages}"/>
+			<arg value="projectlibre-${version}"/>
+		</exec>
+	</target>
+
+	<target name="zip" depends="dir">
+		<zip destfile="${packages}/projectlibre-${version}.zip">
+			<zipfileset prefix="projectlibre-${version}" dir="${packages}/projectlibre-${version}">
+				<include name="**"/>
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="rpm-binary" depends="dist">
+		<mkdir dir="${rpm}/RPMS" />
+		<mkdir dir="${rpm}/SPECS" />
+		<mkdir dir="${rpm}/SOURCES" />
+		<mkdir dir="${rpm}/BUILD" />
+		<mkdir dir="${rpm}/SRPMS" />
+		<mkdir dir="${rpm}/INSTALL" />
+
+		<copy todir="${rpm}/SPECS" file="${resources}/rpm/projectlibre.spec">
+			<filterset>
+				<filter token="version" value="${version}"/>
+			    <filter token="rpm_revision" value="${rpm_revision}"/>
+			</filterset>
+		</copy>
+		<copy todir="${rpm}/INSTALL/usr/share/projectlibre/" >
+			<fileset dir="${dist}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${resources}">
+				<include name="samples/**"/>
+			</fileset>
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<mkdir dir="${rpm}/INSTALL/usr/bin/" />
+		<exec executable="cp"> <!-- to preserve permissions -->
+			<arg value="${resources}/projectlibre"/>
+			<arg value="${rpm}/INSTALL/usr/bin/projectlibre"/>
+		</exec>
+		<copy todir="${rpm}/INSTALL/usr/share/icons" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.png"/>
+			</fileset>
+		</copy>
+		<copy todir="${rpm}/INSTALL/usr/share/applications" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.desktop"/>
+			</fileset>
+		</copy>
+		<copy todir="${rpm}/INSTALL/usr/share/mime/packages" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.xml"/>
+			</fileset>
+		</copy>
+
+		<exec executable="chmod">
+			<arg value="a+x"/>
+			<arg value="${rpm}/INSTALL/usr/bin/projectlibre"/>
+		</exec>
+		<!--copy todir="${rpm}/INSTALL/usr/share/apps/kdesktop/Desktop" >
+			<fileset dir="${resources}">
+				<include name="openproj.desktop"/>
+			</fileset>
+		</copy-->
+	</target>
+	<target name="rpm-create" depends="rpm-binary">
+		 <rpm specfile="projectlibre.spec" topdir="${rpm}" command="-bb --buildroot ${basedir}/${rpm}/INSTALL"/>
+	</target>
+	<target name="rpm-create-nodeps">
+		 <rpm specfile="projectlibre.spec" topdir="${rpm}" command="-bb --buildroot ${basedir}/${rpm}/INSTALL"/>
+	</target>
+	<target name="rpm-package" depends="rpm-binary">
+		<exec executable="tar"> <!-- to preserve permissions -->
+			<arg value="--numeric-owner"/>
+			<arg value="--owner=0"/>
+			<arg value="--group=0"/>
+			<arg value="-czf"/>
+			<arg value="${packages}/projectlibre-${version}-rpm.tar.gz"/>
+			<arg value="rpm"/>
+		</exec>
+	</target>
+	<target name="rpm" depends="rpm-binary,rpm-create"/>
+
+	<target name="deb-prepare">
+		<mkdir dir="../debian" />
+
+		<copy todir="../debian" >
+			<fileset dir="${resources}/deb">
+				<include name="changelog"/>
+				<include name="copyright"/>
+				<include name="rules"/>
+			</fileset>
+			<filterset>
+				<filter token="version" value="${version}"/>
+			    <filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+		<copy tofile="../debian/control" file="${resources}/deb/control-build">
+			<filterset>
+				<filter token="version" value="${version}"/>
+			    <filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+		<exec executable="chmod">
+			<arg value="a+x"/>
+			<arg value="../debian/rules"/>
+		</exec>
+
+	</target>
+	<target name="deb-binary" depends="dist">
+		<mkdir dir="${deb}/DEBIAN" />
+
+		<copy todir="${deb}/DEBIAN" file="${resources}/deb/control" >
+			<filterset>
+				<filter token="version" value="${version}"/>
+			    <filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+		<copy todir="${deb}/DEBIAN" >
+			<fileset dir="${resources}/deb/">
+				<include name="postinst"/>
+				<include name="postrm"/>
+			</fileset>
+		</copy>
+		<copy todir="${deb}/usr/share/projectlibre/" >
+			<fileset dir="${dist}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${resources}">
+				<include name="samples/**"/>
+			</fileset>
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${deb}/usr/share/doc/projectlibre" >
+			<fileset dir="${resources}/deb">
+				<include name="copyright"/>
+			</fileset>
+			<filterset>
+				<filter token="version" value="${version}"/>
+			    <filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+		<copy todir="${deb}/usr/share/doc/projectlibre" >
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<exec executable="sh"> <!-- not enough compression with gzip ant task, lintian warning -->
+			<arg value="${resources}/deb/gzip.sh"/>
+			<arg value="${resources}/deb/changelog"/>
+			<arg value="${deb}/usr/share/doc/projectlibre/changelog.gz"/>
+		</exec>
+		<exec executable="sh"> <!-- not enough compression with gzip ant task, lintian warning -->
+			<arg value="${resources}/deb/gzip.sh"/>
+			<arg value="${resources}/deb/changelog"/>
+			<arg value="${deb}/usr/share/doc/projectlibre/changelog.Debian.gz"/>
+		</exec>
+		<mkdir dir="${deb}/usr/bin/" />
+		<exec executable="cp"> <!-- to preserve permissions -->
+			<arg value="${resources}/projectlibre"/>
+			<arg value="${deb}/usr/bin/projectlibre"/>
+		</exec>
+		<copy todir="${deb}/usr/share/icons" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.png"/>
+			</fileset>
+		</copy>
+		<copy todir="${deb}/usr/share/applications" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.desktop"/>
+			</fileset>
+		</copy>
+		<copy todir="${deb}/usr/share/mime/packages" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.xml"/>
+			</fileset>
+		</copy>
+
+		<exec executable="chmod">
+			<arg value="-R"/>
+			<arg value="a+x"/>
+			<arg value="${deb}/DEBIAN/postinst"/>
+			<arg value="${deb}/DEBIAN/postrm"/>
+			<arg value="${deb}/usr/bin/projectlibre"/>
+		</exec>
+
+		<exec executable="chmod"> <!-- remove group write permissions -->
+			<arg value="-R"/>
+			<arg value="g-w"/>
+			<arg value="${deb}"/>
+		</exec>
+
+	</target>
+	<target name="deb-create-nodeps">
+		<exec executable="sudo"> <!-- need 0/0 -->
+			<arg value="chown"/>
+			<arg value="-R"/>
+			<arg value="0:0"/>
+			<arg value="${deb}"/>
+		</exec>
+
+		<exec executable="sudo">
+			<arg value="dpkg-deb"/>
+			<arg value="--build"/>
+			<arg value="${basedir}/${deb}"/>
+			<arg value="${basedir}/${debroot}/projectlibre_${version}-${deb_revision}.deb"/>
+		</exec>
+
+		<exec executable="sudo">
+			<arg value="chown"/>
+			<arg value="-R"/>
+			<arg value="${user.name}"/>
+			<arg value="${debroot}"/>
+		</exec>
+
+	</target>
+	<target name="deb-create" depends="deb-binary">
+		<exec executable="sudo"> <!-- need 0/0 -->
+			<arg value="chown"/>
+			<arg value="-R"/>
+			<arg value="0:0"/>
+			<arg value="${deb}"/>
+		</exec>
+
+		<exec executable="sudo">
+			<arg value="dpkg-deb"/>
+			<arg value="--build"/>
+			<arg value="${basedir}/${deb}"/>
+			<arg value="${basedir}/${debroot}/projectlibre_${version}-${deb_revision}.deb"/>
+		</exec>
+
+		<exec executable="sudo">
+			<arg value="chown"/>
+			<arg value="-R"/>
+			<arg value="${user.name}"/>
+			<arg value="${debroot}"/>
+		</exec>
+
+	</target>
+	<target name="deb" depends="deb-binary,deb-create"/>
+	<!-- ant rpm-package then rpmbuild -bb - -buildroot /root/rpm/INSTALL /root/rpm/SPECS/openproj.spec can be also used -->
+
+
+	<target name="mac" depends="dist">
+		<mkdir dir="${packages}/${macapp}" />
+		<mkdir dir="${packages}/${macapp}/Contents" />
+		<mkdir dir="${packages}/${macapp}/Contents/MacOS" />
+		<mkdir dir="${packages}/${macapp}/Contents/Resources" />
+		<mkdir dir="${packages}/${macapp}/Contents/Resources/Java" />
+
+		<copy todir="${packages}/${macapp}/Contents" file="${resources}/mac/Info.plist" >
+			<filterset>
+				<filter token="version" value="${version}"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/${macapp}/Contents" file="${resources}/mac/PkgInfo" />
+		<copy todir="${packages}/${macapp}/Contents/Resources" >
+			<fileset dir="${resources}/mac">
+				<include name="projectlibre.icns"/>
+			</fileset>
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/${macapp}/Contents/Resources/Java" >
+			<fileset dir="${dist}">
+				<include name="projectlibre.jar"/>
+				<include name="lib/*.jar"/>
+			</fileset>
+		</copy>
+		 <!-- to preserve permissions -->
+		<exec executable="cp">
+			<arg value="${resources}/mac/JavaApplicationStub"/>
+			<arg value="${packages}/${macapp}/Contents/MacOS"/>
+		</exec>
+		<!--exec executable="ln">
+			<arg value="-s"/>
+			<arg value="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub"/>
+			<arg value="${packages}/${macapp}/Contents/MacOS/openproj"/>
+		</exec-->
+
+
+		<exec executable="chmod"> <!-- remove group write permissions -->
+			<arg value="-R"/>
+			<arg value="g-w"/>
+			<arg value="${packages}/${macapp}"/>
+		</exec>
+
+
+	</target>
+
+	<target name="mac-tar" depends="mac">
+		<exec executable="tar"> <!-- to preserve permissions -->
+			<arg value="--numeric-owner"/>
+			<arg value="--owner=0"/>
+			<arg value="--group=0"/>
+			<arg value="-czf"/>
+			<arg value="${packages}/${macapp}-${version}.tar.gz"/>
+			<arg value="-C"/>
+			<arg value="${packages}"/>
+			<arg value="${macapp}"/>
+		</exec>
+	</target>
+
+	<target name="package" depends="dir,tar,zip,rpm,deb,mac-tar">
+	</target>
+
+
+
+	<target name="clean">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+		<delete dir="${rpmroot}"/>
+		<delete dir="${debroot}"/>
+		<delete dir="${packages}"/>
+	</target>
+
+</project>

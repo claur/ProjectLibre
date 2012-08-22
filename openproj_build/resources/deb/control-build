@@ -1,0 +1,15 @@
+Source: projectlibre
+Section: editors
+Priority: optional
+Maintainer: Laurent Chretienneau <lchretienneau@projectlibre.org>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: projectlibre
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ant
+Depends: java6-sdk | java6-sdk | java5-sdk | sun-java6-jdk | sun-java5-jdk
+Description: A desktop replacement for Microsoft Project
+ It is capable of sharing files with Microsoft Project and has very similar
+ functionality (Gantt, PERT diagram, histogram, charts, reports, detailed
+ usage), as well as tree views which aren't in MS Project.

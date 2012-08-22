@@ -1,0 +1,126 @@
+<project name="openproj_contrib" default="dist" basedir=".">
+
+	<property file="build.properties"/>
+
+	<path id="compile.class.path">
+		<fileset dir="lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${build}"/>
+		<mkdir dir="${tmp}"/>
+	 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="ant-lib/ant-contrib.jar"/>
+		<if>
+		 <equals arg1="${shrink}" arg2="true" />
+		 <then>
+		 	<taskdef resource="proguard/ant/task.properties"
+		 	         classpath="ant-lib/proguard.jar" />
+		</then>
+	  </if>
+	</target>
+
+	<target name="build" depends="init">
+		<javac destdir="${build}"
+			classpathref="compile.class.path"
+			debug="off"
+			nowarn="on"
+			source="1.5"
+			target="1.5">
+				<src path="src" />
+				<include name="**/*" />
+		</javac>
+	</target>
+
+	<target name="build-contrib" depends="build">
+		<jar jarfile="${tmp}/openproj-contrib-tmp.jar">
+			<zipfileset dir="build">
+				<include name="**/*" />
+				<exclude name="net/sf/jasperreports/compilers/*" />
+			</zipfileset>
+			<metainf dir="../openproj_build/license">
+				<include name="**" />
+			</metainf>
+		</jar>
+	</target>
+	<target name="build-script" depends="init">
+		<jar jarfile="${tmp}/openproj-script-tmp.jar">
+			<metainf dir="../openproj_build/license">
+				<include name="**" />
+			</metainf>
+		</jar>
+	</target>
+	<!--target name="build-exchange" depends="init">
+		<jar jarfile="${tmp}/openproj-exchange-tmp.jar">
+			<zipfileset dir="build">
+				<include name="net/sf/mpxj/**" />
+			</zipfileset>
+			<metainf dir="../openproj_build/license">
+				<include name="**" />
+			</metainf>
+		</jar>
+	</target-->
+	<target name="build-reports" depends="init">
+		<jar jarfile="${tmp}/openproj-reports-tmp.jar">
+			<zipfileset dir="build">
+				<include name="net/sf/jasperreports/compilers/*" />
+			</zipfileset>
+			<metainf dir="../openproj_build/license">
+				<include name="**" />
+			</metainf>
+		</jar>
+	</target>
+
+
+	<target name="contrib" depends="build-contrib">
+		<if>
+		 <equals arg1="${shrink}" arg2="true" />
+		 <then>
+		 	<proguard configuration="openproj_contrib.conf"/>
+		</then>
+	  </if>
+	</target>
+
+	<target name="script" depends="build-script">
+		<if>
+		 <equals arg1="${shrink}" arg2="true" />
+		 <then>
+		 	<proguard configuration="openproj_script.conf"/>
+		</then>
+	  </if>
+	</target>
+
+	<!--target name="exchange" depends="build-exchange">
+		<if>
+		 <equals arg1="${shrink}" arg2="true" />
+		 <then>
+		 	<proguard configuration="openproj_exchange.conf"/>
+		</then>
+	  </if>
+	</target-->
+
+
+	<target name="reports" depends="build-reports">
+		<if>
+		 <equals arg1="${shrink}" arg2="true" />
+		 <then>
+		 	<proguard configuration="openproj_reports.conf"/>
+		</then>
+	  </if>
+	</target>
+
+
+	<target name="dist" depends="contrib,script,reports">
+	</target>
+
+
+	<target name="clean">
+		<delete dir="${build}"/>
+		<delete dir="${tmp}"/>
+		<delete>
+			<fileset dir="." includes="openproj-contrib.jar,openproj-script.jar,openproj-reports.jar,shrink.log,out.map"/>
+		</delete>
+	</target>
+
+</project>

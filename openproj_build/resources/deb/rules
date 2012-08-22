@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+
+build:
+	if [ ! -f "openproj_contrib/openproj-reports.jar" ]; then \
+	cd openproj_contrib; \
+	ant -Dbuild.compiler.warnings=false build-contrib build-script build-exchange build-reports; \
+	java -Xmx128m -jar ant-lib/proguard.jar @openproj_contrib.conf; \
+	java -Xmx128m -jar ant-lib/proguard.jar @openproj_script.conf; \
+	java -Xmx128m -jar ant-lib/proguard.jar @openproj_exchange.conf; \
+	java -Xmx128m -jar ant-lib/proguard.jar @openproj_exchange2.conf; \
+	java -Xmx128m -jar ant-lib/proguard.jar @openproj_reports.conf; \
+	fi
+	cd openproj_build; \
+	ant -Dbuild.compiler.warnings=false -Dbuild_contrib=false
+
+clean:
+	cd openproj_contrib; \
+	ant clean
+	cd openproj_build; \
+	ant clean
+	rm -rf debian/tmp
+
+binary-indep: build
+	rm -rf debian/tmp
+	cd openproj_build; \
+	ant -Dbuild.compiler.warnings=false -Dbuild_contrib=false -Ddeb=../debian/tmp deb-binary
+	chown -R root.root debian/tmp
+	dpkg --build debian/tmp ..
+	
+binary-arch: build
+
+binary: binary-indep binary-arch
+

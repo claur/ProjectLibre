@@ -1,0 +1,1703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0 (the "License"); you may not use this file except in compliance with
+the License. You may obtain a copy of the License at
+http://www.projity.com/license . The License is based on the Mozilla Public
+License Version 1.1 but Sections 14 and 15 have been added to cover use of
+software over a computer network and provide for limited attribution for the
+Original Developer. In addition, Exhibit A has been modified to be consistent
+with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License. The
+Original Code is OpenProj. The Original Developer is the Initial Developer and
+is Projity, Inc. All portions of the code written by Projity are Copyright (c)
+2006, 2007. All Rights Reserved. Contributors Projity, Inc.
+
+Alternatively, the contents of this file may be used under the terms of the
+Projity End-User License Agreeement (the Projity License), in which case the
+provisions of the Projity License are applicable instead of those above. If you
+wish to allow use of your version of this file only under the terms of the
+Projity License and not to allow others to use your version of this file under
+the CPAL, indicate your decision by deleting the provisions above and replace
+them with the notice and other provisions required by the Projity  License. If
+you do not delete the provisions above, a recipient may use your version of this
+file under either the CPAL or the Projity License.
+
+[NOTE: The text of this license may differ slightly from the text of the notices
+in Exhibits A and B of the license at http://www.projity.com/license. You should
+use the latest text at http://www.projity.com/license for your modifications.
+You may not remove this license text from the source files.]
+
+Attribution Information: Attribution Copyright Notice: Copyright ï¿½ 2006, 2007
+Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
+an open source solution from Projity. Attribution URL: http://www.projity.com
+Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
+alternatives listed on http://www.projity.com/logo
+
+Display of Attribution Information is required in Larger Works which are defined
+in the CPAL as a work which combines Covered Code or portions thereof with code
+not governed by the terms of the CPAL. However, in addition to the other notice
+obligations, all copies of the Covered Code in Executable and Source Code form
+distributed must, as a form of attribution of the original author, include on
+each user interface screen the "OpenProj" logo visible to all users.  The
+OpenProj logo should be located horizontally aligned with the menu bar and left
+justified on the top left of the screen adjacent to the File menu.  The logo
+must be at least 100 x 25 pixels.  When users click on the "OpenProj" logo it
+must direct them back to http://www.projity.com.
+-->
+<view>
+	<bar>
+		<format id="Bar.totalSlack" row="1" from="Field.earlyStart" to="Field.lateFinish">
+			<middle shapeName="FULL_HEIGHT" colorName="BLUE" paintName="DIAGONAL" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.task" row="1" layer="1" intervalGenerator="com.projity.pm.graphic.gantt.GanttBarIntervalGenerator" from="Field.start" to="Field.finish">
+			<middle shapeName="FULL_HEIGHT" colorName="BLUE" paintName="DEFAULT" strokeName="FRAMED"/>
+		</format>
+		<format id="Bar.milestone" row="1" layer="1" intervalGenerator="com.projity.pm.graphic.gantt.GanttBarIntervalGenerator"  from="Field.finish" to="Field.finish">
+			<start shapeName="DIAMOND" colorName="BLACK" paintName="SOLID"/>
+		</format>
+		<format id="Bar.summary" row="1" layer="1" intervalGenerator="com.projity.pm.graphic.gantt.GanttBarIntervalGenerator"  from="Field.start" to="Field.finish">
+			<start shapeName="PENTAGON_DOWN" colorName="BLACK" paintName="SOLID" />
+			<middle shapeName="HALF_HEIGHT_TOP" colorName="BLACK" paintName="SOLID"/>
+			<end shapeName="PENTAGON_DOWN" colorName="BLACK" paintName="SOLID"/>
+		</format>
+		<format id="Bar.critical" row="1" layer="1" intervalGenerator="com.projity.pm.graphic.gantt.GanttBarIntervalGenerator"  from="Field.start" to="Field.finish">
+			<middle shapeName="FULL_HEIGHT" colorName="RED" paintName="DEFAULT" strokeName="FRAMED"/>
+		</format>
+<!--
+		<format id="Bar.late"  row="1" layer="1" intervalGenerator="com.projity.pm.graphic.gantt.GanttBarIntervalGenerator"  from="Field.start" to="Field.finish">
+			<middle shapeName="FULL_HEIGHT" colorName="PURPLE" paintName="DEFAULT" strokeName="FRAMED"/>
+		</format>
+-->		
+		<format id="Bar.assignment" row="1" layer="1" intervalGenerator="com.projity.pm.graphic.gantt.GanttBarIntervalGenerator"  from="Field.start" to="Field.finish">
+			<middle shapeName="HALF_HEIGHT_CENTER" colorName="ORANGE" paintName="DEFAULT" strokeName="FRAMED"/>
+		</format>
+
+		<format id="Bar.deadline" row="1" layer="1" from="Field.deadline" to="Field.deadline">
+				<start shapeName="DIAMOND" colorName="YELLOW" paintName="SOLID"/>
+		</format>
+
+		<format id="Bar.baseline" row="2" from="Field.baselineStart" to="Field.baselineFinish">
+			<middle shapeName="FULL_HEIGHT" colorName="DARK_SLATE_GRAY" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline1" row="3" from="Field.baseline1Start" to="Field.baseline1Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="MAGENTA" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline2" row="4" from="Field.baseline2Start" to="Field.baseline2Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="KHAKI" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline3" row="5" from="Field.baseline3Start" to="Field.baseline3Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="TAN" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline4" row="6" from="Field.baseline4Start" to="Field.baseline4Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="NAVY" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline5" row="7" from="Field.baseline5Start" to="Field.baseline5Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="TURQUOISE" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline6" row="8" from="Field.baseline6Start" to="Field.baseline6Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="VIOLET" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline7" row="9" from="Field.baseline7Start" to="Field.baseline7Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="MAROON" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline8" row="10" from="Field.baseline8Start" to="Field.baseline8Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="SALMON" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline9" row="11" from="Field.baseline9Start" to="Field.baseline9Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="ORANGE" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Bar.baseline10" row="12" from="Field.baseline10Start" to="Field.baseline10Finish">
+			<middle shapeName="FULL_HEIGHT" colorName="CYAN" paintName="DEFAULT" strokeName="SOLID"/>
+		</format>
+		<format id="Pert.task" row="1" layer="1" main="true">
+			<middle shapeName="FULL_HEIGHT" colorName="BLUE" paintName="VERY_SPACED_DOTS" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="9px,7px,9px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="8px,10px,8px,10px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="3px,12px,3px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="27dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="5px,16px,5px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="TimesRoman PLAIN 10"/>
+				<layout  columnGrid="33dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="8px,21px,8px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout  columnGrid="39dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="12px,24px,12px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title" />
+				<box id="durationLabel" textId="Field.duration" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-2"/>
+				<box id="durationField" fieldId="Field.duration" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-2"/>
+				<box id="startLabel" textId="Field.start" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="startField" fieldId="Field.start" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1" />
+				<box id="finishLabel" textId="Field.finish" column="1" row="4" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="finishField" fieldId="Field.finish" column="3" row="4" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+		<format id="Pert.milestone" row="1" layer="1" main="true">
+			<middle shapeName="HEXAGON" colorName="BLACK" paintName="TRANSPARENT" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="9px,7px,9px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="8px,10px,8px,10px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="3px,12px,3px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="27dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="5px,16px,5px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="_Default_ PLAIN 10"/>
+				<layout  columnGrid="33dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="8px,21px,8px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout  columnGrid="39dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="12px,24px,12px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title" />
+				<box id="durationLabel" textId="Field.duration" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-2"/>
+				<box id="durationField" fieldId="Field.duration" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-2"/>
+				<box id="startLabel" textId="Field.start" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="startField" fieldId="Field.start" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+				<box id="finishLabel" textId="Field.finish" column="1" row="4" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="finishField" fieldId="Field.finish" column="3" row="4" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+		<format id="Pert.summary" row="1" layer="1" main="true">
+			<middle shapeName="PARALLELOGRAM" colorName="BLACK" paintName="TRANSPARENT" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="9px,7px,9px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="8px,10px,8px,10px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="3px,12px,3px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="27dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="5px,16px,5px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="_Default_ PLAIN 10"/>
+				<layout  columnGrid="33dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="8px,21px,8px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout  columnGrid="39dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="12px,24px,12px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title" />
+				<box id="durationLabel" textId="Field.duration" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-2"/>
+				<box id="durationField" fieldId="Field.duration" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-2"/>
+				<box id="startLabel" textId="Field.start" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="startField" fieldId="Field.start" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+				<box id="finishLabel" textId="Field.finish" column="1" row="4" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="finishField" fieldId="Field.finish" column="3" row="4" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+		<format id="Pert.critical" row="1" layer="1" main="true">
+			<middle shapeName="FULL_HEIGHT" colorName="RED" paintName="VERY_SPACED_DOTS" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="9px,7px,9px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="8px,10px,8px,10px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="21dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="3px,12px,3px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="27dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="5px,16px,5px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="_Default_ PLAIN 10"/>
+				<layout columnGrid="33dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="8px,21px,8px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout columnGrid="39dlu,3dlu,p:grow" rowGrid="p,p,p,p" border="12px,24px,12px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title" />
+				<box id="durationLabel" textId="Field.duration" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-2"/>
+				<box id="durationField" fieldId="Field.duration" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-2"/>
+				<box id="startLabel" textId="Field.start" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="startField" fieldId="Field.start" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+				<box id="finishLabel" textId="Field.finish" column="1" row="4" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="finishField" fieldId="Field.finish" column="3" row="4" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+
+		<format id="WBS.task" row="1" layer="1" main="true">
+			<middle shapeName="FULL_HEIGHT" colorName="BLACK" paintName="TRANSPARENT" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="5px,7px,5px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="1px,12px,1px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="25dlu,3dlu,p:grow" rowGrid="p,p,p" border="2px,16px,2px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="_Default_ PLAIN 10"/>
+				<layout columnGrid="31dlu,3dlu,p:grow" rowGrid="p,p,p" border="3px,21px,3px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout columnGrid="37dlu,3dlu,p:grow" rowGrid="p,p,p" border="7px,24px,7px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title" />
+				<box id="costLabel" textId="Field.cost" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="costField" fieldId="Field.cost" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+				<box id="baselineCostLabel" textId="Text.budget" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="baselineCostField" fieldId="Field.baselineCost" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+		<format id="WBS.milestone" row="1" layer="1" main="true">
+			<middle shapeName="HEXAGON" colorName="BLACK" paintName="TRANSPARENT" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="5px,7px,5px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="1px,12px,1px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="25dlu,3dlu,p:grow" rowGrid="p,p,p" border="2px,16px,2px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="_Default_ PLAIN 10"/>
+				<layout columnGrid="31dlu,3dlu,p:grow" rowGrid="p,p,p" border="3px,21px,3px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout columnGrid="37dlu,3dlu,p:grow" rowGrid="p,p,p" border="7px,24px,7px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title" />
+				<box id="costLabel" textId="Field.cost" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="costField" fieldId="Field.cost" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+				<box id="baselineCostLabel" textId="Text.budget" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="baselineCostField" fieldId="Field.baselineCost" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+		<format id="WBS.summary" row="1" layer="1" main="true">
+			<middle shapeName="PARALLELOGRAM" colorName="BLACK" paintName="TRANSPARENT" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="5px,7px,5px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="1px,12px,1px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="25dlu,3dlu,p:grow" rowGrid="p,p,p" border="2px,16px,2px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="_Default_ PLAIN 10"/>
+				<layout columnGrid="31dlu,3dlu,p:grow" rowGrid="p,p,p" border="3px,21px,3px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout columnGrid="37dlu,3dlu,p:grow" rowGrid="p,p,p" border="7px,24px,7px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title" />
+				<box id="costLabel" textId="Field.cost" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="costField" fieldId="Field.cost" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+				<box id="baselineCostLabel" textId="Text.budget" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="baselineCostField" fieldId="Field.baselineCost" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+
+		<format id="RBS.resource" row="1" layer="1" main="true">
+			<middle shapeName="FULL_HEIGHT" colorName="BLACK" paintName="TRANSPARENT" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="5px,7px,5px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="1px,12px,1px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="25dlu,3dlu,p:grow" rowGrid="p,p,p" border="2px,16px,2px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="_Default_ PLAIN 10"/>
+				<layout columnGrid="31dlu,3dlu,p:grow" rowGrid="p,p,p" border="3px,21px,3px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout columnGrid="37dlu,3dlu,p:grow" rowGrid="p,p,p" border="7px,24px,7px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title"/>
+				<box id="costLabel" textId="Field.cost" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="costField" fieldId="Field.cost" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+				<box id="baselineCostLabel" textId="Text.budget" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="baselineCostField" fieldId="Field.baselineCost" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+		<format id="RBS.summary" row="1" layer="1" main="true">
+			<middle shapeName="PARALLELOGRAM" colorName="BLACK" paintName="TRANSPARENT" strokeName="LARGE_FRAMED"/>
+			<form>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="5px,7px,5px,7px" titleFont="_Default_ BOLD 10" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout columnGrid="19dlu,3dlu,p:grow" rowGrid="p,p,p" border="1px,12px,1px,12px" titleFont="_Default_ BOLD 11" labelFont="_Default_ BOLD 9" valueFont="_Default_ PLAIN 9"/>
+				<layout defaultZoom="true" columnGrid="25dlu,3dlu,p:grow" rowGrid="p,p,p" border="2px,16px,2px,16px" titleFont="_Default_ BOLD 12" labelFont="_Default_ BOLD 10" valueFont="_Default_ PLAIN 10"/>
+				<layout columnGrid="31dlu,3dlu,p:grow" rowGrid="p,p,p" border="3px,21px,3px,21px" titleFont="_Default_ BOLD 15" labelFont="_Default_ BOLD 12" valueFont="_Default_ PLAIN 12"/>
+				<layout columnGrid="37dlu,3dlu,p:grow" rowGrid="p,p,p" border="7px,24px,7px,24px" titleFont="_Default_ BOLD 18" labelFont="_Default_ BOLD 15" valueFont="_Default_ PLAIN 15"/>
+				<box id="nameField" fieldId="Field.name" column="1" row="1" columnSpan="3" rowSpan="1" font="title" />
+				<box id="costLabel" textId="Field.cost" column="1" row="2" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="costField" fieldId="Field.cost" column="3" row="2" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+				<box id="baselineCostLabel" textId="Text.budget" column="1" row="3" columnSpan="1" rowSpan="1" font="label" minZoom="-1"/>
+				<box id="baselineCostField" fieldId="Field.baselineCost" column="3" row="3" columnSpan="1" rowSpan="1" font="value" minZoom="-1"/>
+			</form>
+		</format>
+
+
+		<format id="Link.link1">
+			<middle colorName="BLACK" paintName="SOLID" strokeName="SOLID"/>
+			<end shapeName="LINK_ARROW1" shapeScaleX="10" shapeScaleY="5" colorName="BLACK" paintName="SOLID" strokeName="SOLID"/>
+		</format>
+		<format id="Annotation.normal" fieldId="Field.resourceNames">
+			<middle colorName="BLACK" paintName="SOLID" strokeName="SOLID"/>
+		</format>
+		<format id="Annotation.milestone" fieldId="Field.finish">
+			<middle colorName="BLACK" paintName="SOLID" strokeName="SOLID"/>
+		</format>
+
+		<format id="Calendar.nonWorking">
+			<middle colorName="LIGHT_GRAY" paintName="DOT_LINE"/>
+		</format>
+
+		<format id="Grid.showRows">
+			<middle shapeName="FULL_HEIGHT" colorName="LIGHT_GRAY" paintName="SOLID" strokeName="SOLID"/>
+		</format>
+
+
+		<styles id="Styles.Bar.standard">
+			<style id="Styles.Bar.Row.task" formatId="Bar.task" formulaClass="com.projity.scripting.formulas.NonCriticalTaskFormula"/>
+			<style id="Styles.Bar.Row.critical" formatId="Bar.critical" formulaClass="com.projity.scripting.formulas.CriticalTaskFormula"/>
+<!--
+			<style id="Styles.Bar.Row.late" name="late" formatId="Bar.late" type="task" formulaText="task.getBaselineDuration(0) != 0 &amp;&amp; task.durationMillis > 1.1 *task.getBaselineDuration(0)" />
+-->		
+			<style id="Styles.Bar.Row.summary" formatId="Bar.summary" formulaClass="com.projity.scripting.formulas.SummaryTaskFormula"/>
+			<style id="Styles.Bar.Row.milestone" formatId="Bar.milestone" formulaClass="com.projity.scripting.formulas.MilestoneTaskFormula"/>
+			<style id="Styles.Bar.Row.deadline" formatId="Bar.deadline" formulaClass="com.projity.scripting.formulas.DeadlineTaskFormula"/>
+			<style id="Styles.Bar.Row.assignment" formatId="Bar.assignment" formulaClass="com.projity.scripting.formulas.AssignmentFormula"/>
+			<style id="Styles.Bar.Row.baseline" formatId="Bar.baseline" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline1" formatId="Bar.baseline1" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline2" formatId="Bar.baseline2" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline3" formatId="Bar.baseline3" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline4" formatId="Bar.baseline4" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline5" formatId="Bar.baseline5" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline6" formatId="Bar.baseline6" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline7" formatId="Bar.baseline7" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline8" formatId="Bar.baseline8" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline9" formatId="Bar.baseline9" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+			<style id="Styles.Bar.Row.baseline10" formatId="Bar.baseline10" formulaClass="com.projity.scripting.formulas.BaselineTaskFormula"/>
+				<style id="Styles.Bar.Row.totalSlack" formatId="Bar.totalSlack" formulaClass="com.projity.scripting.formulas.NormalTaskFormula" active="false"/>
+			<style id="Styles.showLinks" formatId="Link.link1" type="dependency" link="true"/>
+			<style id="Styles.Annotation.normal" formatId="Annotation.normal" formulaClass="com.projity.scripting.formulas.NormalTaskFormula" annotation="true" />
+			<style id="Styles.Annotation.milestone" formatId="Annotation.milestone" formulaClass="com.projity.scripting.formulas.MilestoneTaskFormula" annotation="true" />
+			<style id="Styles.Calendar.nonWorking" formatId="Calendar.nonWorking" calendar="true" />
+			<style id="Styles.Gantt.showRows" formatId="Grid.showRows" horizontalGrid="true" active="false" />
+
+
+		</styles>
+
+
+		<styles id="Styles.Pert.standard" zoomX="1.0;1.25;1.25;*;1.25;1.25" zoomY="1.35;1.35;1.25;*;1.25;1.25">
+			<style id="Styles.Pert.Row.task" formatId="Pert.task" type="task" formulaText="task.normal &amp;&amp; !task.critical"/>
+			<style id="Styles.Pert.Row.critical" formatId="Pert.critical" type="task" formulaText="task.normal &amp;&amp; task.critical"/>
+			<style id="Styles.Pert.Row.summary" formatId="Pert.summary" type="task" formulaText="task.summary"/>
+			<style id="Styles.Pert.Row.milestone" formatId="Pert.milestone" type="task" formulaText="task.milestone"/>
+			<style id="Styles.showLinks" formatId="Link.link1" type="dependency" link="true"/>
+		</styles>
+
+		<styles id="Styles.WBS.standard"  zoomX="1.25;1.25;*;1.25;1.25" zoomY="1.7;1.25;*;1.25;1.25">
+			<style id="Styles.WBS.Row.task" formatId="WBS.task" type="task" formulaText="task.normal"/>
+			<style id="Styles.WBS.Row.summary" formatId="WBS.summary" type="task" formulaText="task.summary"/>
+			<style id="Styles.WBS.Row.milestone" formatId="WBS.milestone" type="task" formulaText="task.milestone"/>
+			<style id="Styles.showLinks" formatId="Link.link1" type="dependency" link="true"/>
+		</styles>
+
+		<styles id="Styles.RBS.standard" zoomX="1.25;1.25;*;1.25;1.25" zoomY="1.7;1.25;*;1.25;1.25">
+			<style id="Styles.RBS.Row.resource" formatId="RBS.resource" type="resource" formulaText="true"/>
+			<!--style id="Styles.RBS.Row.summary" formatId="RBS.summary" type="resource" formulaText="resource.summary"/-->
+			<style id="Styles.showLinks" formatId="Link.link1" type="dependency" link="true"/>
+		</styles>
+
+
+	</bar>
+
+
+
+	<spreadsheet id="Spreadsheet.nameOnly" category="taskSpreadsheet;resourceSpreadsheet;projectSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+		</columns>
+	</spreadsheet>
+
+
+
+
+
+	<spreadsheet id="Spreadsheet.Task.baseline" category="taskSpreadsheet;projectSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.baselineDuration</column>
+			<column>Field.baselineStart</column>
+			<column>Field.baselineFinish</column>
+			<column>Field.baselineWork</column>
+			<column>Field.baselineCost</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.constraintDates" category="taskSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.duration</column>
+			<column>Field.constraintType</column>
+			<column>Field.constraintDate</column>
+		</columns>
+	</spreadsheet>
+
+
+	<spreadsheet id="Spreadsheet.Task.cost" category="taskSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.cost</column>
+			<column>Field.actualCost</column>
+			<column>Field.remainingCost</column>
+			<column>Field.fixedCost</column>
+			<column>Field.baselineCost</column>
+			<column>Field.fixedCostAccrual</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.earnedValue" category="taskSpreadsheet;projectSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.bcws</column>
+			<column>Field.bcwp</column>
+			<column>Field.acwp</column>
+			<column>Field.cv</column>
+			<column>Field.sv</column>
+			<column>Field.eac</column>
+			<column>Field.bac</column>
+			<column>Field.vac</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Resource.earnedValue" category="resourceSpreadsheet" cellStyleId="CellStyle.resources" actionListId="ActionList.resource">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.bcws</column>
+			<column>Field.bcwp</column>
+			<column>Field.acwp</column>
+			<column>Field.cv</column>
+			<column>Field.sv</column>
+			<column>Field.eac</column>
+			<column>Field.bac</column>
+			<column>Field.vac</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.earnedValueCostIndicators" category="taskSpreadsheet;projectSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.bcws</column>
+			<column>Field.bcwp</column>
+			<column>Field.cv</column>
+			<column>Field.cvPercent</column>
+			<column>Field.cpi</column>
+			<column>Field.bac</column>
+			<column>Field.eac</column>
+			<column>Field.vac</column>
+			<column>Field.tcpi</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.Resource.earnedValueCostIndicators" category="resourceSpreadsheet" cellStyleId="CellStyle.resources" actionListId="ActionList.resource">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.bcws</column>
+			<column>Field.bcwp</column>
+			<column>Field.cv</column>
+			<column>Field.cvPercent</column>
+			<column>Field.cpi</column>
+			<column>Field.bac</column>
+			<column>Field.eac</column>
+			<column>Field.vac</column>
+			<column>Field.tcpi</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.earnedValueScheduleIndicators" category="taskSpreadsheet;projectSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.bcws</column>
+			<column>Field.bcwp</column>
+			<column>Field.sv</column>
+			<column>Field.svPercent</column>
+			<column>Field.spi</column>
+			<column>Field.csi</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.Resource.earnedValueScheduleIndicators" category="resourceSpreadsheet" cellStyleId="CellStyle.resources" actionListId="ActionList.resource">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.bcws</column>
+			<column>Field.bcwp</column>
+			<column>Field.sv</column>
+			<column>Field.svPercent</column>
+			<column>Field.spi</column>
+			<column>Field.csi</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.entry" category="taskSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.indicators</column>
+			<column>Field.name</column>
+			<column>Field.duration</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.predecessors</column>
+			<column>Field.resourceNames</column>
+		</columns>
+	</spreadsheet>
+
+
+	<spreadsheet id="Spreadsheet.Task.schedule" category="taskSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.critical</column>
+			<column>Field.lateStart</column>
+			<column>Field.lateFinish</column>
+			<column>Field.freeSlack</column>
+			<column>Field.totalSlack</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.summary" category="taskSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.duration</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.percentComplete</column>
+			<column>Field.cost</column>
+			<column>Field.work</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.tracking" category="taskSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.actualStart</column>
+			<column>Field.actualFinish</column>
+			<column>Field.percentComplete</column>
+			<column>Field.physicalPercentComplete</column>
+			<column>Field.actualDuration</column>
+			<column>Field.remainingDuration</column>
+			<column>Field.remainingWork</column>
+			<column>Field.actualWork</column>
+			<column>Field.actualCost</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.usage" category="taskSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.indicators</column>
+			<column>Field.name</column>
+			<column>Field.work</column>
+			<column>Field.duration</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.taskType</column>
+			<column>Field.effortDriven</column>
+			<column>Field.resourceNames</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Task.variance" category="taskSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.baselineStart</column>
+			<column>Field.baselineFinish</column>
+			<column>Field.startOffset</column>
+			<column>Field.finishOffset</column>
+		</columns>
+	</spreadsheet>
+
+
+	<spreadsheet id="Spreadsheet.Resource.entryWorkResources" category="resourceSpreadsheet" cellStyleId="CellStyle.resources" actionListId="ActionList.resource">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.indicators</column>
+			<column>Field.name</column>
+			<column>Field.userRole</column>
+			<column>Field.rbsCode</column>
+			<column>Field.resourceType</column>
+			<column>Field.emailAddress</column>
+			<column>Field.materialLabel</column>
+			<column>Field.initials</column>
+			<column>Field.userAccount</column>
+			<column>Field.group</column>
+			<column>Field.maximumUnits</column>
+			<column>Field.standardRate</column>
+			<column>Field.overtimeRate</column>
+			<column>Field.costPerUse</column>
+			<column>Field.accrueAt</column>
+			<column>Field.baseCalendar</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.availability" category="availabilitySpreadsheet"  actionListId="ActionList.availability">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.availableFrom</column>
+			<column>Field.maximumUnits</column>
+		</columns>
+	</spreadsheet>
+
+
+	<spreadsheet id="Spreadsheet.Assignment.taskUsage" category="taskAssignmentSpreadsheet" cellStyleId="CellStyle.assignments">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.work</column>
+			<column>Field.duration</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.workContour</column>
+			<column>Field.delay</column>
+			<column>Field.levelingDelay</column>
+			<column>Field.costRateTable</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Assignment.resourceUsage" category="resourceAssignmentSpreadsheet" cellStyleId="CellStyle.assignments" actionListId="ActionList.resource">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.work</column>
+			<column>Field.workContour</column>
+			<column>Field.delay</column>
+			<column>Field.levelingDelay</column>
+			<column>Field.costRateTable</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.TaskAssignment.reportAssignmentResource" category="taskAssignmentSpreadsheet">
+		<columns>
+			<column>Field.assignmentResourceId</column>
+			<column>Field.assignmentResourceName</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.ResourceAssignment.reportAssignmentResource" category="resourceAssignmentSpreadsheet"  actionListId="ActionList.resource">
+		<columns>
+			<column>Field.assignmentResourceId</column>
+			<column>Field.assignmentResourceName</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.TaskAssignment.reportAssignmentTask" category="taskAssignmentSpreadsheet">
+		<columns>
+			<column>Field.assignmentTaskId</column>
+			<column>Field.assignmentTaskName</column>
+			<column>Field.work</column>
+			<column>Field.assignmentUnits</column>
+			<column>Field.delay</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.ResourceAssignment.reportAssignmentTask" category="resourceAssignmentSpreadsheet"  actionListId="ActionList.resource">
+		<columns>
+			<column>Field.assignmentTaskId</column>
+			<column>Field.assignmentTaskName</column>
+			<column>Field.work</column>
+			<column>Field.assignmentUnits</column>
+			<column>Field.delay</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+		</columns>
+	</spreadsheet>
+
+
+	<spreadsheet id="Spreadsheet.TaskAssignment.resources" category="taskAssignmentSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.assignmentResourceName</column>
+			<column>Field.assignmentResourceId</column>
+			<column>Field.assignmentUnits</column>
+			<column>Field.work</column>
+			<column>Field.actualWork</column>
+			<column>Field.remainingWork</column>
+			<column>Field.duration</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.workContour</column>
+			<column>Field.delay</column>
+			<column>Field.levelingDelay</column>
+			<column>Field.resourceAvailability</column>
+			<column>Field.costRateTable</column>
+
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.ResourceAssignment.resources" category="resourceAssignmentSpreadsheet"  actionListId="ActionList.resource">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.assignmentResourceName</column>
+			<column>Field.assignmentResourceId</column>
+			<column>Field.assignmentUnits</column>
+			<column>Field.work</column>
+			<column>Field.actualWork</column>
+			<column>Field.remainingWork</column>
+			<column>Field.duration</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.workContour</column>
+			<column>Field.delay</column>
+			<column>Field.levelingDelay</column>
+			<column>Field.resourceAvailability</column>
+			<column>Field.costRateTable</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.TaskAssignment.tasks" category="taskAssignmentSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.assignmentTaskName</column>
+			<column>Field.assignmentTaskId</column>
+			<column>Field.assignmentUnits</column>
+			<column>Field.work</column>
+			<column>Field.actualWork</column>
+			<column>Field.remainingWork</column>
+			<column>Field.duration</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.workContour</column>
+			<column>Field.delay</column>
+			<column>Field.levelingDelay</column>
+			<column>Field.resourceAvailability</column>
+			<column>Field.costRateTable</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.ResourceAssignment.tasks" category="resourceAssignmentSpreadsheet"  actionListId="ActionList.resource">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.assignmentTaskName</column>
+			<column>Field.assignmentTaskId</column>
+			<column>Field.assignmentUnits</column>
+			<column>Field.work</column>
+			<column>Field.actualWork</column>
+			<column>Field.remainingWork</column>
+			<column>Field.duration</column>
+			<column>Field.start</column>
+			<column>Field.finish</column>
+			<column>Field.workContour</column>
+			<column>Field.delay</column>
+			<column>Field.levelingDelay</column>
+			<column>Field.resourceAvailability</column>
+			<column>Field.costRateTable</column>
+		</columns>
+	</spreadsheet>
+
+
+<!--
+	<spreadsheet name="Custom Example" category="taskSpreadsheet;resourceSpreadsheet">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.customCost1</column>
+			<column>Field.customCost2</column>
+			<column>Field.customDate1</column>
+			<column>Field.customDate2</column>
+			<column>Field.customDuration1</column>
+			<column>Field.customDuration2</column>
+			<column>Field.customFinish1</column>
+			<column>Field.customFinish2</column>
+			<column>Field.customFlag1</column>
+			<column>Field.customFlag2</column>
+			<column>Field.customNumber1</column>
+			<column>Field.customNumber2</column>
+			<column>Field.customStart1</column>
+			<column>Field.customStart2</column>
+			<column>Field.customText1</column>
+			<column>Field.customText2</column>
+		</columns>
+	</spreadsheet>
+
+	-->
+
+	<spreadsheet id="Spreadsheet.AssignmentEntry.assignResources" category="assignmentEntrySpreadsheet" actionListId="ActionList.assignmentEntry">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.assignmentEntryName</column>
+			<column>Field.assignmentEntryRate</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.AssignmentEntry.replaceResources" category="assignmentEntrySpreadsheet" actionListId="ActionList.assignmentEntry">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.assignmentEntryName</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.Project.default" category="projectSpreadsheet" actionListId="ActionList.project">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.startDate</column>
+			<column>Field.finishDate</column>
+			<column>Field.manager</column>
+			<column>Field.statusDate</column>
+			<column>Field.cost</column>
+			<column>Field.work</column>
+			<column>Field.actualCost</column>
+			<column>Field.actualWork</column>
+			<column>Field.notes</column>
+			<column>Field.forward</column>
+			<column>Field.priority</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.Project.properties" category="projectSpreadsheet" actionListId="ActionList.project">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.name</column>
+			<column>Field.startDate</column>
+			<column>Field.finishDate</column>
+			<column>Field.manager</column>
+			<column>Field.statusDate</column>
+			<column>Field.notes</column>
+			<column>Field.priority</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.Portfolio.properties" category="portfolioSpreadsheet;projectSpreadsheet" >
+		<columns>
+			<column>Field.name</column>
+			<column>Field.startDate</column>
+			<column>Field.finishDate</column>
+			<column>Field.manager</column>
+			<column>Field.statusDate</column>
+			<column>Field.notes</column>
+			<column>Field.priority</column>
+		</columns>
+	</spreadsheet>
+
+
+	<!-- In this case columns are rows. Enter actual distribution fields here -->
+	<spreadsheet id="Spreadsheet.TaskUsage.default" category="distributionSpreadsheet">
+		<columns>
+			<column>Field.work</column>
+			<column>Field.cost</column>
+			<column>Field.actualCost</column>
+			<column>Field.actualWork</column>
+			<column>Field.baselineCost</column>
+			<column>Field.baselineWork</column>
+			<column>Field.bcwp</column>
+			<column>Field.bcws</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.ResourceUsage.default" category="distributionSpreadsheet" actionListId="ActionList.resource">
+		<columns>
+			<column>Field.work</column>
+			<column>Field.cost</column>
+			<column>Field.actualCost</column>
+			<column>Field.actualWork</column>
+			<column>Field.baselineCost</column>
+			<column>Field.baselineWork</column>
+			<column>Field.bcwp</column>
+			<column>Field.bcws</column>
+		</columns>
+	</spreadsheet>
+
+	<spreadsheet id="Spreadsheet.Dependency.predecessors" category="dependencySpreadsheet" actionListId="ActionList.dependency">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.predecessorName</column>
+			<column>Field.predecessorId</column>
+			<column>Field.dependencyType</column>
+			<column>Field.lag</column>
+		</columns>
+	</spreadsheet>
+	<spreadsheet id="Spreadsheet.Dependency.successors" category="dependencySpreadsheet" actionListId="ActionList.dependency">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.successorName</column>
+			<column>Field.successorId</column>
+			<column>Field.dependencyType</column>
+			<column>Field.lag</column>
+		</columns>
+	</spreadsheet>
+
+
+	<spreadsheet id="Spreadsheet.costRates" category="costRates"  actionListId="ActionList.costRates">
+		<columns>
+			<column>Field.id</column>
+			<column>Field.effectiveDate</column>
+			<column>Field.standardRate</column>
+			<column>Field.overtimeRate</column>
+			<column>Field.costPerUse</column>
+		</columns>
+	</spreadsheet>
+
+
+	<cellstyles id="CellStyles.default">
+		<style id="CellStyle.default" formulaClass="com.projity.graphic.configuration.cellstyles.DefaultCellStyle"/>
+		<style id="CellStyle.resources" formulaClass="com.projity.graphic.configuration.cellstyles.ResourceCellStyle"/>
+		<style id="CellStyle.assignments" formulaClass="com.projity.graphic.configuration.cellstyles.AssignmentCellStyle"/>
+
+		<!--style id="CellStyle.default" type="node" format="format">
+			<formulaText>
+				<![CDATA[
+					format.bold=node.summary;
+					format.italic=node.assignment;
+					format.compositeIcon=node.summary||node.validLazyParent;
+					if (node.group){
+						if (node.getLevel()==1) format.background="TAN";
+						else format.background="LINEN";
+					}
+					//if (node.server) format.foreground="BLUE";
+				]]>
+			</formulaText>
+		</style-->
+		<!--style id="CellStyle.assignments" type="node" format="format">
+			<formulaText>
+				<![CDATA[
+					format.bold=node.summary;
+					format.italic=node.assignment;
+					format.compositeIcon=node.summary||node.validLazyParent;
+					if (node.assignment) format.background="NORMAL_LIGHT_YELLOW";
+					else
+					if (node.group){
+						if (node.getLevel()==1) format.background="TAN";
+						else format.background="LINEN";
+					}
+					else format.background="NORMAL_YELLOW";
+					//if (node.server) format.foreground="BLUE";
+				]]>
+			</formulaText>
+		</style-->
+	</cellstyles>
+
+	<actionLists id="ActionLists.default">
+		<actionList id="ActionList.default" type="nodeModel">
+			<formulaText>
+				<![CDATA[
+				return "Indent,Outdent,InsertTask,Delete,Copy,Cut,Paste,Expand,Collapse";
+				]]>
+			</formulaText>
+		</actionList>
+		<actionList id="ActionList.resource" type="nodeModel">
+			<formulaText>
+				<![CDATA[
+				return (Environment.standAlone||nodeModel.local||nodeModel.master)?"Indent,Outdent,InsertTask,Delete,Copy,Cut,Paste,Expand,Collapse":"Copy";
+				]]>
+			</formulaText>
+		</actionList>
+		<actionList id="ActionList.project" type="nodeModel">
+			<formulaText>
+				<![CDATA[
+				return "Copy"
+				]]>
+			</formulaText>
+		</actionList>
+		<actionList id="ActionList.dependency" type="nodeModel">
+			<formulaText>
+				<![CDATA[
+				return "Delete,Copy,Cut"
+				]]>
+			</formulaText>
+		</actionList>
+		<actionList id="ActionList.availability" type="nodeModel">
+			<formulaText>
+				<![CDATA[
+				return (nodeModel.local||nodeModel.master)?"Delete,Copy,Cut":"Copy"
+				]]>
+			</formulaText>
+		</actionList>
+		<actionList id="ActionList.costRates" type="nodeModel">
+			<formulaText>
+				<![CDATA[
+				return (nodeModel.local||nodeModel.master)?"Delete,Copy,Cut":"Copy"
+				]]>
+			</formulaText>
+		</actionList>
+		<actionList id="ActionList.assignmentEntry" type="nodeModel">
+			<formulaText>
+				<![CDATA[
+				return "Copy"
+				]]>
+			</formulaText>
+		</actionList>
+	</actionLists>
+
+
+
+	<views>
+		<view id="View.Gantt">
+			<transform
+				filters="Filter.None,Filter.MyTasks,Filter.DateRange,Filter.CompletedTasks,Filter.CostOverbudgetTasks,Filter.CriticalTasks,Filter.InProgressTasks,Filter.IncompleteTasks,Filter.LateOrOverbudgetTasks,Filter.NormalTasks,Filter.Milestones,Filter.SlippedTasks,Filter.SummaryTasks,Filter.Flag1,Filter.Flag2,Filter.Flag3,Filter.TasksWithEstimatedDurations,Filter.UnstartedTasks,Filter.StartingWithinWeek,Filter.StartingWithinTwoWeeks"
+				sorters="Sorter.None,Sorter.Name,Sorter.DurationThenCost,Sorter.StartDate,Sorter.FinishDate,Sorter.Duration,Sorter.Cost,Sorter.CostOverbudget,Sorter.CompleteIncomplete,Sorter.Critical,Field.priority"
+				groupers="Grouper.None,Grouper.CriticalThenDuration,Grouper.CompleteIncomplete,Grouper.Critical,Grouper.Duration,Grouper.ResourceNames"
+				>
+				<filter id="Filter.Gantt" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.OfflineGantt">
+			<transform
+				filters="Filter.None,Filter.MyTasks,Filter.DateRange,Filter.CompletedTasks,Filter.CostOverbudgetTasks,Filter.CriticalTasks,Filter.InProgressTasks,Filter.IncompleteTasks,Filter.LateOrOverbudgetTasks,Filter.NormalTasks,Filter.Milestones,Filter.SlippedTasks,Filter.SummaryTasks,Filter.Flag1,Filter.Flag2,Filter.Flag3,Filter.TasksWithEstimatedDurations,Filter.UnstartedTasks"
+				sorters="Sorter.None,Sorter.Name,Sorter.DurationThenCost,Sorter.StartDate,Sorter.FinishDate,Sorter.Duration,Sorter.Cost,Sorter.CostOverbudget,Sorter.CompleteIncomplete,Sorter.Critical,Field.priority"
+				groupers="Grouper.None,Grouper.CriticalThenDuration,Grouper.CompleteIncomplete,Grouper.Critical,Grouper.Duration,Grouper.ResourceNames"
+				>
+				<filter id="Filter.OfflineGantt" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.Resource">
+			<transform
+				filters="Filter.None,Filter.ResourcesMaterial,Filter.ResourcesWork,Filter.ResourcesMe,Filter.InProgressAssignments,Filter.UnstartedAssignments,Filter.WorkComplete"
+				sorters="Sorter.None,Sorter.Name,Sorter.StandardRate,Sorter.OvertimeRate,Sorter.CostPerUse,Sorter.ResourceType,Sorter.ResourceGroup"
+				groupers="Grouper.None,Grouper.ResourceType,Grouper.ResourceGroup"
+				>
+				<filter id="Filter.Common" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.OfflineResource">
+			<transform
+				filters="Filter.None,Filter.ResourcesMaterial,Filter.ResourcesWork,Filter.ResourcesMe,Filter.InProgressAssignments,Filter.UnstartedAssignments,Filter.WorkComplete"
+				sorters="Sorter.None,Sorter.Name,Sorter.StandardRate,Sorter.OvertimeRate,Sorter.CostPerUse,Sorter.ResourceType,Sorter.ResourceGroup"
+				groupers="Grouper.None,Grouper.ResourceType,Grouper.ResourceGroup"
+				>
+				<filter id="Filter.OfflineCommon" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.EnterpriseResource">
+			<transform
+				filters="Filter.None"
+				sorters="Sorter.None,Sorter.Name,Sorter.StandardRate,Sorter.OvertimeRate,Sorter.CostPerUse,Sorter.ResourceType,Sorter.ResourceGroup"
+				groupers="Grouper.None,Grouper.ResourceType,Grouper.ResourceGroup"
+				>
+			</transform>
+		</view>
+		<view id="View.Project">
+			<transform
+				filters="Filter.None"
+				sorters="Sorter.None"
+				groupers="Grouper.None"
+				>
+				<filter id="Filter.Common" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.OfflineProject">
+			<transform
+				filters="Filter.None"
+				sorters="Sorter.None"
+				groupers="Grouper.None"
+				>
+				<filter id="Filter.OfflineCommon" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.Network">
+			<transform
+				filters="Filter.None,Filter.MyTasks,Filter.CompletedTasks,Filter.CostOverbudgetTasks,Filter.CriticalTasks,Filter.InProgressTasks,Filter.IncompleteTasks,Filter.LateOrOverbudgetTasks,Filter.NormalTasksOrMilestones,Filter.Milestones,Filter.SlippedTasks,Filter.SummaryTasks,Filter.Flag1,Filter.Flag2,Filter.Flag3,Filter.TasksWithEstimatedDurations,Filter.UnstartedTasks,Filter.StartingWithinWeek,Filter.StartingWithinTwoWeeks"
+				sorters="Sorter.None,Sorter.Name,Sorter.DurationThenCost,Sorter.StartDate,Sorter.FinishDate,Sorter.Duration,Sorter.Cost,Sorter.CostOverbudget,Sorter.CompleteIncomplete,Sorter.Critical,Field.priority"
+				groupers="Grouper.None"
+				>
+				<filter id="Filter.Graph" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.WBS">
+			<transform
+				filters="Filter.None"
+				sorters="Sorter.None"
+				groupers="Grouper.None"
+				>
+				<filter id="Filter.Graph" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.RBS">
+			<transform
+				filters="Filter.None"
+				sorters="Sorter.None"
+				groupers="Grouper.None"
+				>
+				<filter id="Filter.RBS" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.TaskUsageDetail">
+			<transform
+				filters="Filter.None,Filter.,Filter.MyTasks,CompletedTasks,Filter.CostOverbudgetTasks,Filter.CriticalTasks,Filter.InProgressTasks,Filter.IncompleteTasks,Filter.LateOrOverbudgetTasks,Filter.NormalTasks,Filter.Milestones,Filter.SlippedTasks,Filter.SummaryTasks,Filter.Flag1,Filter.Flag2,Filter.Flag3,Filter.TasksWithEstimatedDurations,Filter.UnstartedTasks,Filter.StartingWithinWeek,Filter.StartingWithinTwoWeeks"
+				sorters="Sorter.None,Sorter.Name,Sorter.DurationThenCost,Sorter.StartDate,Sorter.FinishDate,Sorter.Duration,Sorter.Cost,Sorter.CostOverbudget,Sorter.CompleteIncomplete,Sorter.Critical,Field.priority"
+				groupers="Grouper.None,Grouper.CriticalThenDuration,Grouper.CompleteIncomplete,Grouper.Critical,Grouper.Duration"
+				>
+			</transform>
+		</view>
+		<view id="View.ResourceUsageDetail">
+			<transform
+				filters="Filter.None,Filter.ResourcesMaterial,Filter.ResourcesWork,Filter.ResourcesMe,Filter.InProgressAssignments,Filter.UnstartedAssignments,Filter.WorkComplete"
+				sorters="Sorter.None,Sorter.Name,Sorter.StandardRate,Sorter.OvertimeRate,Sorter.CostPerUse,Sorter.ResourceType,Sorter.ResourceGroup,Sorter.AssignmentProjectName"
+				groupers="Grouper.None,Grouper.ResourceType,Grouper.ResourceGroup;Grouper.None,Grouper.AssignmentProjectName"
+				>
+				<filter id="Filter.ResourceUsageDetail" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.TaskUsage">
+			<transform>
+				<filter id="Filter.TaskUsage" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.ResourceUsage">
+			<transform>
+				<filter id="Filter.ResourceUsage" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.AssignmentEntry">
+			<transform>
+				<filter id="Filter.ResourceInTeamInternal" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.TaskInformation.Assignments">
+			<transform>
+				<filter id="Filter.BelongsToResourceCollection" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.TaskInformation.Predecessors">
+			<transform>
+			</transform>
+		</view>
+		<view id="View.TaskInformation.Successors">
+			<transform>
+			</transform>
+		</view>
+		<view id="View.ResourceInformation.Assignments">
+			<transform>
+				<filter id="Filter.BelongsToTaskCollection" hidden="true"/>
+			</transform>
+		</view>
+		<view id="View.ResourceInformation.CostRate">
+			<transform>
+			</transform>
+		</view>
+		<view id="View.ResourceInformation.Availability">
+			<transform>
+			</transform>
+		</view>
+		<view id="View.Report">
+			<transform
+				filters="Filter.None"
+				sorters="Sorter.None"
+				groupers="Grouper.None">
+			</transform>
+		</view>
+		<view id="View.TaskReport">
+			<transform
+				filters="Filter.None,Filter.MyTasks,Filter.DateRange,Filter.CompletedTasks,Filter.CostOverbudgetTasks,Filter.CriticalTasks,Filter.InProgressTasks,Filter.IncompleteTasks,Filter.LateOrOverbudgetTasks,Filter.NormalTasks,Filter.Milestones,Filter.SlippedTasks,Filter.SummaryTasks,Filter.Flag1,Filter.Flag2,Filter.Flag3,Filter.TasksWithEstimatedDurations,Filter.UnstartedTasks"
+				sorters="Sorter.None,Sorter.Name,Sorter.DurationThenCost,Sorter.StartDate,Sorter.FinishDate,Sorter.Duration,Sorter.Cost,Sorter.CostOverbudget,Sorter.CompleteIncomplete,Sorter.Critical"
+				groupers="Grouper.None,Grouper.CriticalThenDuration,Grouper.CompleteIncomplete,Grouper.Critical,Grouper.Duration"
+				>
+				<transformer id="Transformer.AssignmentToTask"/>
+			</transform>
+		</view>
+		<view id="View.ResourceReport">
+			<transform
+				filters="Filter.None,Filter.ResourcesMaterial,Filter.ResourcesWork,Filter.ResourcesMe,Filter.InProgressAssignments,Filter.UnstartedAssignments,Filter.WorkComplete"
+				sorters="Sorter.None,Sorter.Name,Sorter.StandardRate,Sorter.OvertimeRate,Sorter.CostPerUse,Sorter.ResourceType,Sorter.ResourceGroup"
+				groupers="Grouper.None,Grouper.ResourceType,Grouper.ResourceGroup"
+				>
+				<filter id="Filter.ResourceUsageDetail" hidden="true"/>
+				<transformer id="Transformer.AssignmentToResource"/>
+			</transform>
+		</view>
+		<view id="View.ProjectReport">
+			<transform
+				filters="Filter.None"
+				sorters="Sorter.None"
+				groupers="Grouper.None">
+			</transform>
+		</view>
+		<view id="View.Charts">
+			<transform
+				filters="Filter.None,Filter.ResourcesMaterial,Filter.ResourcesWork,Filter.ResourcesMe,Filter.InProgressAssignments,Filter.UnstartedAssignments,Filter.WorkComplete"
+				sorters="Sorter.None"
+				groupers="Grouper.None"
+				>
+				<filter id="Filter.Charts" hidden="true"/>
+			</transform>
+
+		</view>
+
+	</views>
+
+	<transform>
+		<filters id="Filters.hidden">
+			<filter id="Filter.Common" definition="com.projity.grouping.core.transform.filtering.BaseFilter"  showAssignments="false"/>
+			<filter id="Filter.Gantt" definition="com.projity.grouping.core.transform.filtering.BaseFilter" arguments="true" showAssignments="false"/>
+			<filter id="Filter.OfflineCommon" definition="com.projity.grouping.core.transform.filtering.BaseFilter" showEndEmptyLines="false" showAssignments="false"/>
+			<filter id="Filter.OfflineGantt" definition="com.projity.grouping.core.transform.filtering.BaseFilter" arguments="true" showEndEmptyLines="false" showAssignments="false"/>
+			<filter id="Filter.Graph" type="obj" showEmptyLines="false" showAssignments="false">
+				<formulaText>
+					<![CDATA[
+						return true;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.ResourceUsageDetail" definition="com.projity.grouping.core.transform.filtering.ResourceInTeamFilter"/>
+			<filter id="Filter.RBS" definition="com.projity.grouping.core.transform.filtering.ResourceInTeamFilter" showAssignments="false" showEndEmptyLines="false"/>
+			<filter id="Filter.Charts" definition="com.projity.grouping.core.transform.filtering.ResourceInTeamFilter" showAssignments="false" showEndEmptyLines="false" preserveHierarchy="true"/>
+			<filter id="Filter.TaskUsage" definition="com.projity.grouping.core.transform.filtering.SelectionFilter"  arguments="true" showEmptyLines="false"/>
+			<filter id="Filter.ResourceUsage" definition="com.projity.grouping.core.transform.filtering.SelectionFilter"  arguments="false" showEmptyLines="false"/>
+			<filter id="Filter.BelongsToTaskCollection" definition="com.projity.grouping.core.transform.filtering.BelongsToCollectionFilter" showEmptyLines="false"  preserveHierarchy="false"/>
+			<filter id="Filter.BelongsToResourceCollection" definition="com.projity.grouping.core.transform.filtering.BelongsToCollectionFilter" showEmptyLines="false"  preserveHierarchy="false"/>
+			<filter id="Filter.WhoDoesWhatReport" definition="com.projity.grouping.core.transform.filtering.AssignmentCompositionFilter" showEmptyLines="true"/>
+			<filter id="Filter.ResourceInTeamInternal" definition="com.projity.grouping.core.transform.filtering.ResourceInTeamFilter" showEndEmptyLines="false" preserveHierarchy="false"/>
+		</filters>
+		<filters id="Filters.user">
+			<filter id="Filter.None"/>
+			<filter id="Filter.CompletedTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return task.percentComplete==1;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.CostOverbudgetTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return !task.assignment && (task.getCost() > task.getBaselineCost());
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.CriticalTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return task.critical;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.InProgressTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return task.percentComplete>0 && task.percentComplete<1;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.IncompleteTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return task.percentComplete!=1;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.LateOrOverbudgetTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return !task.assignment && (task.getEnd() > task.getBaselineFinish(0) || task.getCost() > task.getBaselineCost());
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.NormalTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return task.normal;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.Milestones" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return task.milestone;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.SlippedTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return !task.assignment && task.slipped;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.LateStarting" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return !task.assignment && task.lateStarting;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.StartingWithinWeek" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return !task.assignment && task.startingWithinOneWeek;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.StartingWithinTwoWeeks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return !task.assignment && task.startingWithinTwoWeeks;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.SummaryTasks" type="task">
+				<formulaText>
+					<![CDATA[
+						return task.summary;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.Flag1" type="task">
+				<formulaText>
+					<![CDATA[
+						return task.getCustomFlag(0);
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.Flag2" type="task">
+				<formulaText>
+					<![CDATA[
+						return task.getCustomFlag(1);
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.Flag3" type="task">
+				<formulaText>
+					<![CDATA[
+						return task.getCustomFlag(2);
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.TasksWithEstimatedDurations" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return Duration.isEstimated(task.duration);
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.UnstartedTasks" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return task.percentComplete==0;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.DateRange" type="task" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return (task.start>=getParameter("TransformParameter.StartDate"))&&(task.end<=getParameter("TransformParameter.FinishDate"));
+					]]>
+				</formulaText>
+				<param id="TransformParameter.StartDate"/>
+				<param id="TransformParameter.FinishDate"/>
+			</filter>
+			<filter id="Filter.MyTasks" type="task" showEmptySummaries="false" server="true">
+				<formulaText>
+					<![CDATA[
+						return !task.assignment && task.assignedToMe;
+					]]>
+				</formulaText>
+			</filter>
+<!--
+			<filter id="Filter.MyDelegatedTasks" type="task" showEmptySummaries="false" server="true">
+				<formulaText>
+					<![CDATA[
+						return !task.assignment && task.delegatedToUser;
+					]]>
+				</formulaText>
+			</filter>
+-->
+			<filter id="Filter.ResourcesMaterial" type="resource" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return resource.material;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.ResourcesWork" type="resource" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return !resource.assignment && resource.work;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.ResourcesMe,Filter.InProgressAssignments,Filter.UnstartedAssignments,Filter.WorkComplete" type="resource" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return resource.me;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.InProgressAssignments" type="resource" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return  resource.inProgress();
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.UnstartedAssignments" type="resource" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return  resource.unstarted;
+					]]>
+				</formulaText>
+			</filter>
+			<filter id="Filter.WorkComplete" type="resource" showEmptySummaries="false">
+				<formulaText>
+					<![CDATA[
+						return  resource.complete;
+					]]>
+				</formulaText>
+			</filter>
+		</filters>
+
+		<sorters id="Sorters.user">
+			<sorter id="Sorter.None"/>
+			<sorter id="Sorter.Name" type1="hasName1" type2="hasName2">
+				<formulaText>
+					<![CDATA[
+						return hasName1.name.compareTo(hasName2.name);
+					]]>
+				</formulaText>
+			</sorter>
+			<sorter id="Field.priority" type1="hasPriority1" type2="hasPriority2">
+				<formulaText>
+					<![CDATA[
+						return hasPriority1.priority.compareTo(hasPriority2.priority);
+					]]>
+				</formulaText>
+			</sorter>
+			<sorter id="Sorter.StartDate" type1="task1" type2="task2">
+				<formulaText>
+					<![CDATA[
+						if (task1.start<task2.start) return -1;
+						else if (task1.start>task2.start) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+			</sorter>
+			<sorter id="Sorter.FinishDate" type1="task1" type2="task2">
+				<formulaText>
+					<![CDATA[
+						if (task1.end<task2.end) return -1;
+						else if (task1.end>task2.end) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+			</sorter>
+			<sorter id="Sorter.Duration" type1="task1" type2="task2">
+				<formulaText>
+					<![CDATA[
+						if (task1.duration>task2.duration) return -1;
+						else if (task1.duration<task2.duration) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+				<groupNameFormula>
+					<![CDATA[
+						return getGroupName("Field.duration",DurationFormat.format(task1.getDuration()));
+					]]>
+				</groupNameFormula>
+			</sorter>
+			<sorter id="Sorter.Cost" type1="task1" type2="task2">
+				<formulaText>
+					<![CDATA[
+						if (task1.cost<task2.cost) return -1;
+						else if (task1.cost>task2.cost) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+				<groupNameFormula>
+					<![CDATA[
+						return getFieldName("Field.cost")+"="+task1.getCost();
+					]]>
+				</groupNameFormula>
+			</sorter>
+			<sorter id="Sorter.CostOverbudget" type1="task1" type2="task2">
+				<formulaText>
+					<![CDATA[
+						boolean overbudget1=!task1.isAssignment() && (task1.getCost() > task1.getBaselineCost());
+						boolean overbudget2=!task2.isAssignment() && (task2.getCost() > task2.getBaselineCost());
+						if (overbudget1 && !overbudget2) return -1;
+						else if (overbudget2 && !overbudget1) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+			</sorter>
+			<sorter id="Sorter.CompleteIncomplete" type1="task1" type2="task2">
+				<formulaText>
+					<![CDATA[
+						boolean complete1=task1.getPercentComplete()==1;
+						boolean complete2=task2.getPercentComplete()==1;
+						if (complete2 && !complete1) return -1;
+						else if (complete1 && !complete2) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+				<groupNameFormula>
+					<![CDATA[
+						return (task1.getPercentComplete()==1)?"Complete":"Incomplete";
+					]]>
+				</groupNameFormula>
+			</sorter>
+			<sorter id="Sorter.Critical" type1="task1" type2="task2">
+				<formulaText>
+					<![CDATA[
+						boolean critical1=task1.isCritical();
+						boolean critical2=task2.isCritical();
+						if (critical1 && !critical2) return -1;
+						else if (critical2 && !critical1) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+				<groupNameFormula>
+					<![CDATA[
+						return (task1.isCritical())?"Critical":"Not Critical";
+					]]>
+				</groupNameFormula>
+			</sorter>
+
+
+			<sorter id="Sorter.CostPerUse" type1="resource1" type2="resource2" showAssignments="false">
+				<formulaText>
+					<![CDATA[
+						if (resource1.costPerUse<resource2.costPerUse) return -1;
+						else if (resource1.costPerUse>resource2.costPerUse) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+			</sorter>
+			<sorter id="Sorter.StandardRate" type1="resource1" type2="resource2" showAssignments="false">
+				<formulaText>
+					<![CDATA[
+						if (resource1.standardRate<resource2.standardRate) return -1;
+						else if (resource1.standardRate>resource2.standardRate) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+			</sorter>
+			<sorter id="Sorter.OvertimeRate" type1="resource1" type2="resource2" showAssignments="false">
+				<formulaText>
+					<![CDATA[
+						if (resource1.overtimeRate<resource2.overtimeRate) return -1;
+						else if (resource1.overtimeRate>resource2.overtimeRate) return 1;
+						else return 0;
+					]]>
+				</formulaText>
+			</sorter>
+
+			<sorter id="Sorter.ResourceType" type1="resource1" type2="resource2" showAssignments="false">
+				<formulaText>
+					<![CDATA[
+						return resource1.getResourceType().compareTo(resource2.getResourceType());
+					]]>
+				</formulaText>
+				<groupNameFormula>
+					<![CDATA[
+						return getStringGroupName("ResourceType: ",toString("Field.resourceType",resource1.getResourceType()));
+					]]>
+				</groupNameFormula>
+			</sorter>
+
+			<sorter id="Sorter.ResourceNames" type1="task1" type2="task2" showAssignments="false" nameId="Field.resourceNames">
+				<formulaText>
+					<![CDATA[
+						return task1.getResourceNames().compareTo(task2.getResourceNames());
+					]]>
+				</formulaText>
+				<groupNameFormula>
+					<![CDATA[
+						return task1.resourceNames;
+					]]>
+				</groupNameFormula>
+			</sorter>
+
+			<sorter id="Sorter.ResourceGroup" type1="resource1" type2="resource2" showAssignments="false">
+				<formulaText>
+					<![CDATA[
+						return resource1.getGroup().compareTo(resource2.getGroup());
+					]]>
+				</formulaText>
+				<groupNameFormula>
+					<![CDATA[
+						return getStringGroupName("Group: ",resource1.getGroup());
+					]]>
+				</groupNameFormula>
+			</sorter>
+
+
+
+			<sorter id="Sorter.DurationThenCost">
+				<sorter id="Sorter.Duration" type1="task1" type2="task2">
+					<formulaText>
+						<![CDATA[
+							if (task1.duration<task2.duration) return -1;
+							else if (task1.duration>task2.duration) return 1;
+							else return 0;
+						]]>
+					</formulaText>
+					<groupNameFormula>
+						<![CDATA[
+							return getFieldName("Field.duration")+"="+task1.getDuration();
+						]]>
+					</groupNameFormula>
+				</sorter>
+				<sorter id="Sorter.Cost" type1="task1" type2="task2">
+					<formulaText>
+						<![CDATA[
+							if (task1.cost<task2.cost) return -1;
+							else if (task1.cost>task2.cost) return 1;
+							else return 0;
+						]]>
+					</formulaText>
+				</sorter>
+			</sorter>
+
+			<sorter id="Sorter.AssignmentProjectName" >
+				<sorter id="Sorter.ResourceName" type1="assignment1" type2="assignment2">
+					<formulaText>
+						<![CDATA[
+							return assignment1.getResourceName().compareTo(assignment2.getResourceName());
+						]]>
+					</formulaText>
+					<groupNameFormula>
+						<![CDATA[
+						       return  "Group: " + assignment1.getResourceName();
+						]]>
+					</groupNameFormula>
+				</sorter>
+				<sorter id="Sorter.ProjectName" type1="assignment1" type2="assignment2">
+					<formulaText>
+						<![CDATA[
+						   if (!assignment1.isAssignment() || !assignment2.isAssignment())
+						      return 0;
+							return assignment1.getProjectName().compareTo(assignment2.getProjectName());
+						]]>
+					</formulaText>
+					<groupNameFormula>
+						<![CDATA[
+						       return assignment1.isAssignment() ? "Group: " + assignment1.getProjectName() : "";
+						]]>
+					</groupNameFormula>
+				</sorter>
+			</sorter>
+<!--
+			<sorter id="Sorter.Delegated" type1="task1" type2="task2">
+				<formulaText>
+					<![CDATA[
+					    return task1.delegatedToName.compareTo(task2.delegatedToName);
+					]]>
+				</formulaText>
+				<groupNameFormula>
+					<![CDATA[
+						return getStringGroupName("Delegated To",task1.delegatedToName);
+					]]>
+				</groupNameFormula>
+			</sorter>
+-->
+		</sorters>
+
+		<groupers id="Groupers.user">
+			<grouper id="Grouper.None"/>
+			<grouper id="Grouper.CompleteIncomplete" showSummary="false" showAssignments="false">
+				<group sorterId="Sorter.CompleteIncomplete"/>
+			</grouper>
+			<grouper id="Grouper.Critical" showSummary="false" showAssignments="false">
+				<group sorterId="Sorter.Critical"/>
+			</grouper>
+			<grouper id="Grouper.Duration" showSummary="false" showAssignments="false">
+				<group sorterId="Sorter.Duration"/>
+			</grouper>
+			<grouper id="Grouper.CriticalThenDuration" showSummary="false" showAssignments="false">
+				<group sorterId="Sorter.Critical"/>
+				<group sorterId="Sorter.Duration"/>
+			</grouper>
+<!--
+			<grouper id="Grouper.Delegated" showSummary="false" showAssignments="false">
+				<group sorterId="Sorter.Delegated"/>
+			</grouper>
+-->
+
+			<grouper id="Grouper.ResourceType" showSummary="true" showAssignments="false">
+				<group sorterId="Sorter.ResourceType"/>
+			</grouper>
+			<grouper id="Grouper.ResourceGroup" showSummary="true" showAssignments="false">
+				<group sorterId="Sorter.ResourceGroup"/>
+			</grouper>
+			<grouper id="Grouper.AssignmentProjectName" showSummary="true">
+				<group sorterId="Sorter.AssignmentProjectName"/>
+			</grouper>
+			<grouper id="Grouper.ResourceNames" showSummary="false" showAssignments="false" nameId="Field.resourceNames">
+				<group sorterId="Sorter.ResourceNames"/>
+			</grouper>
+
+		</groupers>
+
+
+		<transformers id="Transformers">
+			<transformer id="Transformer.AssignmentToResource" type="node">
+				<formulaText>
+					<![CDATA[
+        				Object impl=((Node)node).getImpl();
+        				return (impl instanceof Assignment)?((Assignment)impl).getResource():node;
+					]]>
+				</formulaText>
+			</transformer>
+			<transformer id="Transformer.AssignmentToTask" type="node">
+				<formulaText>
+					<![CDATA[
+        				Object impl=((Node)node).getImpl();
+        				return (impl instanceof Assignment)?((Assignment)impl).getTask():node;
+					]]>
+				</formulaText>
+			</transformer>
+		</transformers>
+
+
+
+	</transform>
+
+	<reports>
+			<report name="Task Information" collectionType="3">
+				<columns idSpreadSheet="Spreadsheet.Task.entry" categorySpreadSheet="taskSpreadsheet"/>
+			</report>
+			<report name="Resource Information" collectionType="5">
+				<columns idSpreadSheet="Spreadsheet.Resource.entryWorkResources" categorySpreadSheet="resourceSpreadsheet"/>
+			</report>
+			<report name="Who Does What" collectionType="15">
+				<columns idSpreadSheet="Spreadsheet.ResourceAssignment.reportAssignmentResource" categorySpreadSheet="resourceAssignmentSpreadsheet" groupbyField="Field.assignmentResourceId"/>
+				<columns idSpreadSheet="Spreadsheet.ResourceAssignment.reportAssignmentTask" categorySpreadSheet="resourceAssignmentSpreadsheet"/>
+			</report>
+			<report name="Project Details" file="projectDetails.jrxml"/>
+	</reports>
+
+</view>

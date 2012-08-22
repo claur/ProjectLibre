@@ -1,0 +1,47 @@
+<project default="dist" basedir=".">
+	<property file="build.properties"/>
+
+	<path id="compile.class.path">
+		<fileset dir="../openproj_contrib">
+			<include name="openproj-contrib.jar" />
+			<include name="openproj-script.jar" />
+		</fileset>
+	</path>
+
+	<target name="prepare">
+		<mkdir dir="${build}"/>
+		<mkdir dir="${dist}"/>
+	</target>
+	
+	<target name="build" depends="prepare">
+		<javac destdir="${build}"
+			classpathref="compile.class.path"
+			debug="off"
+			nowarn="on"
+			source="1.5"
+			target="1.5">
+				<src path="${src}" />
+				<include name="**/*" />
+				<exclude name="**/version.properties" />
+				<exclude name="test/**" />
+		</javac>
+	</target>
+	
+	
+	<target name="dist" depends="build">
+		<jar jarfile="${dist}/openproj-core.jar">
+			<zipfileset dir="${build}" >
+				<include name="**/*" />
+			</zipfileset>
+			<metainf dir="../openproj_build/license">
+				<include name="**" />
+			</metainf>
+		</jar>   
+	</target>	
+
+	<target name="clean">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+
+</project>

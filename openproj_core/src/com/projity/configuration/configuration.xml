@@ -1,0 +1,837 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the Common Public Attribution License 
+Version 1.0 (the "License"); you may not use this file except in compliance with 
+the License. You may obtain a copy of the License at 
+http://www.projity.com/license . The License is based on the Mozilla Public 
+License Version 1.1 but Sections 14 and 15 have been added to cover use of 
+software over a computer network and provide for limited attribution for the 
+Original Developer. In addition, Exhibit A has been modified to be consistent 
+with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis, 
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the 
+specific language governing rights and limitations under the License. The 
+Original Code is OpenProj. The Original Developer is the Initial Developer and 
+is Projity, Inc. All portions of the code written by Projity are Copyright (c) 
+2006, 2007. All Rights Reserved. Contributors Projity, Inc.
+
+Alternatively, the contents of this file may be used under the terms of the 
+Projity End-User License Agreeement (the Projity License), in which case the 
+provisions of the Projity License are applicable instead of those above. If you 
+wish to allow use of your version of this file only under the terms of the 
+Projity License and not to allow others to use your version of this file under 
+the CPAL, indicate your decision by deleting the provisions above and replace 
+them with the notice and other provisions required by the Projity  License. If 
+you do not delete the provisions above, a recipient may use your version of this 
+file under either the CPAL or the Projity License.
+
+[NOTE: The text of this license may differ slightly from the text of the notices 
+in Exhibits A and B of the license at http://www.projity.com/license. You should 
+use the latest text at http://www.projity.com/license for your modifications.
+You may not remove this license text from the source files.]
+
+Attribution Information: Attribution Copyright Notice: Copyright ï¿½ 2006, 2007 
+Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
+an open source solution from Projity. Attribution URL: http://www.projity.com 
+Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
+alternatives listed on http://www.projity.com/logo
+
+Display of Attribution Information is required in Larger Works which are defined 
+in the CPAL as a work which combines Covered Code or portions thereof with code 
+not governed by the terms of the CPAL. However, in addition to the other notice 
+obligations, all copies of the Covered Code in Executable and Source Code form 
+distributed must, as a form of attribution of the original author, include on 
+each user interface screen the "OpenProj" logo visible to all users.  The 
+OpenProj logo should be located horizontally aligned with the menu bar and left 
+justified on the top left of the screen adjacent to the File menu.  The logo 
+must be at least 100 x 25 pixels.  When users click on the "OpenProj" logo it 
+must direct them back to http://www.projity.com.  
+-->
+<configuration>
+	<constants>
+		<int>
+			<name>
+				com.projity.configuration.Settings.CALENDAR_INTERVALS
+			</name>
+			<value>5</value>
+		</int>
+		<int>
+			<name>
+				com.projity.configuration.Settings.NUM_COST_RATES
+			</name>
+			<value>5</value>
+		</int>
+		<int>
+			<name>
+				com.projity.configuration.Settings.NUM_ARRAY_BASELINES
+			</name>
+			<value>11</value>
+		</int>
+		<int>
+			<name>
+				com.projity.grouping.core.hierarchy.MutableNodeHierarchy.DEFAULT_NB_END_VOID_NODES
+			</name>
+			<value>50</value>
+		</int>
+		<String>
+			<name>
+				com.projity.configuration.Settings.COST_RATE_NAMES
+			</name>
+			<value>A;B;C;D;E</value>
+		</String>
+		<String>
+			<name>com.projity.util.SpecialDateFormat.DATE_FORMAT</name>
+			<value>EEE MM/dd/yy H:mm</value>
+		</String>
+	</constants>
+
+
+
+	<fieldDictionary>
+		<class name="com.projity.graphic.configuration.HasIndicators">
+			<field property="indicators" id="Field.indicators" graphical="true"
+				readOnly="true" sum="This" />
+		</class>
+
+		<class name="com.projity.pm.time.MutableHasStartAndEnd">
+			<field property="start" id="Field.start" date="true" startValue="true"
+				groupSum="Minimum" />
+			<field property="end" id="Field.finish" date="true" endValue="true"
+				groupSum="Maximum" />
+		</class>
+		<class name="com.projity.pm.scheduling.Schedule">
+			<field property="actualStart" id="Field.actualStart"
+				date="true" startValue="true"/>
+			<field property="actualFinish" id="Field.actualFinish"
+				date="true" endValue="true"/>
+			<field property="actualDuration" id="Field.actualDuration"
+				duration="true" />
+			<field property="duration" id="Field.duration"
+				duration="true" sum="This" />
+			<field property="stop" id="Field.stop" date="true" endValue="true" />
+			<field property="resume" id="Field.resume" date="true" startValue="true"/>
+			<field property="completedThrough"
+				id="Field.completedThrough" date="true" endValue="true"/>
+			<field property="elapsedDuration" id="Field.elapsedDuration"
+				duration="true" readOnly="true" />
+		</class>
+		<class name="com.projity.pm.scheduling.TimeSheetSchedule">
+			<field property="remainingDuration"
+				id="Field.remainingDuration" duration="true" />
+			<field property="complete" id="Field.complete" />
+			<field property="percentComplete" id="Field.percentComplete"
+				percent="true" sum="This">
+				<range minimum="0" maximum="1" step="0.05" />
+			</field>
+		</class>
+
+		<class name="com.projity.pm.criticalpath.ScheduleWindow">
+			<field property="constraintType"
+				id="Field.constraintType">
+				<select name="constraintType">
+					<option key="ConstraintType.ASAP" value="0" />
+					<option key="ConstraintType.ALAP" value="1" />
+					<option key="ConstraintType.MSO" value="2" />
+					<option key="ConstraintType.MFO" value="3" />
+					<option key="ConstraintType.SNET" value="4" />
+					<option key="ConstraintType.SNLT" value="5" />
+					<option key="ConstraintType.FNET" value="6" />
+					<option key="ConstraintType.FNLT" value="7" />
+				</select>
+			</field>
+			<field property="constraintDate" id="Field.constraintDate"
+				date="true" />
+			<field property="lateFinish" id="Field.lateFinish"
+				readOnly="true" date="true" />
+			<field property="earlyFinish" id="Field.earlyFinish"
+				readOnly="true" date="true" />
+			<field property="lateStart" id="Field.lateStart"
+				readOnly="true" date="true" />
+			<field property="earlyStart" id="Field.earlyStart"
+				readOnly="true" date="true" />
+			<field property="totalSlack" id="Field.totalSlack"
+				readOnly="true" duration="true" />
+			<field property="freeSlack" id="Field.freeSlack"
+				readOnly="true" duration="true" />
+			<field property="startSlack" id="Field.startSlack"
+				readOnly="true" duration="true" />
+			<field property="finishSlack" id="Field.finishSlack"
+				readOnly="true" duration="true" />
+			<field property="deadline" id="Field.deadline" date="true" dateOnly="true" endValue="true" />
+		</class>
+		<class name="com.projity.pm.assignment.TimeDistributedFields">
+			<field property="cost" id="Field.cost" readOnly="true"
+				vector="true" money="true" sum="Sum">
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+				
+			<field property="work" id="Field.work" vector="true"
+				duration="true" work="true" sum="Sum" />
+			<field property="actualCost" id="Field.actualCost"
+				readOnly="true" vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="actualWork" id="Field.actualWork"
+				vector="true" duration="true" work="true" sum="Sum" />
+			<field property="remainingWork" id="Field.remainingWork"
+				vector="true" duration="true" work="true" sum="Sum" />
+			<field property="fixedCost" id="Field.fixedCost"
+				money="true" vector="true" scalar="true" sum="Sum" />
+			<field property="actualFixedCost" id="Field.actualFixedCost"
+				money="true" readOnly="true" vector="true" scalar="true" sum="Sum" />
+			<field property="remainingCost" id="Field.remainingCost"
+				readOnly="true" vector="true" money="true" sum="Sum" />
+
+			<!-- baseline fields are read only.  This is good PM practice.  MSP allows you to modify them, which is dangerous -->
+			<field property="baselineCost" id="Field.baseline#Cost" help="Baselines"
+				indexes="11" zeroBasedIndex="true"
+				boundsField="com.projity.configuration.Settings.NUM_ARRAY_BASELINES"
+				vector="true" money="true" sum="Sum" readOnly="true" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="baselineWork" id="Field.baseline#Work" help="Baselines"
+				indexes="11" zeroBasedIndex="true"
+				boundsField="com.projity.configuration.Settings.NUM_ARRAY_BASELINES"
+				vector="true" duration="true" work="true" sum="Sum" readOnly="true" />
+		</class>
+		<class
+			name="com.projity.grouping.core.hierarchy.BelongsToHierarchy">
+			<!-- since there is currently no way to show other hierarchies, I have limited the number of indexed fields to 1 instead of 11 -->
+			<field property="parentId" id="Field.parentId#" indexes="1"
+				zeroBasedIndex="true"
+				boundsField="com.projity.configuration.Settings.NUM_HIERARCHIES"
+				readOnly="true" />
+		</class>
+		<class name="com.projity.pm.costing.BasicEarnedValueFields">
+			<field property="acwp" id="Field.acwp" readOnly="true" help="Earned_Value"
+				vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+				
+			<field property="bac" id="Field.bac" readOnly="true" help="Earned_Value"
+				vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="bcwp" id="Field.bcwp" readOnly="true" help="Earned_Value"
+				vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="bcws" id="Field.bcws" readOnly="true" help="Earned_Value"
+				vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="finishOffset" id="Field.finishOffset"
+				readOnly="true" vector="false" duration="true" sum="This" />
+			<field property="startOffset" id="Field.startOffset"
+				readOnly="true" vector="false" duration="true" sum="This" />
+		</class>
+		<class name="com.projity.pm.costing.EarnedValueFields">
+			<field property="cv" id="Field.cv" readOnly="true" help="Earned_Value"
+				vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="sv" id="Field.sv" readOnly="true" help="Earned_Value"
+				vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="eac" id="Field.eac" readOnly="true" help="Earned_Value"
+				vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="vac" id="Field.vac" readOnly="true" help="Earned_Value"
+				vector="true" money="true" sum="Sum" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="cpi" id="Field.cpi" readOnly="true" help="Earned_Value"
+				vector="true" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="spi" id="Field.spi" readOnly="true" help="Earned_Value"
+				vector="true" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="csi" id="Field.csi" readOnly="true" help="Earned_Value"
+				vector="true" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="cvPercent" id="Field.cvPercent" help="Earned_Value"
+				readOnly="true" vector="true" percent="true" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="svPercent" id="Field.svPercent" help="Earned_Value"
+				readOnly="true" vector="true" percent="true" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+			<field property="tcpi" id="Field.tcpi" readOnly="true" help="Earned_Value"
+				vector="true" >
+				<permission roles="Administrator;ProjectManager"/>
+			</field>
+		</class>
+		<class name="com.projity.pm.task.HasNotes">
+			<field property="notes" id="Field.notes" memo="true" />
+		</class>
+
+
+		<class name="com.projity.pm.task.NormalTask">
+			<field property="schedulingType" id="Field.taskType">
+				<select name="taskType">
+					<option key="SchedulingType.FixedUnits" value="0" />
+					<option key="SchedulingType.FixedDuration"
+						value="1" />
+					<option key="SchedulingType.FixedWork" value="2" />
+				</select>
+			</field>
+			<field property="critical" id="Field.critical"
+				readOnly="true" />
+			
+		</class>
+		<class name="com.projity.pm.snapshot.BaselineScheduleFields">
+			<!-- baseline fields are read only.  This is good PM practice.  MSP allows you to modify them, which is dangerous -->
+			<field property="baselineStart" id="Field.baseline#Start" help="Baselines"
+				date="true" indexes="11" zeroBasedIndex="true" readOnly="true" startValue="true"/>
+			<field property="baselineFinish" id="Field.baseline#Finish" help="Baselines"
+				date="true" indexes="11" zeroBasedIndex="true" readOnly="true" endValue="true"/>
+			<field property="baselineDuration"
+				id="Field.baseline#Duration" duration="true" indexes="11" help="Baselines"
+				zeroBasedIndex="true" readOnly="true" />
+		</class>
+		<class name="com.projity.pm.costing.EarnedValueTaskSpecific">
+			<field property="physicalPercentComplete"
+				id="Field.physicalPercentComplete" percent="true">
+				<range minimum="0" maximum="1" step="0.05" />
+			</field>
+
+		</class>
+		<class name="com.projity.pm.scheduling.pert.Pert">
+			<field property="expectedFinish" id="Field.expectedFinish"
+				date="true" readOnly="true" />
+			<field property="expectedStart" id="Field.expectedStart"
+				date="true" readOnly="true" />
+			<field property="expectedDuration"
+				id="Field.expectedDuration" duration="true" />
+			<field property="pessimisticFinish"
+				id="Field.pessimisticFinish" date="true" readOnly="true" />
+			<field property="pessimisticStart"
+				id="Field.pessimisticStart" date="true" readOnly="true" />
+			<field property="pessimisticDuration"
+				id="Field.pessimisticDuration" duration="true" />
+			<field property="optimisticFinish"
+				id="Field.optimisticFinish" date="true" readOnly="true" />
+			<field property="optimisticStart" id="Field.optimisticStart"
+				date="true" readOnly="true" />
+			<field property="optimisticDuration"
+				id="Field.optimisticDuration" duration="true" />
+		</class>
+		<class name="com.projity.pm.costing.CostFields">
+			<!--			
+				<field property="actualCost" id="Field.actualCost" readOnly="true" vector="true" money="true"/>			
+				<field property="baselineCost" id="Field.baselineCost" vector="true" money="true"/>
+				<field property="baselineCosts" id="Field.baseline#Cost" indexes="10" boundsField="com.projity.configuration.Settings.NUM_ARRAY_BASELINES" vector="true" money="true"/>
+				
+			-->
+
+
+
+			<field property="actualOvertimeCost"
+				id="Field.actualOvertimeCost" readOnly="true" money="true" />
+
+			<field property="costVariance" id="Field.costVariance"
+				readOnly="true" />
+			<field property="cumulativeCost" id="Field.cumulativeCost"
+				readOnly="true" vector="true" scalar="false" money="true" />
+			<field property="overtimeCost" id="Field.overtimeCost"
+				readOnly="true" money="true" />
+		</class>
+		<class name="com.projity.field.CustomFields">
+			<field property="customCost" id="Field.customCost#" custom="true"
+				money="true" indexes="10"
+				boundsField="com.projity.field.CustomFieldsImpl.NUM_COST" />
+			<field property="customDate" id="Field.customDate#" custom="true"
+				date="true" indexes="10" 
+				boundsField="com.projity.field.CustomFieldsImpl.NUM_DATE" />
+			<field property="customDuration" id="Field.customDuration#" custom="true"
+				duration="true" indexes="10"
+				boundsField="com.projity.field.CustomFieldsImpl.NUM_DURATION" />
+			<field property="customFinish" id="Field.customFinish#" custom="true"
+				date="true" indexes="10" endValue="true"
+				boundsField="com.projity.field.CustomFieldsImpl.NUM_FINISH" />
+			<field property="customFlag" id="Field.customFlag#" custom="true"
+				indexes="20"
+				boundsField="com.projity.field.CustomFieldsImpl.NUM_FLAG" />
+			<field property="customNumber" id="Field.customNumber#" custom="true"
+				indexes="20"
+				boundsField="com.projity.field.CustomFieldsImpl.NUM_NUMBER" />
+			<field property="customStart" id="Field.customStart#" custom="true"
+				date="true" indexes="10" startValue="true"
+				boundsField="com.projity.field.CustomFieldsImpl.NUM_START" />
+			<field property="customText" id="Field.customText#" custom="true"
+				indexes="30"
+				boundsField="com.projity.field.CustomFieldsImpl.NUM_TEXT" />
+		</class>
+		<class name="com.projity.pm.costing.Cost">
+			<field property="costPerUse" id="Field.costPerUse"
+				money="true" />
+			<field property="overtimeRate" id="Field.overtimeRate"
+				rate="true" money="true" />
+			<field property="standardRate" id="Field.standardRate"
+				rate="true" money="true" />
+			<field property="effectiveDate" id="Field.effectiveDate"
+				date="true" startValue="true" dateOnly="true" />
+		</class>
+		<class name="com.projity.pm.key.HasName">
+			<field property="name" id="Field.name" nameField="true" textWidth="254"
+				referencedIdProperty="uniqueId" />
+		</class>
+
+		<class name="com.projity.pm.key.HasId">
+			<field property="id" id="Field.id" readOnly="true"
+				hideZeroValues="true" /><!-- temporary solution-->
+		</class>
+		<class name="com.projity.pm.key.HasKey">
+			<field property="created" id="Field.created"
+				readOnly="true" />
+			<field property="uniqueId" id="Field.uniqueId"
+				readOnly="true" />
+		</class>
+		<class name="com.projity.pm.assignment.Allocation">
+			<field property="units" id="Field.assignmentUnits"
+				percent="true" readOnly="true" />
+		</class>
+		<class name="com.projity.pm.task.HasPriority">
+			<field property="priority" id="Field.priority">
+				<range minimum="0" maximum="1000" step="20" />
+			</field>
+		</class>
+		<class name="com.projity.pm.task.TaskSpecificFields">
+			<!--- read only below is temporary because it doesnt work correctly yet -->
+			<field property="percentWorkComplete"
+				id="Field.percentWorkComplete" percent="true" readOnly="true">
+				<range minimum="0" maximum="1" step="0.05" />
+			</field>
+
+			<field property="fixedCostAccrual"
+				id="Field.fixedCostAccrual" groupSum="Same">
+				<select name="fixedCostAccrual">
+					<option key="AccrualType.Start" value="1" />
+					<option key="AccrualType.End" value="2" />
+					<option key="AccrualType.Prorated" value="3" />
+				</select>
+			</field>
+
+			<field property="taskCalendar" id="Field.taskCalendar"
+				dynamicOptions="true" help="Calendars">
+				<choice
+					list="com.projity.pm.calendar.CalendarService.allBaseCalendars"
+					finder="com.projity.pm.calendar.CalendarService.findBaseCalendar"
+					allowNull="true" />
+			</field>
+			<field property="wbsParent" id="Field.wbsParent"
+				readOnly="true" />
+			<field property="wbsParentName" id="Field.wbsParentName"
+				readOnly="true" />
+			<field property="resourceInitials" help="Assign_Resources#Resources_on_the_Gantt_spreadsheet"
+				id="Field.resourceInitials" />
+			<field property="resourcePhonetics" help="Assign_Resources#Resources_on_the_Gantt_spreadsheet"
+				id="Field.resourcePhonetics" readOnly="true" />
+			<field property="resourceGroup" id="Field.resourceGroup"
+				readOnly="true" />
+			<field property="resourceNames" id="Field.resourceNames" help="Assign_Resources#Resources_on_the_Gantt_spreadsheet"/>
+			<field property="totalSlackStart" id="Field.totalSlackStart"
+				readOnly="true" date="true" />
+			<field property="totalSlackEnd" id="Field.totalSlackEnd"
+				readOnly="true" date="true" />
+			<field property="markTaskAsMilestone"
+				id="Field.markTaskAsMilestone" />
+			<field property="earnedValueMethod"
+				id="Field.earnedValueMethod">
+				<select name="earnedValueMethodType">
+					<option key="EarnedValueMethodType.PercentComplete"
+						value="0" />
+					<option
+						key="EarnedValueMethodType.PhysicalPercentComplete" value="1" />
+				</select>
+			</field>
+			<field property="estimated" id="Field.estimated" />
+			<field property="ignoreResourceCalendar"
+				id="Field.ignoreResourceCalendar" />
+		</class>
+		<class name="com.projity.pm.scheduling.SchedulingFields">
+			<field property="effortDriven" id="Field.effortDriven" />
+		</class>
+		<class
+			name="com.projity.pm.assignment.AssignmentSpecificFields">
+			<field property="taskName" id="Field.assignmentTaskName"
+				readOnly="true" referencedObjectProperty="task" hasToolTip="true" />
+			<field property="resourceName"
+				id="Field.assignmentResourceName" readOnly="true"
+				referencedObjectProperty="resource" />
+			<field property="taskId" id="Field.assignmentTaskId"
+				readOnly="true" referencedObjectProperty="task" />
+			<field property="resourceId" id="Field.assignmentResourceId"
+				readOnly="true" referencedObjectProperty="resource" />
+			<field property="rate" id="Field.rate" rate="true"
+				percent="true" />
+
+			<field property="workContourType" id="Field.workContour">
+				<select name="workContour">
+					<option key="StandardContour.flat" value="0" />
+					<option key="StandardContour.backLoaded" value="1" />
+					<option key="StandardContour.frontLoaded" value="2" />
+					<option key="StandardContour.doublePeak" value="3" />
+					<option key="StandardContour.earlyPeak" value="4" />
+					<option key="StandardContour.latePeak" value="5" />
+					<option key="StandardContour.bell" value="6" />
+					<option key="StandardContour.plateau" value="7" />
+				</select>
+			</field>
+			<field property="resourceAvailability"
+				id="Field.resourceAvailability" duration="true" readOnly="true" />
+			<field property="projectName"
+				id="Field.assignmentProjectName" readOnly="true"
+				referencedObjectProperty="project" />
+			<field property="timesheetStart" id="Field.timesheetStart"
+				date="true" readOnly="true" />
+			<field property="timesheetFinish" id="Field.timesheetFinish"
+				date="true" readOnly="true" />
+
+
+		</class>
+
+		<class name="com.projity.pm.assignment.HasRequestDemandType">
+			<field property="requestDemandType"
+				id="Field.requestDemandType">
+				<select name="requestDemandType">
+					<option key="RequestDemandType.None" value="0" />
+					<option key="RequestDemandType.Request" value="1" />
+					<option key="RequestDemandType.Demand" value="2" />
+				</select>
+			</field>
+		</class>
+		<class name="com.projity.pm.calendar.HasBaseCalendar">
+			<field property="baseCalendar" id="Field.baseCalendar"
+				dynamicOptions="true"  help="Calendars">
+				<choice
+					list="com.projity.pm.calendar.CalendarService.allBaseCalendars"
+					finder="com.projity.pm.calendar.CalendarService.findBaseCalendar"
+					allowNull="false" />
+			</field>
+		</class>
+		<class name="com.projity.pm.resource.ResourceSpecificFields">
+			<field property="remainingOvertimeCost"
+				id="Field.remainingOvertimeCost" money="true" readOnly="true" />
+			<field property="rbsCode" id="Field.rbsCode" />
+			<field property="group" id="Field.group" groupSum="Same" />
+			<field property="initials" id="Field.initials" />
+			<field property="phonetics" id="Field.phonetics"
+				readOnly="true" />
+			<field property="emailAddress" id="Field.emailAddress" />
+			<field property="materialLabel" id="Field.materialLabel" />
+			<field property="generic" id="Field.generic" />
+			<field property="externalId" id="Field.externalId" />
+		</class>
+
+		<class name="com.projity.pm.availability.HasAvailability">
+			<field property="maximumUnits" id="Field.maximumUnits"
+				percent="true" groupSum="Same"
+				errorMessage="Message.invaliidUnits">
+				<range minimum="0" maximum="99999999" step="0.5" />
+			</field>
+			<field property="availableFrom" id="Field.availableFrom"
+				date="true" dateOnly="true" startValue="true"/>
+			<field property="availableTo" id="Field.availableTo"
+				date="true" dateOnly="true" endValue="true"/>
+
+		</class>
+		<class name="com.projity.pm.costing.HasExpenseType">
+			<field property="expenseType" id="Field.expenseType">
+				<select name="expenseType">
+					<option key="ExpenseType.NONE" value="0" />
+					<option key="ExpenseType.CAPITALIZE" value="1" />
+					<option key="ExpenseType.EXPENSE" value="2" />
+					<option key="ExpenseType.OVERHEAD" value="3" />
+					<option key="ExpenseType.INDIRECT" value="4" />
+					<option key="ExpenseType.DIRECT" value="5" />
+				</select>
+			</field>
+		</class>
+
+		<class name="com.projity.pm.resource.Resource">
+			<field property="accrueAt" id="Field.accrueAt"
+				groupSum="Same">
+				<select name="accrueAt">
+					<option key="AccrualType.Start" value="1" />
+					<option key="AccrualType.End" value="2" />
+					<option key="AccrualType.Prorated" value="3" />
+				</select>
+			</field>
+
+
+			<field property="resourceType" id="Field.resourceType"
+				groupSum="Same">
+				<select name="resourceType">
+					<option key="ResourceType.Material" value="0" />
+					<option key="ResourceType.Work" value="1" />
+					<!--				<option key="ResourceType.Location"  value="2"/>
+						<option key="ResourceType.Machine"  value="3"/>
+						<option key="ResourceType.Other"  value="4"/>
+					-->
+				</select>
+			</field>
+
+		</class>
+		<class name="com.projity.pm.resource.ResourceImpl">
+			<field property="extendedRole" id="Field.userRole" server="true">
+				<select name="userRole">
+					<option key="ClientRole.Inactive" value="0" />
+					<option key="ClientRole.TeamMember" value="8" />
+					<option key="ClientRole.ProjectManager" value="16" />
+					<option key="ClientRole.TeamResource" value="32" />
+				</select>
+				<filter method="filterRoles" />
+			</field>
+			
+			<field property="bookingType" id="Field.bookingType">
+				<select name="bookingType">
+					<option key="BookingType.Proposed" value="0" />
+					<option key="BookingType.Committed" value="1" />
+				</select>
+			</field>
+		</class>
+
+
+		<class name="com.projity.pm.task.Task">
+			<field property="wbs" id="Field.wbs" />
+			<field property="predecessors" id="Field.predecessors" help="Linking#Linking_on_the_Spreadsheet"/>
+			<field property="successors" id="Field.successors" help="Linking#Linking_on_the_Spreadsheet" />
+			<field property="uniqueIdPredecessors" help="Linking#Linking_on_the_Spreadsheet"
+				id="Field.uniqueIdPredecessors" />
+			<field property="uniqueIdSuccessors" help="Linking#Linking_on_the_Spreadsheet"
+				id="Field.uniqueIdSuccessors" />
+			<field property="wbsPredecessors" id="Field.wbsPredecessors" help="Linking#Linking_on_the_Spreadsheet"
+				readOnly="true" />
+			<field property="wbsSuccessors" id="Field.wbsSuccessors" help="Linking#Linking_on_the_Spreadsheet"
+				readOnly="true" />
+			<field property="justModified" id="Field.justModified"
+				readOnly="true" />
+			<field property="projectId" id="Field.projectId"
+				readOnly="true" />
+			<!--			<field property="debugDependencyOrder" id="Field.debugDependencyOrder" readOnly="true"/>	-->
+		<!-- 
+			<field property="predecessorOrder" id="Field.predecessorOrder" readOnly="true" />
+ 		-->
+		</class>
+		<class name="com.projity.pm.task.ProjectSpecificFields">
+			<field property="statusDate" id="Field.statusDate"
+				date="true" endValue="true" dateOnly="true"/>
+			<field property="manager" id="Field.manager" />
+			<field property="schedulingMethod"
+				id="Field.schedulingMethod" readOnly="true" />
+			<!--			<field property="resourcePool" id="Field.resourcePool" readOnly="true"/>			-->
+			<field property="forward" id="Field.forward" />
+			<field property="startDate" id="Field.startDate"
+				date="true" startValue="true"/>
+			<field property="finishDate" id="Field.finishDate"
+				date="true" endValue="true"/>
+			<field property="currentDate" id="Field.currentDate"
+				date="true" endValue="true"/>
+			<field property="earliestStartingTask"
+				id="Field.earliestStartingTask" date="true" readOnly="true" />
+			<field property="latestFinishingTask"
+				id="Field.latestFinishingTask" date="true" readOnly="true" />
+			<field property="risk" id="Field.risk" />
+			<field property="projectType" id="Field.projectType">
+				<select name="projectType">
+					<option key="ProjectType.OTHER" value="0" />
+					<option key="ProjectType.PROFESSIONAL_SERVICES"
+						value="1" />
+					<option key="ProjectType.PRODUCT_DEVELOPMENT"
+						value="2" />
+					<option key="ProjectType.EVENT_PLANNING" value="3" />
+					<option key="ProjectType.MARKETING_CAMPAIGN"
+						value="4" />
+					<option key="ProjectType.SALES_CAMPAIGN" value="5" />
+					<option key="ProjectType.TECHNICAL_SUPPORT"
+						value="6" />
+					<option key="ProjectType.IT" value="7" />
+				</select>
+			</field>
+			<field property="group" id="Field.projectGroup" />
+			<field property="division" id="Field.projectDivision" />
+			<field property="projectStatus" id="Field.projectStatus" dirtiesWholeDocument="true">
+				<select name="projectStatus">
+					<option key="ProjectStatus.PLANNING" value="0" />
+					<option key="ProjectStatus.PENDING_APPROVAL"
+						value="1" />
+					<option key="ProjectStatus.ACTIVE" value="2" />
+					<option key="ProjectStatus.COMPLETED" value="3" />
+					<option key="ProjectStatus.CANCELLED" value="4" />
+					<option key="ProjectStatus.ON_HOLD" value="5" />
+				</select>
+			</field>
+			<field property="netPresentValue" id="Field.netPresentValue" money="true" sum="Sum"/>
+			<field property="benefit" id="Field.benefit">
+					<range minimum="0" maximum="10" step="1" />
+			</field>
+			
+			
+
+		</class>
+		
+		<class name="com.projity.pm.dependency.Dependency">
+			<field property="predecessorName" id="Field.predecessorName"
+				readOnly="true" referencedObjectProperty="predecessor" />
+			<field property="successorName" id="Field.successorName"
+				readOnly="true" referencedObjectProperty="successor" />
+			<field property="predecessorIdNumber" id="Field.predecessorId"
+				readOnly="true" referencedObjectProperty="predecessor" />
+			<field property="successorIdNumber" id="Field.successorId"
+				readOnly="true" referencedObjectProperty="successor" />
+			<field property="lag" id="Field.lag" duration="true" />
+			<field property="dependencyType"
+				id="Field.dependencyType">
+				<select name="taskType">
+					<option key="DependencyType.FF" value="0" />
+					<option key="DependencyType.FS" value="1" />
+					<option key="DependencyType.SF" value="2" />
+					<option key="DependencyType.SS" value="3" />
+				</select>
+			</field>
+		</class>
+		<class name="com.projity.pm.scheduling.CanBeLeveled">
+			<field property="levelingDelay" id="Field.levelingDelay"
+				duration="true" />
+		</class>
+		<class name="com.projity.pm.scheduling.Delayable">
+			<field property="delay" id="Field.delay" duration="true" />
+		</class>
+
+
+
+
+		<!-- for assignment dialog -->
+		<class name="com.projity.pm.assignment.AssignmentEntry">
+			<field property="name" id="Field.assignmentEntryName"
+				readOnly="true" />
+			<field property="rate" id="Field.assignmentEntryRate"
+				percent="true" rate="true">
+				<range minimum="0" maximum="99999999" step="0.5" />
+			</field>
+			<field property="assigned"
+				id="Field.assignmentEntryAssigned" readOnly="true" />
+		</class>
+
+		<class
+			name="com.projity.pm.costing.EarnedValueIndicatorFields">
+			<field property="scheduleStatusIndicator"
+				id="Field.scheduleStatusIndicator" url="status" image="true" graphical="true"
+				readOnly="true" />
+			<field property="budgetStatusIndicator"
+				id="Field.budgetStatusIndicator" url="status" image="true"  graphical="true"
+				readOnly="true" />
+			<field property="statusIndicator" id="Field.statusIndicator"  graphical="true"
+				url="status" image="true" readOnly="true" />
+		</class>
+
+
+		<class name="com.projity.pm.costing.HasCostRateIndex">
+			<field property="costRateIndex"
+				id="Field.costRateTable">
+				<select name="costRateTable">
+					<option key="CostRateIndex.A" value="0" />
+					<option key="CostRateIndex.B" value="1" />
+					<option key="CostRateIndex.C" value="2" />
+					<option key="CostRateIndex.D" value="3" />
+					<option key="CostRateIndex.E" value="4" />
+				</select>
+			</field>
+		</class>
+
+
+
+		<!--class name="com.projity.script.object.DistributionHolder">
+			<field property="id" id="Field.id"/>
+			<field property="name" id="Field.name"/>
+		</class-->
+		
+	</fieldDictionary>
+
+	<timescales defaultIndex="2">
+		<!--timescale calendarField1="12" number1="15" pattern1="m"
+			normalMinWidth="28" tableMinWidth="51" calendarField2="11" number2="1"
+			pattern2="E d MMM, H" /-->
+		<timescale calendarField1="11" number1="2" pattern1="H"
+			normalMinWidth="20"  tableMinWidth="51" calendarField2="5" number2="1"
+			pattern2="E d MMM" />
+		<timescale calendarField1="11" number1="6" pattern1="H"
+			normalMinWidth="20" normalMinWidthChinese="28" tableMinWidth="51" calendarField2="5" number2="1"
+			pattern2="E d MMM" />
+		<timescale calendarField1="7" number1="1" pattern1="E"
+			trunc1="1" upperCase1="true" normalMinWidth="15" tableMinWidth="51"
+			calendarField2="3" number2="1" pattern2="d MMM yy" />
+		<timescale calendarField1="5" number1="3" pattern1="dd"
+			normalMinWidth="30" tableMinWidth="51" calendarField2="2" number2="1"
+			pattern2="MMM y" />
+		<timescale calendarField1="3" number1="1" pattern1="dd"
+			normalMinWidth="30" tableMinWidth="51" calendarField2="2" number2="1"
+			pattern2="MMM y" />
+		<timescale calendarField1="2" number1="1" pattern1="MMM"
+			normalMinWidth="30" normalMinWidthChinese="36" tableMinWidth="51" calendarField2="2" number2="3"
+			pattern2="QQ, yyyy" />
+		<timescale calendarField1="2" number1="1" pattern1="MMM" trunc1="1" upperCase1="true"
+			normalMinWidth="15" tableMinWidth="51" calendarField2="2" number2="6"
+			pattern2="LL, yyyy" />
+		<timescale calendarField1="2" number1="3" pattern1="Q" 
+			normalMinWidth="20" tableMinWidth="51" calendarField2="1" number2="1"
+			pattern2="yyyy" />
+		<timescale calendarField1="2" number1="6" pattern1="L" 
+			normalMinWidth="20" tableMinWidth="51" calendarField2="1" number2="1"
+			pattern2="yyyy" />
+
+	</timescales>
+
+	<graphic columnHeaderHeight="30" printFooterHeight="15"
+		rowHeaderWidth="40" rowHeight="19" ganttBarHeight="11"
+		ganttProgressBarHeight="4" ganttBarYOffset="4" baselineHeight="4"
+		ganttBarAnnotationXOffset="12" ganttBarAnnotationYOffset="1" 
+		pertCellWidth="200" pertCellHeight="65" pertXOffset="50"
+		pertYOffset="30" treeCellWidth="170" treeCellHeight="50"
+		treeXOffset="50" treeYOffset="30" rowChartHeaderWidth="40"
+		collapseLevel="-1" networkCellSelectionSquare="6" selectionSquare="3"
+		selectionProgress0="3" selectionProgress1="3" selectionResize0="3"
+		selectionResize1="3" linkFlatness="2" ganttBarMinWidth="0"/>
+
+	<script>
+		<class name="java.lang.Object" />
+		<class name="com.projity.pm.graphic.model.cache.GraphicNode" />
+		<class name="com.projity.graphic.configuration.CellStyle" />
+		<class name="com.projity.graphic.configuration.CellFormat" />
+		<class name="com.projity.grouping.core.model.NodeModel" />
+		<class name="com.projity.util.Environment" />
+		<class name="com.projity.graphic.configuration.ActionList" />
+		<class name="java.lang.String" />
+		<class
+			name="com.projity.grouping.core.transform.filtering.NodeFilter" />
+		<class
+			name="com.projity.grouping.core.transform.sorting.NodeSorter" />
+		<class
+			name="com.projity.grouping.core.transform.transformer.NodeTransformer" />
+		<class name="com.projity.grouping.core.Node" />
+		<class name="com.projity.pm.assignment.Assignment" />
+		<class name="com.projity.datatype.Duration" />
+		<class name="com.projity.datatype.DurationFormat" />
+		<class name="java.lang.System" />
+
+		<!-- bsh -->
+		<class name="net.sf.jasperreports.engine.fill.JRCalculator" />
+		<class name="net.sf.jasperreports.engine.fill.JRFillParameter" />
+		<class name="net.sf.jasperreports.engine.fill.JRFillField" />
+		<class name="net.sf.jasperreports.engine.fill.JRFillVariable" />
+		<class name="java.util.Map" />
+		<class name="java.lang.Integer" />
+		<class name="java.lang.Double" />
+		<class name="java.lang.Long" />
+		<class name="java.lang.Number" />
+	</script>
+
+</configuration>
