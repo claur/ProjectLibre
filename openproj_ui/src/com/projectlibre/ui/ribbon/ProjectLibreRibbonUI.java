@@ -148,6 +148,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 	
 	protected int projectViewsOffsetX=600;
 	
+	protected int heightToReduce=20;
+	
 	
 	
 	
@@ -930,7 +932,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 							: ribbon.getSelectedTask().getBand(0).getInsets();
 					bandScrollablePanel.setBounds(1 + ins.left, y
 							+ bandInsets.top, c.getWidth() - 2 * ins.left - 2
-							* ins.right - 1, c.getHeight() - extraHeight
+							* ins.right - 1, c.getHeight() - extraHeight - heightToReduce
 							- ins.top - ins.bottom - bandInsets.top
 							- bandInsets.bottom);
 					// System.out.println("Scrollable : "

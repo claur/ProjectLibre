@@ -190,6 +190,6 @@ abstract class AbstractBandControlPanelUI extends BandControlPanelUI {
 
 	@Override
 	public int getLayoutGap() {
-		return 4;
+		return 0; //projectlibre //4;
 	}
 }

@@ -51,6 +51,7 @@
 package org.apache.batik.util.gui.resource;
 
 import java.awt.Color;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,6 +65,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JToolBar;
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicBorders;
 
 import org.pushingpixels.flamingo.api.common.AbstractCommandButton;
@@ -331,7 +333,7 @@ public class RibbonFactory extends ResourceManager {
 //			HelpUtil.addDocHelp(result,help);
 		
 		
-		
+		//result.setBorder(new EmptyBorder(new Insets(0, 0, 0, 0)));
 		return result;
 	}
 	

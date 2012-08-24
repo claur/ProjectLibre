@@ -231,7 +231,7 @@ public class ButtonFactory extends ResourceManager {
 		// Title
 		String title=null;
 		try {
-			title = getString(name + TITLE_SUFFIX);
+			title = getString(name + TEXT_SUFFIX);
 		} catch (MissingResourceException e) {
 		}
 		
