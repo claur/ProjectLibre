@@ -89,7 +89,7 @@ public final class LicenseDialog extends AbstractDialog {
 			return true;
 		}
 		if (Environment.isOpenProj())
-			System.setProperty("openproj.validation", Preferences.userNodeForPackage(LicenseDialog.class).get("licenseValidationDate","0"));
+			System.setProperty("projectlibre.validation", Preferences.userNodeForPackage(LicenseDialog.class).get("licenseValidationDate","0"));
 		return false;
 	}
 
@@ -210,7 +210,7 @@ public final class LicenseDialog extends AbstractDialog {
 		if (resetData){//About dialog shouldn't reset data
 			Preferences.userNodeForPackage(LicenseDialog.class).put("licenseValidationDate",System.currentTimeMillis()+"."+(new Random()).nextInt(1000)); //$NON-NLS-1$
 			Preferences.userNodeForPackage(LicenseDialog.class).putBoolean("validatedLicense",validated); //$NON-NLS-1$
-			System.setProperty("openproj.validation", Preferences.userNodeForPackage(LicenseDialog.class).get("licenseValidationDate","0"));
+			System.setProperty("projectlibre.validation", Preferences.userNodeForPackage(LicenseDialog.class).get("licenseValidationDate","0"));
 		}
 		super.onOk();
 	}

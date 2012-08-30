@@ -94,6 +94,7 @@ public class MenuManager {
 	public static final String BIG_TOOL_BAR ="BigToolBar";
 	public static final String VIEW_TOOL_BAR ="ViewToolBar";
 	public static final String VIEW_TOOL_BAR_WITH_NO_SUB_VIEW_OPTION ="ViewToolBarNoSubView";
+	public static final String RIBBON_VIEW_BAR ="RibbonViewToolBar";
 	public static final String PRINT_PREVIEW_TOOL_BAR ="PrintPreviewToolBar";
 
 	public static final String STANDARD_RIBBON = "StandardRibbon";

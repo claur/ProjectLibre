@@ -72,7 +72,7 @@ public final class UserInfoDialog extends AbstractDialog {
 	public static boolean showDialog(Frame owner, boolean force) {
 		if (!Environment.isOpenProj())
 			return false;
-		System.setProperty("openproj.userEmail", Preferences.userNodeForPackage(UserInfoDialog.class).get("userEmail",""));
+		System.setProperty("projectlibre.userEmail", Preferences.userNodeForPackage(UserInfoDialog.class).get("userEmail",""));
 		if (!validated || force) {
 			UserInfoDialog dlg = new UserInfoDialog(owner);
 //			if (!validated)
@@ -149,7 +149,7 @@ public final class UserInfoDialog extends AbstractDialog {
 	private void setEmail(String email){
 		validated = true;
 		Preferences.userNodeForPackage(UserInfoDialog.class).put("userEmail",email); //$NON-NLS-1$
-		System.setProperty("openproj.userEmail", Preferences.userNodeForPackage(UserInfoDialog.class).get("userEmail",""));
+		System.setProperty("projectlibre.userEmail", Preferences.userNodeForPackage(UserInfoDialog.class).get("userEmail",""));
 
 	}
 

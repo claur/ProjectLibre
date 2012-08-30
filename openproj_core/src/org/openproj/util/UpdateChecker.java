@@ -58,6 +58,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.prefs.Preferences;
 
 import javax.swing.SwingUtilities;
@@ -77,10 +78,11 @@ import com.projity.util.VersionUtils;
  */
 public class UpdateChecker {
 	private static final int UPDATE_CHECKER_VERSION=1;
-	private static final String updateAddress = "http://www.projectlibre.org/versions/version-"+UPDATE_CHECKER_VERSION; //claur openproj.org version not working any more
+	private static final String updateAddress = "http://projectlibre.org/versions-"+UPDATE_CHECKER_VERSION; //claur openproj.org version not working any more
 	private static final String downloadAddress = "http://sourceforge.net/projects/projectlibre/?source=directory";
 	private static void checkForUpdate() {
 		String thisVersion = VersionUtils.getVersion();//Messages.getString("Release.version");
+		if (thisVersion==null) thisVersion="0";
 		URL url;
 		try {
 //			System.out.println("Encoded: "+URLEncoder.encode(System.getProperty("java.vendor"),"UTF-8"));
@@ -89,13 +91,18 @@ public class UpdateChecker {
 			url = new URL(updateAddress+
 					"?version="+URLEncoder.encode(thisVersion==null?"0":thisVersion,"UTF-8")+
 					"&locale="+URLEncoder.encode(Locale.getDefault().toString(),"UTF-8")+
+					"&timeZone="+URLEncoder.encode(TimeZone.getDefault().getID().toString(),"UTF-8")+
 					"&osName="+URLEncoder.encode(System.getProperty("os.name"),"UTF-8")+
 					"&osVersion="+URLEncoder.encode(System.getProperty("os.version"),"UTF-8")+
 					"&osArch="+URLEncoder.encode(System.getProperty("os.arch"),"UTF-8")+
 					"&javaVersion="+URLEncoder.encode(System.getProperty("java.version"),"UTF-8")+
 					"&javaVendor="+URLEncoder.encode(System.getProperty("java.vendor"),"UTF-8")+
-					"&validation="+URLEncoder.encode(System.getProperty("openproj.validation","0"),"UTF-8")+
-					"&email="+URLEncoder.encode(System.getProperty("openproj.userEmail","0"),"UTF-8")
+					"&validation="+URLEncoder.encode(System.getProperty("projectlibre.validation","0"),"UTF-8")+
+					"&runNumber="+URLEncoder.encode(System.getProperty("projectlibre.runNumber","0"),"UTF-8")+
+					"&firstRun="+URLEncoder.encode(System.getProperty("projectlibre.firstRun","0"),"UTF-8")+
+					"&openprojRunNumber="+URLEncoder.encode(System.getProperty("projectlibre.openprojRunNumber","0"),"UTF-8")+
+					"&openprojFirstRun="+URLEncoder.encode(System.getProperty("projectlibre.openprojFirstRun","0"),"UTF-8")+
+					"&email="+URLEncoder.encode(System.getProperty("projectlibre.userEmail","0"),"UTF-8")
 					); //$NON-NLS-1$
 			InputStream stream=  url.openStream();
 			BufferedReader in = new BufferedReader(

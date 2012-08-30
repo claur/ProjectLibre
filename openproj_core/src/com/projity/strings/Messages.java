@@ -100,8 +100,8 @@ public class Messages {
 	private static String getStringFromBundles(String key) {
 		if (key==null)
 			return null;
-		LinkedList<ResourceBundle> buns = null;
-		LinkedList<String> foundBundles = null;
+		LinkedList<ResourceBundle> buns = new LinkedList<ResourceBundle>();
+		LinkedList<String> foundBundles = new LinkedList<String>();;
 		if (bundles==null) {
 			lock.lock(); //use lock to avoid useless synchronized when it's already initialized
 			try {
@@ -109,8 +109,6 @@ public class Messages {
 					String bundleNames[] = getMetaString("ResourceBundles").split(";");
 					String directoryBundleNames[] = getMetaString("DirectoryResourceBundles").split(";");
 					if (directoryClassLoader.isValid()){
-						buns=new LinkedList<ResourceBundle>();
-						foundBundles=new LinkedList<String>();
 						//foundBundles=new ArrayList<String>(bundleNames.length+directoryBundleNames.length);
 						
 						for (int i =0; i < directoryBundleNames.length;i++) {
@@ -128,11 +126,9 @@ public class Messages {
 						int j=0;
 						int pos=0;
 						for (String b : foundBundles){
-							j++;
-							if (bname.equals(b)){
-								pos=j;
+							if (bname.equals(b))
 								break;
-							}
+							pos++;
 						}
 						buns.add(pos,ResourceBundle.getBundle(bname,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader()/*Messages.class.getClassLoader()*/));
 						foundBundles.add(pos,bname);

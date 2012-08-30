@@ -134,7 +134,7 @@ public class PageSetup{
 	protected JLabel fitToWidthLabel,fitToHeightLabel,scaleToWidthLabel,scaleToHeightLabel,scaleToProportions,scaleToProportions2;
 	protected JCheckBox constrainProportions;
 
-	protected JButton saveSettings,saveWebPDFSettings;
+	protected JButton saveSettings;//,saveWebPDFSettings;
 
 	protected double svgPaperWidth,svgPaperHeight;
 
@@ -585,18 +585,18 @@ public class PageSetup{
 		saveSettings.setToolTipText(Messages.getString("PageSetupDialog.SaveSettings.ToolTip"));
 		initFont(saveSettings);
 
-		saveWebPDFSettings=new JButton(Messages.getString("PageSetupDialog.SaveWebPDFSettings"));
-		saveWebPDFSettings.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				if (!(document.getPrintService() instanceof PDFPrintService)){
-					Alert.warnWithOnceOption(Messages.getString("PageSetupDialog.NotPDFPrintServiceForWebDefault"),"NotPDFPrintServiceForWebDefaultWarned");
-				}
-
-				saveSettings(false,true);
-			}
-		});
-		saveWebPDFSettings.setToolTipText(Messages.getString("PageSetupDialog.SaveWebPDFSettings.ToolTip"));
-		initFont(saveWebPDFSettings);
+//		saveWebPDFSettings=new JButton(Messages.getString("PageSetupDialog.SaveWebPDFSettings"));
+//		saveWebPDFSettings.addActionListener(new ActionListener(){
+//			public void actionPerformed(ActionEvent e) {
+//				if (!(document.getPrintService() instanceof PDFPrintService)){
+//					Alert.warnWithOnceOption(Messages.getString("PageSetupDialog.NotPDFPrintServiceForWebDefault"),"NotPDFPrintServiceForWebDefaultWarned");
+//				}
+//
+//				saveSettings(false,true);
+//			}
+//		});
+//		saveWebPDFSettings.setToolTipText(Messages.getString("PageSetupDialog.SaveWebPDFSettings.ToolTip"));
+//		initFont(saveWebPDFSettings);
 
 
 		updatePageSize(true);
@@ -993,8 +993,8 @@ public class PageSetup{
 		builder.append(createFlowScalingPanel());
 		builder.nextLine(2);
 		builder.append(saveSettings);
-		builder.nextLine(2);
-		builder.append(saveWebPDFSettings);
+//		builder.nextLine(2);
+//		builder.append(saveWebPDFSettings);
 		return builder.getPanel();
 	}
 

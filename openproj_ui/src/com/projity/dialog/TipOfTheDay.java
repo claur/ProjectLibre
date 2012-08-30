@@ -72,7 +72,8 @@ public class TipOfTheDay {
 				}
 			};
 			tipOfTheDayInstance = new JTipOfTheDay(TipLoader.load(Messages.getTipProperties()));
-			tipOfTheDayInstance.setCurrentTip(Preferences.userNodeForPackage(TipOfTheDay.class).getInt("tipNumber",1));
+			int tipNumber=Preferences.userNodeForPackage(TipOfTheDay.class).getInt("tipNumber",1);
+			tipOfTheDayInstance.setCurrentTip(tipNumber);
 		}
 		if (forceShow || tipOfTheDayChoiceInstance.isShowingOnStartup()) {
 			tipOfTheDayInstance.showDialog(owner, tipOfTheDayChoiceInstance,forceShow);

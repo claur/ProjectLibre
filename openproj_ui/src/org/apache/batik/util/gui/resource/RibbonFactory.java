@@ -50,23 +50,14 @@
 
 package org.apache.batik.util.gui.resource;
 
-import java.awt.Color;
-import java.awt.Insets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JToolBar;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicBorders;
 
 import org.pushingpixels.flamingo.api.common.AbstractCommandButton;
 import org.pushingpixels.flamingo.api.ribbon.AbstractRibbonBand;
@@ -76,11 +67,9 @@ import org.pushingpixels.flamingo.api.ribbon.JRibbonComponent;
 import org.pushingpixels.flamingo.api.ribbon.RibbonElementPriority;
 import org.pushingpixels.flamingo.api.ribbon.RibbonTask;
 import org.pushingpixels.flamingo.api.ribbon.resize.CoreRibbonResizePolicies;
-import org.pushingpixels.flamingo.api.ribbon.resize.IconRibbonBandResizePolicy;
 import org.pushingpixels.flamingo.api.ribbon.resize.RibbonBandResizePolicy;
 
 import com.projectlibre.ui.ribbon.CustomRibbonBandGenerator;
-import com.projity.help.HelpUtil;
 import com.projity.menu.ExtButtonFactory;
 
 /**

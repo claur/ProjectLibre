@@ -29,5 +29,6 @@
 	<classpathentry exported="true" kind="lib" path="/openproj_contrib/lib/groovy/xstream-1.1.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/openproj_contrib"/>
 	<classpathentry kind="lib" path="/openproj_contrib/lib/commons-digester.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/projectlibre_core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

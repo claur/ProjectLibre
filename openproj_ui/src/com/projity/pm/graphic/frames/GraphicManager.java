@@ -2402,7 +2402,7 @@ protected boolean loadLocalDocument(String fileName,boolean merge){ //uses serve
 		for (AbstractCommandButton button : taskBars)
 			ribbon.addTaskbarComponent(button);
 		
-		ribbon.configureHelp(IconManager.getRibbonIcon("menu24.help"), new ActionListener() {
+		ribbon.configureHelp(IconManager.getRibbonIcon("ribbon.help",26,26), new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -2421,7 +2421,7 @@ protected boolean loadLocalDocument(String fileName,boolean merge){ //uses serve
 		
 		JPanel projectViews=ribbon.getProjectViews();
 		projectViews.setBorder(new EmptyBorder(0,0,0,0));		
-		getMenuManager().initComponent(MenuManager.VIEW_TOOL_BAR,projectViews);
+		getMenuManager().initComponent(MenuManager.RIBBON_VIEW_BAR,projectViews);
 		
 		JPanel fileSelector=ribbon.getFileSelector();
 		fileSelector.setLayout(new BorderLayout());

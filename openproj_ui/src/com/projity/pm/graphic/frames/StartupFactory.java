@@ -356,8 +356,7 @@ public abstract class StartupFactory {
 			if (thisVersion!=null) thisVersion=VersionUtils.toAppletVersion(thisVersion);
 			if(thisVersion==null||serverVersion.equals(thisVersion)) return; //ok
 		}
-		String jnlpUrl="https://www.projity.com/web/jnlp/project-on-demand.jnlp";
-//		String jnlpUrl="http://192.168.0.2/web/jnlp/project-on-demand.jnlp";
+		String jnlpUrl="";//https://www.projity.com/web/jnlp/project-on-demand.jnlp";
 		if (Alert.okCancel(Messages.getString("Text.newPODVersion"))){
 			try {
 				Object basicService = ClassLoaderUtils.forName("javax.jnlp.ServiceManager").getMethod("lookup", new Class[]{String.class})

@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 
 public class ConfigurationFile {
 	   
-	private static final String[] OPENPROJ_CONF_DIRS={".openproj","openproj","OpenProj"};
+	private static final String[] OPENPROJ_CONF_DIRS={".projectlibre","ProjectLibre"};
 	private static File confFile;
 	public static File getConfDir(){
 		if (confFile==null){

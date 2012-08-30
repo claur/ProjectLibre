@@ -125,6 +125,7 @@ public class OpenprojAssignmentConverter {
 
 		//timephased		
 		TimeIntervals timephasedIntervals=assignment.getTimephased();
+		if (timephasedIntervals!=null)
 		for (TimeInterval interval : timephasedIntervals){
 			TimephasedValue<?> timephasedValue=(TimephasedValue<?>)interval;
 			Object openprojType = TimeDistributedTypeMapper.getProjityField(BigInteger.valueOf(timephasedValue.getType().getId()));

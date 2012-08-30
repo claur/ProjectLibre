@@ -73,6 +73,7 @@ public class IconManager {
 	private final static String[] iconPackages = new String[] {
 			"com/projity/pm/graphic/images/"
 			,"com/projity/pm/graphic/images/big/"
+			,"com/projity/pm/graphic/images/ribbon/"
 			,"toolbarButtonGraphics/general/"
 			,"toolbarButtonGraphics/text/"			
 			,"toolbarButtonGraphics/table/"
@@ -113,7 +114,7 @@ public class IconManager {
 		return icon;
 	}
 	public static ResizableIcon getRibbonIcon(String key) {
-		return getRibbonIcon(key,24,24);
+		return getRibbonIcon(key,48,48);
 	}
 	public static ResizableIcon getRibbonIcon(String name, int width , int height) {
 //		String key=name+"-"+width+"-"+height;

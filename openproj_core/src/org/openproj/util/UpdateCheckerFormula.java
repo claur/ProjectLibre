@@ -49,21 +49,15 @@ must direct them back to http://www.projity.com.
 */
 package org.openproj.util;
 
-import java.util.StringTokenizer;
+import com.projectlibre.core.versions.VersionComparator;
 
 public class UpdateCheckerFormula {
+	protected VersionComparator comparator=new VersionComparator();
 	public int mainCompare(String currentVersion,String latestVersion){
 		return compare(currentVersion, latestVersion);
 	}
 	public int compare(String currentVersion,String latestVersion){
-		StringTokenizer current=new StringTokenizer(currentVersion,".");
-		StringTokenizer latest=new StringTokenizer(latestVersion,".");
-		while (current.hasMoreTokens() && latest.hasMoreTokens()){
-			int c=Integer.parseInt(current.nextToken());
-			int l=Integer.parseInt(latest.nextToken());
-			if (c<l) return -1;
-			else if (c>l) return 1; //shouldn't happen
-		}
-		return latest.hasMoreTokens()?1:0;
+		return comparator.compare(currentVersion, latestVersion);
 	}
+	
 }

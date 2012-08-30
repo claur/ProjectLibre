@@ -55,6 +55,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.prefs.Preferences;
 
+import com.projity.dialog.UserInfoDialog;
 import com.projity.strings.Messages;
 import com.projity.util.Environment;
 
@@ -64,8 +65,14 @@ import com.projity.util.Environment;
  */
 public class Main {
 	public static void main(String[] args) {
-		Preferences.userNodeForPackage(Main.class).putInt("runNumber",getRunNumber()+1);
-		Preferences.userNodeForPackage(Main.class).putLong("firstRun",getFirstRun());
+		int runNumber=getRunNumber()+1;
+		long firstRun=getFirstRun();
+		Preferences.userNodeForPackage(Main.class).putInt("projectlibreRunNumber",runNumber);
+		Preferences.userNodeForPackage(Main.class).putLong("projectlibrefirstRun",firstRun);		
+		System.setProperty("projectlibre.runNumber", runNumber+"");
+		System.setProperty("projectlibre.firstRun", firstRun+"");
+		System.setProperty("projectlibre.openprojRunNumber", getOpenProjRunNumber()+"");
+		System.setProperty("projectlibre.openprojFirstRun", getOpenProjFirstRun()+"");
 
 		Environment.setStandAlone(true);
 		String[] formatedArgs;
@@ -95,9 +102,15 @@ public class Main {
 		com.projity.pm.graphic.gantt.Main.main(formatedArgs);
 	}
 	public static int getRunNumber() {
-		return Preferences.userNodeForPackage(Main.class).getInt("runNumber",0);
+		return Preferences.userNodeForPackage(Main.class).getInt("projectlibreRunNumber",0);
 	}
 	public static long getFirstRun() {
+		return Preferences.userNodeForPackage(Main.class).getLong("projectlibreFirstRun",System.currentTimeMillis());
+	}
+	public static int getOpenProjRunNumber() {
+		return Preferences.userNodeForPackage(Main.class).getInt("runNumber",0);
+	}
+	public static long getOpenProjFirstRun() {
 		return Preferences.userNodeForPackage(Main.class).getLong("firstRun",System.currentTimeMillis());
 	}
 	public static String getRunSinceMessage() {

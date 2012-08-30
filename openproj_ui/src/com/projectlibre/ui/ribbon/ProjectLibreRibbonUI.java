@@ -96,7 +96,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 	protected JCommandButton applicationMenuButton;
 
-	protected JPanel helpButton;
+	protected JPanel helpPanel; //ProjectLibre
+//	protected JCommandButton helpButton;
 
 	/**
 	 * Map of toggle buttons of all tasks.
@@ -148,8 +149,9 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 	
 	protected int projectViewsOffsetX=600;
 	
-	protected int heightToReduce=20;
+	protected int heightToReduce=24;
 	
+	protected int helpSpaceWidth=30;
 	
 	
 	
@@ -472,8 +474,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 		
 
 		this.ribbon.remove(this.applicationMenuButton);
-		if (this.helpButton != null)
-			this.ribbon.remove(this.helpButton);
+		if (this.helpPanel != null)
+			this.ribbon.remove(this.helpPanel);
 
 		this.ribbon.setLayout(null);
 	}
@@ -747,7 +749,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 			if (!isUsingTitlePane())
 				extraHeight += getTaskbarHeight();
 			int prefHeight = maxPrefBandHeight + extraHeight + ins.top
-					+ ins.bottom;
+					+ ins.bottom - heightToReduce;
 			// System.out.println("Ribbon pref = " + prefHeight);
 			return new Dimension(c.getWidth(), prefHeight);
 		}
@@ -864,13 +866,13 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 			}
 
 			// the help button
-			if (helpButton != null) {
-				Dimension preferred = helpButton.getPreferredSize();
+			if (helpPanel != null) {
+				Dimension preferred = helpPanel.getPreferredSize();
 				if (ltr) {
-					helpButton.setBounds(width - ins.right - preferred.width,
+					helpPanel.setBounds(width - ins.right - preferred.width,
 							y, preferred.width, taskToggleButtonHeight);
 				} else {
-					helpButton.setBounds(ins.left, y, preferred.width,
+					helpPanel.setBounds(ins.left, y, preferred.width,
 							taskToggleButtonHeight);
 				}
 			}
@@ -880,7 +882,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 			if (projectViews!=null){
 				Dimension preferred = projectViews.getPreferredSize();
 				int projectViewsWidth=projectViews.getPreferredSize().width;
-				int projectViewsX = (helpButton != null) ? (helpButton
+				int projectViewsX = (helpPanel != null) ? (helpPanel
 						.getX()
 						/*- tabButtonGap*/ - projectViewsWidth) : (c.getWidth() - ins.right - projectViewsWidth);
 				projectViews.setBounds(projectViewsX, y, projectViewsWidth, taskToggleButtonHeight);				
@@ -889,7 +891,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 			// task buttons
 			if (ltr) {
-				int taskButtonsWidth = (helpButton != null) ? (helpButton
+				int taskButtonsWidth = (helpPanel != null) ? (helpPanel
 						.getX()
 						/*- tabButtonGap*/ - x) : (c.getWidth() - ins.right - x);
 				
@@ -900,8 +902,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 				taskToggleButtonsScrollablePanel.setBounds(x, y,
 						taskButtonsWidth, taskToggleButtonHeight);
 			} else {
-				int taskButtonsWidth = (helpButton != null) ? (x - tabButtonGap
-						- helpButton.getX() - helpButton.getWidth())
+				int taskButtonsWidth = (helpPanel != null) ? (x - tabButtonGap
+						- helpPanel.getX() - helpPanel.getWidth())
 						: (x - ins.left);
 				taskToggleButtonsScrollablePanel.setBounds(
 						x - taskButtonsWidth, y, taskButtonsWidth,
@@ -932,7 +934,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 							: ribbon.getSelectedTask().getBand(0).getInsets();
 					bandScrollablePanel.setBounds(1 + ins.left, y
 							+ bandInsets.top, c.getWidth() - 2 * ins.left - 2
-							* ins.right - 1, c.getHeight() - extraHeight - heightToReduce
+							* ins.right - 1, c.getHeight() - extraHeight
 							- ins.top - ins.bottom - bandInsets.top
 							- bandInsets.bottom);
 					// System.out.println("Scrollable : "
@@ -1873,9 +1875,9 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 		taskToggleButtonsHostPanel.removeAll();
 
 		// remove the help button
-		if (this.helpButton != null) {
-			this.ribbon.remove(this.helpButton);
-			this.helpButton = null;
+		if (this.helpPanel != null) {
+			this.ribbon.remove(this.helpPanel);
+			this.helpPanel = null;
 		}
 
 		// go over all visible ribbon tasks and create a toggle button
@@ -2072,13 +2074,18 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 		ActionListener helpListener = this.ribbon.getHelpActionListener();
 		if (helpListener != null) {
-			helpButton=new JPanel();
-			JCommandButton button = new JCommandButton("", this.ribbon.getHelpIcon());
-			button.setDisplayState(CommandButtonDisplayState.SMALL);
-			button.setCommandButtonKind(CommandButtonKind.ACTION_ONLY);
-			button.getActionModel().addActionListener(helpListener);
-			helpButton.add(button);
-			this.ribbon.add(this.helpButton);
+			helpPanel=new JPanel();
+			JPanel space=new JPanel();
+			space.setPreferredSize(new Dimension(helpSpaceWidth,5));
+			helpPanel.add(space);
+			JButton helpButton = new JButton("", this.ribbon.getHelpIcon());
+			helpButton.setBorder(new EmptyBorder(new Insets(0, 0, 0, 0)));
+			//helpButton.setDisplayState(CommandButtonDisplayState.SMALL);
+			//helpButton.setCommandButtonKind(CommandButtonKind.ACTION_ONLY);
+			//helpButton.getActionModel().addActionListener(helpListener);
+			helpButton.addActionListener(helpListener);
+			helpPanel.add(helpButton);
+			this.ribbon.add(this.helpPanel);
 		}
 
 		this.ribbon.revalidate();
