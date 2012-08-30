@@ -115,7 +115,6 @@ public class SpreadSheetCellEditorAdapter implements TableCellEditor {
 			
 		}
 		
-		
 		return component;
 	}
 	/**

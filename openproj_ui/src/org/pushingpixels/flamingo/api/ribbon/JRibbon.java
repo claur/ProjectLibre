@@ -825,12 +825,13 @@ public class JRibbon extends JComponent {
 	 *            it is unminimized.
 	 */
 	public synchronized void setMinimized(boolean isMinimized) {
-		// System.out.println("Ribbon minimized -> " + isMinimized);
-		boolean old = this.isMinimized;
-		if (old != isMinimized) {
-			this.isMinimized = isMinimized;
-			this.firePropertyChange("minimized", old, this.isMinimized);
-		}
+//TODO minimizing appears to the user as a bug. Disabling until there is obvious way for the user to re-maximize
+//		// System.out.println("Ribbon minimized -> " + isMinimized);
+//		boolean old = this.isMinimized;
+//		if (old != isMinimized) {
+//			this.isMinimized = isMinimized;
+//			this.firePropertyChange("minimized", old, this.isMinimized);
+//		}
 	}
 
 	/**

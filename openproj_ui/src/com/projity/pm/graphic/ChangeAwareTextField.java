@@ -49,14 +49,23 @@ must direct them back to http://www.projity.com.
 */
 package com.projity.pm.graphic;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JFormattedTextField;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Keymap;
 
 import com.projity.pm.graphic.frames.GraphicManager;
 
@@ -83,6 +92,54 @@ public class ChangeAwareTextField extends JFormattedTextField implements Documen
 					GraphicManager.getInstance(ChangeAwareTextField.this).doInformationDialog(false);
 			}
 		});
+    	Keymap keymap = getKeymap();
+        KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false);
+        //keymap.removeKeyStrokeBinding(keystroke);
+        keymap.addActionForKeyStroke(key, new Action() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("ENTER");
+				
+			}
+			
+			@Override
+			public void setEnabled(boolean b) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void removePropertyChangeListener(PropertyChangeListener listener) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void putValue(String key, Object value) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public boolean isEnabled() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+			@Override
+			public Object getValue(String key) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public void addPropertyChangeListener(PropertyChangeListener listener) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+
 	}
 
 	public void selectAllOnNextCaretUpdate() {
@@ -115,5 +172,8 @@ public class ChangeAwareTextField extends JFormattedTextField implements Documen
 	public void removeUpdate(DocumentEvent e) {
 		changed = true;
 	}
+
+	
+
 
 }

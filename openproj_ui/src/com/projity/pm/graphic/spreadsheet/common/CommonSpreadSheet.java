@@ -128,7 +128,7 @@ public class CommonSpreadSheet extends CommonTable implements CacheListener, Sav
 		super();
 		setGridColor(Colors.GRAY);
 		putClientProperty("JTable.autoStartsEdit",Boolean.TRUE);
-		setSurrendersFocusOnKeystroke(true);
+		//setSurrendersFocusOnKeystroke(true); //has the side effect of selecting the first character of cell after ENTER keystroke
 		setAutoCreateColumnsFromModel(false);
 		rowHeader=new SpreadSheetRowHeader(this);
 		rowHeader.setRowHeight(getRowHeight());

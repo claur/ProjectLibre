@@ -79,7 +79,7 @@ import com.projity.util.VersionUtils;
 public class UpdateChecker {
 	private static final int UPDATE_CHECKER_VERSION=1;
 	private static final String updateAddress = "http://projectlibre.org/versions-"+UPDATE_CHECKER_VERSION; //claur openproj.org version not working any more
-	private static final String downloadAddress = "http://sourceforge.net/projects/projectlibre/?source=directory";
+	private static final String downloadAddress = "http://sourceforge.net/projects/projectlibre/files/latest/download";
 	private static void checkForUpdate() {
 		String thisVersion = VersionUtils.getVersion();//Messages.getString("Release.version");
 		if (thisVersion==null) thisVersion="0";
@@ -119,7 +119,7 @@ public class UpdateChecker {
 				return;
 			}
 			if (f.mainCompare(Preferences.userNodeForPackage(UpdateChecker.class).get("lastVersionChecked","-1"),latestVersion)>=0){
-				int runNumber = Preferences.userNodeForPackage(Class.forName("com.projity.main.Main")).getInt("runNumber",0);
+				int runNumber = Preferences.userNodeForPackage(Class.forName("com.projity.main.Main")).getInt("projectlibreRunNumber",0);
 				int showEvery = Integer.parseInt(Messages.getString("UpdateDialog.showEvery"));
 				int showEveryStagger = Integer.parseInt(Messages.getString("UpdateDialog.showEveryStagger"));
 				if ((runNumber-showEveryStagger)%showEvery != 0) {

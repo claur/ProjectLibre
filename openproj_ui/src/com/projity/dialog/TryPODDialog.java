@@ -67,22 +67,22 @@ public final class TryPODDialog extends AbstractDialog {
 	private static final String PROJITY_LINK = "http://www.projity.com";
 
 	public static void maybeShow(Frame owner,boolean force) {
-		int runNumber = Main.getRunNumber();
-		boolean show=false;
-		String[] runs = Messages.getString("TryPODDialog.show").split(",");
-		for (String s:runs) {
-			if (Integer.parseInt(s) == runNumber) {
-				show = true;
-				break;
-			}
-		}
-		int showEvery = Integer.parseInt(Messages.getString("TryPODDialog.showEvery"));
-		int showEveryStagger = Integer.parseInt(Messages.getString("TryPODDialog.showEveryStagger"));
-		if ((runNumber -showEveryStagger) % showEvery == 0) {
-			show = true;
-		}
-		if (show || force)
-			new TryPODDialog(owner).doModal();
+//		int runNumber = Main.getRunNumber();
+//		boolean show=false;
+//		String[] runs = Messages.getString("TryPODDialog.show").split(",");
+//		for (String s:runs) {
+//			if (Integer.parseInt(s) == runNumber) {
+//				show = true;
+//				break;
+//			}
+//		}
+//		int showEvery = Integer.parseInt(Messages.getString("TryPODDialog.showEvery"));
+//		int showEveryStagger = Integer.parseInt(Messages.getString("TryPODDialog.showEveryStagger"));
+//		if ((runNumber -showEveryStagger) % showEvery == 0) {
+//			show = true;
+//		}
+//		if (show || force)
+//			new TryPODDialog(owner).doModal();
 	}
 
 

@@ -141,7 +141,6 @@ public class SimpleEditor extends DefaultCellEditor   {
 				component.setHorizontalAlignment(JTextField.RIGHT);
 		}
 		component.selectAll();
-		
 		return component;
 	}
 	
