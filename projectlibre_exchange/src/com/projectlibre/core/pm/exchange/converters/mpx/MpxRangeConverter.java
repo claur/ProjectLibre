@@ -94,7 +94,11 @@ public class MpxRangeConverter {
 		TimeIntervals intervals=range.getIntervals();
 		DateHoursMinsConverter converter=new DateHoursMinsConverter();
 		for (DateRange mpxDateRange:mpxRange)
-			if (mpxDateRange!=null)
-				intervals.union((Long)converter.from(mpxDateRange.getStart()), (Long)converter.from(mpxDateRange.getEnd()));
+			if (mpxDateRange!=null){
+				long start=(Long)converter.from(mpxDateRange.getStart());
+				long end=(Long)converter.from(mpxDateRange.getEnd());
+				if (end==0) end=24*3600000L;
+				intervals.union(start, end);
+			}
 	}
 }

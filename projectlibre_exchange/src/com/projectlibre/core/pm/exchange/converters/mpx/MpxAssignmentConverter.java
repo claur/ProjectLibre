@@ -105,7 +105,7 @@ public class MpxAssignmentConverter {
 		Resource resource;
 		if (mpxAssignment.getResourceUniqueID().intValue() == Resource.UNASSIGNED_ID) 
 			resource=state.getResourcePool().getUnassignedResource();
-		else resource = state.getResource(new NodeId(mpxAssignment.getResource().getUniqueID()));
+		else resource = state.getResource(mpxAssignment.getResource());
 		if (resource==null)
 			return; //TODO handle error or log
 		assignment.setResource(resource);

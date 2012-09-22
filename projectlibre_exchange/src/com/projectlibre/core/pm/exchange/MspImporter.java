@@ -234,7 +234,7 @@ public class MspImporter {
 				resourcePool.addResource(resource);
 			}
 			converter.from(mpxResource, resource, state);
-			state.mapResource(resource.getId(), resource);
+			state.mapResource(mpxResource, resource);
 			//TODO insert blank lines ignored below
 		}
 	}

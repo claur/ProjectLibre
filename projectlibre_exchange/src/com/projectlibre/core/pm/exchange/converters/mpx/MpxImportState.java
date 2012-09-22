@@ -85,7 +85,6 @@ import net.sf.mpxj.ProjectFile;
 import net.sf.mpxj.ResourceAssignment;
 import net.sf.mpxj.mspdi.schema.TimephasedDataType;
 
-import com.projectlibre.core.nodes.NodeId;
 import com.projectlibre.pm.calendar.CalendarManager;
 import com.projectlibre.pm.calendar.WorkCalendar;
 import com.projectlibre.pm.resources.Resource;
@@ -101,7 +100,7 @@ public class MpxImportState {
 	protected Map<String,ProjectCalendar> mpxBaseCalendarMap=new HashMap<String,ProjectCalendar>();
 	protected Map<String,WorkCalendar> baseCalendarMap=new HashMap<String,WorkCalendar>();
 	protected Map<net.sf.mpxj.Task,Task> taskMap=new HashMap<net.sf.mpxj.Task,Task>();
-	protected Map<NodeId,Resource> resourceMap=new HashMap<NodeId,Resource>();
+	protected Map<net.sf.mpxj.Resource,Resource> resourceMap=new HashMap<net.sf.mpxj.Resource,Resource>();
 	protected Map<ResourceAssignment,List<TimephasedDataType>> mpxTimephasedMap;
 	
 	protected WorkCalendar projectBaseCalendar;
@@ -160,11 +159,11 @@ public class MpxImportState {
 		return taskMap.get(mpxTask);
 	}
 
-	public void mapResource(NodeId id, Resource resource){
-		resourceMap.put(id,resource);
+	public void mapResource(net.sf.mpxj.Resource mpxResource, Resource resource){
+		resourceMap.put(mpxResource,resource);
 	}
-	public Resource getResource(NodeId id){
-		return resourceMap.get(id);
+	public Resource getResource(net.sf.mpxj.Resource mpxResource){
+		return resourceMap.get(mpxResource);
 	}
 	public boolean isMspdi() {
 		return mspdi;
