@@ -28,7 +28,7 @@ public class ConfigurationFile {
     	return confFile;
 	}
 	
-	private static final String OPENPROJ_CONF_FILE="openproj.conf";
+	private static final String OPENPROJ_CONF_FILE="projectlibre.conf";
 	private static Properties confProps;
 	public static String getProperty(String key){
 		if (confProps==null){
