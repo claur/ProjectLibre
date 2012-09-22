@@ -77,14 +77,31 @@ back to http://www.projity.com.
 package com.projectlibre.core.time;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
 
 /**
  * @author Laurent Chretienneau
  *
  */
-public class TimeUtil {
-	protected static long getTimeZoneOffset(long t){ 
-		Calendar c=Calendar.getInstance();
+public class TimeUtil { //not thread safe
+	protected static Calendar calendar;
+	protected static Calendar localCalendar;
+	protected static Calendar getCalendar(){
+		if (calendar==null)
+			calendar=Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		return calendar;
+	}
+	protected static Calendar getLocalCalendar(){
+		if (localCalendar==null)
+			localCalendar=Calendar.getInstance();
+		return localCalendar;
+	}
+	
+	protected static int getTimeZoneOffset(long t){ 
+		Calendar c=getLocalCalendar();
 		c.setTimeInMillis(t);
 		return c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET);
 	}
@@ -95,11 +112,13 @@ public class TimeUtil {
 		return t+getTimeZoneOffset(t);
 	}
 	
-	public static long toHoursAndMinutes(long date) {
-		Calendar calendar=Calendar.getInstance(/*TimeZone.getTimeZone("UTC")*/);
+	public static long toHoursAndMinutes(long date) { //corrects the problem of mpx giving hours in local timezone not utc
+		Calendar calendar=getCalendar();
 		calendar.setTimeInMillis(date);
-		//calendar.add(Calendar.MILLISECOND, calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET));
-		return 60000L * (60L * calendar.get(Calendar.HOUR_OF_DAY) + calendar.get(Calendar.MINUTE));
+		int tz=getTimeZoneOffset(date);
+		long t=60000L * (60L * calendar.get(Calendar.HOUR_OF_DAY) + calendar.get(Calendar.MINUTE)) + tz;
+		t=t%(24*3600000L);
+		return t;
 	}
 	
 }

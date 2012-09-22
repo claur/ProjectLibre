@@ -97,4 +97,6 @@ public interface WorkCalendar {
 	public abstract void setId(CalendarId id);
 	public abstract CalendarId getId();
 	public abstract String toString(String tab);
+	public abstract String toLongString(String tab);
+	public abstract String toLongString();
 }

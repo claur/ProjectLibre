@@ -165,6 +165,13 @@ public class DefaultWorkCalendar implements WorkCalendar{
 	@Override
 	public String toString(String tab){
 		StringBuffer s=new StringBuffer();
+		s.append(tab).append("DefaultWorkCalendar #").append(getId()).append("-").append(getName());
+		return s.toString();
+	}
+	
+	@Override
+	public String toLongString(String tab){
+		StringBuffer s=new StringBuffer();
 		s.append(tab).append("DefaultWorkCalendar #").append(hashCode()).append('\n');
 		s.append(tab).append("\t").append("id=").append(id).append('\n');
 		s.append(tab).append("\t").append("name=").append(name).append('\n');
@@ -187,6 +194,11 @@ public class DefaultWorkCalendar implements WorkCalendar{
 	@Override
 	public String toString(){
 		return toString("");
+	}
+	
+	@Override
+	public String toLongString(){
+		return toLongString("");
 	}
 
 	@Override

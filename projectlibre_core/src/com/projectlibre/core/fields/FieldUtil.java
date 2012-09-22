@@ -88,9 +88,8 @@ import java.util.logging.Logger;
 public class FieldUtil {
 	protected static Logger log = Logger.getLogger("FieldUtil");
 	public static void convertFields(HasFields hasFields, Class<?> inClass, Object inObject, String[] fieldNames, boolean from){
-		log.info("convertFields hasFields="+hasFields);
+		//log.info("convertFields hasFields="+hasFields);
 		for (int i=0;i<fieldNames.length;){
-			System.out.println("fieldNames: " + fieldNames[i] +" "+ fieldNames[i+1] + " " + fieldNames[i+2]);
 			convertFieldSeries(hasFields, inClass, inObject, fieldNames[i++], -1, fieldNames[i++], -1, fieldNames[i++], from);
 		}
 	}

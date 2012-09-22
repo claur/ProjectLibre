@@ -121,15 +121,16 @@ public class Assignment extends AbstractNode implements Schedule{
 	public String toString(String tab){
 		StringBuffer s=new StringBuffer();
 		s.append(tab).append("Assignement #").append(hashCode()).append('\n');
-		s.append(tab).append("\t").append("resource=").append(resource.hashCode()).append('\n');
-		s.append(tab).append("\t").append("task=").append(task.hashCode()).append('\n');
+		s.append(tab).append("\t").append("resource=").append(resource==null? null : resource.hashCode()).append('\n');
+		s.append(tab).append("\t").append("task=").append(task==null? null : task.hashCode()).append('\n');
 		s.append(super.toString(tab+"\t"));
 		
 		if (timephased==null) s.append(tab).append("\t").append("timephased=null\n");
 		else{
 			s.append(tab).append("\t").append("timephased=\n");
+			if (timephased!=null)
 			for (TimeInterval interval : timephased)
-				s.append(tab).append('\t').append(interval.toString()).append('\n');
+				s.append(tab).append('\t').append(interval==null? null : interval.toString()).append('\n');
 		}
 		return s.toString();
 	}

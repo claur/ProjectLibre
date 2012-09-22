@@ -167,8 +167,7 @@ public class Project extends AbstractNodeContainer implements HasCalendar {
 		if (calendar==null)
 			s.append(tab).append("\t").append("calendar=null\n");
 		else {
-			s.append(tab).append("\t").append("calendar=\n");
-			s.append(calendar.toString(tab+"\t\t"));
+			s.append(tab).append("\t").append("calendar=").append(calendar.toString()).append("\n");
 		}
 		
 		if (resourcePool==null)

@@ -131,22 +131,22 @@ public class CalendarManager implements Iterable<WorkCalendar>{
 		if (standardBaseCalendar==null)
 			s.append(tab).append("\t").append("standardBaseCalendar=null").append('\n');
 		else {
-			s.append(tab).append("\t").append("standardBaseCalendar=").append('\n');
-			s.append(standardBaseCalendar.toString(tab+"\t\t"));
+			s.append(tab).append("\t").append("standardBaseCalendar=").append(standardBaseCalendar).append('\n');
+			//s.append(standardBaseCalendar.toString(tab+"\t\t"));
 		}
 
 		s.append(tab).append("\t").append("baseCalendarsById=\n");
 		for (CalendarId calendarId : baseCalendarsById.keySet()){
 			s.append(tab).append("\t\tcalendarId=").append(calendarId).append('\n');
 			WorkCalendar calendar=baseCalendarsById.get(calendarId);
-			s.append(calendar.toString(tab+"\t\t")).append('\n');
+			s.append(calendar.toLongString(tab+"\t\t")).append('\n');
 		}
 
 		s.append(tab).append("\t").append("baseCalendarsByName=\n");
 		for (String calendarName : baseCalendarsByName.keySet()){
 			s.append(tab).append("\t\tcalendarName=").append(calendarName).append('\n');
-			WorkCalendar calendar=baseCalendarsByName.get(calendarName);
-			s.append(calendar.toString(tab+"\t\t")).append('\n');
+//			WorkCalendar calendar=baseCalendarsByName.get(calendarName);
+//			s.append(calendar.toString(tab+"\t\t")).append('\n');
 		}
 
 		return s.toString();
