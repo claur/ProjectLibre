@@ -145,7 +145,7 @@ public class RibbonFactory extends ResourceManager {
 	 * Creates ribbon task
 	 */
 	public RibbonTask createRibbonTask(String name, CustomRibbonBandGenerator customBandsGenerator) throws MissingResourceException, ResourceFormatException, MissingListenerException {
-		String title=getString(name+".Title");
+		String title=getString(name+".title");
 
 		List<AbstractRibbonBand<?>> ribbonBands=new ArrayList<AbstractRibbonBand<?>>();
 		@SuppressWarnings("unchecked")
@@ -163,7 +163,7 @@ public class RibbonFactory extends ResourceManager {
 
 	
 	public AbstractRibbonBand<?> createRibbonBand(String name, CustomRibbonBandGenerator customBandsGenerator) throws MissingResourceException, ResourceFormatException, MissingListenerException {
-		String title=getString(name+".Title");
+		String title=getString(name+".title");
 		JRibbonBand result=new JRibbonBand(title,null);
 
 		JComponent customComponent=customBandsGenerator.createRibbonComponent(name);
@@ -215,7 +215,7 @@ public class RibbonFactory extends ResourceManager {
 	}
 	
 	public AbstractRibbonBand<?> createFlowRibbonBand(String name, CustomRibbonBandGenerator customBandsGenerator) throws MissingResourceException, ResourceFormatException, MissingListenerException {
-		String title=getString(name+".Title");
+		String title=getString(name+".title");
 		JFlowRibbonBand result=new JFlowRibbonBand(title,null);
 
 		JComponent customComponent=customBandsGenerator.createRibbonComponent(name);

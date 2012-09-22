@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -73,11 +73,11 @@ public class GraphPageable extends PrintDocument implements ViewPrintableParams{
 	protected int documentRowCount,documentColCount;
 	protected ViewPrintable defaultPrintable;
 
-	public GraphPageable (SVGRenderer renderer,boolean pdfAsDefault,boolean localSettings) {
-		this(renderer,false,pdfAsDefault,localSettings);
+	public GraphPageable (SVGRenderer renderer,boolean printOnly,boolean pdfAsDefault,boolean localSettings) {
+		this(renderer,false,printOnly,pdfAsDefault,localSettings);
    }
-	private GraphPageable (SVGRenderer renderer,boolean pdfOnly,boolean pdfAsDefault,boolean localSettings) {
-		   super(renderer.getProject(),pdfOnly,pdfAsDefault,localSettings);
+	private GraphPageable (SVGRenderer renderer,boolean pdfOnly,boolean printOnly,boolean pdfAsDefault,boolean localSettings) {
+		   super(renderer.getProject(),pdfOnly,printOnly,pdfAsDefault,localSettings);
 		   FontManager.setOfflineDefaultFont(FontManager.DEFAULT_FONT);
 		   this.renderer=renderer;
 

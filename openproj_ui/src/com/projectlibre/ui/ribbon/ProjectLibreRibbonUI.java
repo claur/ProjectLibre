@@ -149,7 +149,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 	
 	protected int projectViewsOffsetX=600;
 	
-	protected int heightToReduce=24;
+	protected int heightToReduce=20;
 	
 	protected int helpSpaceWidth=30;
 	
@@ -2075,10 +2075,13 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 		ActionListener helpListener = this.ribbon.getHelpActionListener();
 		if (helpListener != null) {
 			helpPanel=new JPanel();
+			helpPanel.setBackground(taskToggleButtonsScrollablePanel.getBackground());
 			JPanel space=new JPanel();
+			space.setBackground(taskToggleButtonsScrollablePanel.getBackground());
 			space.setPreferredSize(new Dimension(helpSpaceWidth,5));
 			helpPanel.add(space);
 			JButton helpButton = new JButton("", this.ribbon.getHelpIcon());
+			helpButton.setBackground(taskToggleButtonsScrollablePanel.getBackground());
 			helpButton.setBorder(new EmptyBorder(new Insets(0, 0, 0, 0)));
 			//helpButton.setDisplayState(CommandButtonDisplayState.SMALL);
 			//helpButton.setCommandButtonKind(CommandButtonKind.ACTION_ONLY);

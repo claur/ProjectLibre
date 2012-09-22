@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -2064,18 +2064,18 @@ protected boolean loadLocalDocument(String fileName,boolean merge){ //uses serve
 
 
 	void print(){
-		GraphPageable document=PrintDocumentFactory.getInstance().createDocument(getCurrentFrame(),false);
+		GraphPageable document=PrintDocumentFactory.getInstance().createDocument(getCurrentFrame(),true,false);
 		if (document!=null) document.print();
 	}
 
 
 	void printPreview(){
-		GraphPageable document=PrintDocumentFactory.getInstance().createDocument(getCurrentFrame(),false);
+		GraphPageable document=PrintDocumentFactory.getInstance().createDocument(getCurrentFrame(),false,false);
 		if (document!=null) document.preview();
 	}
 
 	void savePDF() {
-		GraphPageable document=PrintDocumentFactory.getInstance().createDocument(getCurrentFrame(),false);
+		GraphPageable document=PrintDocumentFactory.getInstance().createDocument(getCurrentFrame(),false,false);
 		try {
 			Class generator=ClassLoaderUtils.forName("org.projectlibre.export.PDFExport"); //claur
 			generator.getMethod("export", new Class[]{GraphPageable.class,Component.class}).invoke(null,new Object[]{document,getContainer()});

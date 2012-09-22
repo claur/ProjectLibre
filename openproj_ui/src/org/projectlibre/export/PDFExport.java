@@ -1,5 +1,3 @@
-package org.projectlibre.export;
-
 /*
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0 (the "License"); you may not use this file except in compliance with
@@ -49,6 +47,8 @@ justified on the top left of the screen adjacent to the File menu.  The logo
 must be at least 100 x 25 pixels.  When users click on the "ProjectLibre" logo it
 must direct them back to http://www.projectlibre.com.
 */
+package org.projectlibre.export;
+
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.io.File;

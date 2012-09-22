@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -88,7 +88,7 @@ public abstract class PrintDocument implements Pageable{
 	/**
 	 *
 	 */
-	public PrintDocument(Project project,boolean pdfOnly,boolean pdfAsDefault,boolean localSettings) {
+	public PrintDocument(Project project,boolean pdfOnly,boolean printOnly, boolean pdfAsDefault,boolean localSettings) {
 		printSettings=PrintSettingsManager.getSettings(localSettings?null:project);
 		//if (printSettings==null) System.out.println("PrintSettings: null");
 		//else System.out.println("PrintSettings: "+printSettings.getPrintServiceName()+", "+printSettings.getPageFormat().getSizeName()+", "+printSettings.getPageFormat().getOrientation()+", "+printSettings.getPageFormat().getSize()+", "+printSettings.getPageFormat().getPrintableArea());
@@ -105,9 +105,9 @@ public abstract class PrintDocument implements Pageable{
 			printServices[0]=pdfPrintService;
 			for (int i=0;i<realPrintServices.length;i++) printServices[i+1]=realPrintServices[i];
 
-			if (pdfAsDefault) defaultService=pdfPrintService;
+			if (!printOnly&&pdfAsDefault) defaultService=pdfPrintService;
 
-			if (printSettings.isPdfService()){
+			if (!printOnly&&printSettings.isPdfService()){
 				defaultService=pdfPrintService;
 			}else if (printSettings.getPrintServiceName()!=null){
 				PrintService d=null;

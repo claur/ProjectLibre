@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -439,7 +439,7 @@ public class PageSetup{
 
 		//scaling
 		scaleToWidthLabel=new JLabel(Messages.getString("PageSetupDialog.Scaling.ScaleToWidth"));
-		scaleToWidthLabel.setEnabled(!Environment.isOpenProj()&&document.isScaleToSelected());
+		scaleToWidthLabel.setEnabled(document.isScaleToSelected());
 		initFont(scaleToWidthLabel);
 		scaleToWidth=new JSpinner(new SpinnerNumberModel(document.getScaleToSettings().getWidth(),0.1,10.0,0.05));
 		scaleToWidth.setEditor(new JSpinner.NumberEditor(scaleToWidth,"#%"));
@@ -459,11 +459,11 @@ public class PageSetup{
 				refresh();
 			}
 		});
-		scaleToWidth.setEnabled(!Environment.isOpenProj()&&document.isScaleToSelected());
+		scaleToWidth.setEnabled(document.isScaleToSelected());
 		initFont(scaleToWidth);
 
 		scaleToHeightLabel=new JLabel(Messages.getString("PageSetupDialog.Scaling.ScaleToHeight"));
-		scaleToHeightLabel.setEnabled(!Environment.isOpenProj()&&document.isScaleToSelected()&&!document.getScaleToSettings().isConstrainProportions());
+		scaleToHeightLabel.setEnabled(document.isScaleToSelected()&&!document.getScaleToSettings().isConstrainProportions());
 		initFont(scaleToHeightLabel);
 		scaleToHeight=new JSpinner(new SpinnerNumberModel(document.getScaleToSettings().getHeight(),0.1,10.0,0.05));
 		scaleToHeight.setEditor(new JSpinner.NumberEditor(scaleToHeight,"#%"));
@@ -479,7 +479,7 @@ public class PageSetup{
 				refresh();
 			}
 		});
-		scaleToHeight.setEnabled(!Environment.isOpenProj()&&document.isScaleToSelected()&&!document.getScaleToSettings().isConstrainProportions());
+		scaleToHeight.setEnabled(document.isScaleToSelected()&&!document.getScaleToSettings().isConstrainProportions());
 		initFont(scaleToHeight);
 		constrainProportions=new JCheckBox("",document.getScaleToSettings().isConstrainProportions());
 		constrainProportions.addItemListener(new ItemListener(){
@@ -490,21 +490,21 @@ public class PageSetup{
 				if (selected) scaleToHeight.setValue(scaleToWidth.getValue());
 			}
 		});
-		constrainProportions.setEnabled(!Environment.isOpenProj()&&document.isScaleToSelected());
+		constrainProportions.setEnabled(document.isScaleToSelected());
 		initFont(constrainProportions);
 		scaleToProportions=new JLabel(Messages.getString("PageSetupDialog.Scaling.ScaleToProportions"));
-		scaleToProportions.setEnabled(!Environment.isOpenProj()&&document.isScaleToSelected());
+		scaleToProportions.setEnabled(document.isScaleToSelected());
 		initFont(scaleToProportions);
 		scaleToProportions2=new JLabel(Messages.getString("PageSetupDialog.Scaling.ScaleToProportions2"));
-		scaleToProportions2.setEnabled(!Environment.isOpenProj()&&document.isScaleToSelected());
+		scaleToProportions2.setEnabled(document.isScaleToSelected());
 		initFont(scaleToProportions2);
 
 
 		fitToWidthLabel=new JLabel(Messages.getString("PageSetupDialog.Scaling.FitToWidth"));
-		fitToWidthLabel.setEnabled(!Environment.isOpenProj()&&!document.isScaleToSelected());
+		fitToWidthLabel.setEnabled(!document.isScaleToSelected());
 		initFont(fitToWidthLabel);
 		fitToWidth=new JSpinner(new SpinnerNumberModel(document.getFitToSettings().getColumns(),1,99999,1));
-		fitToWidth.setEnabled(!Environment.isOpenProj()&&!document.isScaleToSelected());
+		fitToWidth.setEnabled(!document.isScaleToSelected());
 		fitToWidth.setEditor(new JSpinner.NumberEditor(fitToWidth,"#"));
 		fitToWidth.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent e) {
@@ -516,10 +516,10 @@ public class PageSetup{
 		});
 		initFont(fitToWidth);
 		fitToHeightLabel=new JLabel(Messages.getString("PageSetupDialog.Scaling.FitToHeight"));
-		fitToHeightLabel.setEnabled(!Environment.isOpenProj()&&!document.isScaleToSelected());
+		fitToHeightLabel.setEnabled(!document.isScaleToSelected());
 		initFont(fitToHeightLabel);
 		fitToHeight=new JSpinner(new SpinnerNumberModel(document.getFitToSettings().getRows(),1,99999,1));
-		fitToHeight.setEnabled(!Environment.isOpenProj()&&!document.isScaleToSelected());
+		fitToHeight.setEnabled(!document.isScaleToSelected());
 		fitToHeight.setEditor(new JSpinner.NumberEditor(fitToHeight,"#"));
 		fitToHeight.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent e) {
@@ -533,10 +533,10 @@ public class PageSetup{
 
 
 		scaleTo=new JRadioButton(Messages.getString("PageSetupDialog.Scaling.ScaleTo"),document.isScaleToSelected());
-		scaleTo.setEnabled(!Environment.isOpenProj());
+		scaleTo.setEnabled(true);
 		initFont(scaleTo);
 		fitTo=new JRadioButton(Messages.getString("PageSetupDialog.Scaling.FitTo"),!document.isScaleToSelected());
-		fitTo.setEnabled(!Environment.isOpenProj());
+		fitTo.setEnabled(true);
 		initFont(fitTo);
 		ButtonGroup scalingRadio=new ButtonGroup();
 		scalingRadio.add(scaleTo);
@@ -1174,7 +1174,7 @@ public class PageSetup{
 	private JComponent createFlowScalingPanel(){
 		FormLayout layout = new FormLayout(
 		        "1dlu, 5dlu,p,22dlu,3dlu,p,1dlu",
-		        Environment.isOpenProj()?"p, 3dlu,p,3dlu,p,3dlu,p,p,10dlu,p,3dlu,p,3dlu,p,3dlu,p,p,3dlu":"p, 3dlu,p,3dlu,p,3dlu,p,p,10dlu,p,3dlu,p,3dlu,p,3dlu");
+		        "p, 3dlu,p,3dlu,p,3dlu,p,p,10dlu,p,3dlu,p,3dlu,p,3dlu");
 
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		CellConstraints cc = new CellConstraints();
@@ -1192,16 +1192,6 @@ public class PageSetup{
 		builder.add(fitToWidthLabel,cc.xy(6, 12));
 		builder.add(fitToHeight,cc.xyw(3, 14,2));
 		builder.add(fitToHeightLabel,cc.xy(6, 14));
-		if (Environment.isOpenProj()){
-			JLabel l=new JLabel(Messages.getString("PageSetupDialog.PODOnly"));
-			l.setEnabled(false);
-			initFont(l);
-			builder.add(l,cc.xyw(2, 16, 5));
-			l=new JLabel(Messages.getString("PageSetupDialog.PODOnly2"));
-			l.setEnabled(false);
-			initFont(l);
-			builder.add(l,cc.xyw(2, 17, 5));
-		}
 		JPanel panel=builder.getPanel();
 		panel.setBorder(new TitledBorder(Messages.getString("PageSetupDialog.Scaling")));
 		return panel;
