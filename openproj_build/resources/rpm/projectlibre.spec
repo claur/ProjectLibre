@@ -1,22 +1,35 @@
 #
-# spec file for package projectlibre
+# spec file for package ProjectLibre
 #
+
+#avoid default /usr/local/... when building on Mac 
+%define _datadir /usr/share
+%define _bindir /usr/bin
+
+%define _target Linux-i386
+%define _target_cpu i386
+%define _target_os Linux
+
+%define _topdir @basedir@/rpm
+%define _tmppath @basedir@/rpm
+
+
 Summary: ProjectLibre
 Name: projectlibre
 Version: @version@
 Release: @rpm_revision@
 License: CPAL
 Group: Applications/Office
-URL: http://www.projectlibre.com
-Vendor: Projity
-Packager: Laurent Chretienneau, Howard Katz
-Prefix: /usr/share/projectlibre
+URL: http://www.projectlibre.org
+Vendor: ProjectLibre
+Packager: Laurent Chretienneau
 BuildArchitectures: noarch
-Requires: jre >= 1.5.0
+Requires: jre >= 1.6.0
 Requires(post): desktop-file-utils
 Requires(post): shared-mime-info
 Requires(postun): desktop-file-utils
 Requires(postun): shared-mime-info
+BuildRoot: %{_topdir}/INSTALL 
 
 %description
 A desktop replacement for Microsoft Project. It is capable of sharing files with Microsoft Project and has very similar functionality (Gantt, PERT diagram, histogram, charts, reports, detailed usage), as well as tree views which aren't in MS Project.
@@ -26,19 +39,26 @@ A desktop replacement for Microsoft Project. It is capable of sharing files with
 %build
 
 %install
-
+echo %{_topdir}
+echo $RPM_BUILD_ROOT
+echo %{_bindir}
+mkdir -p $RPM_BUILD_ROOT/%{_bindir}
+cp -rf %{_sourcedir}/usr/bin/* $RPM_BUILD_ROOT/%{_bindir}/
+mkdir -p $RPM_BUILD_ROOT/%{_datadir}
+cp -rf %{_sourcedir}/usr/share/* $RPM_BUILD_ROOT/%{_datadir}/
 
 %post
 update-desktop-database &> /dev/null || :
-update-mime-database /usr/share/mime &> /dev/null || :
+update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %postun
 update-desktop-database &> /dev/null || :
-update-mime-database /usr/share/mime &> /dev/null || :
+update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %files
-/usr/share/projectlibre
-/usr/bin/projectlibre
-/usr/share/icons/projectlibre.png
-/usr/share/applications/projectlibre.desktop
-/usr/share/mime/packages/projectlibre.xml
+%defattr(-,root,root)
+%{_datadir}/projectlibre
+%{_bindir}/projectlibre
+%{_datadir}/icons/projectlibre.png
+%{_datadir}/applications/projectlibre.desktop
+%{_datadir}/mime/packages/projectlibre.xml

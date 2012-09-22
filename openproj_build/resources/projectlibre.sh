@@ -58,7 +58,7 @@ JAVA_INSTALL_DIR2="/usr/lib/jvm"
 JAVA_INSTALL_DIR_EXE2="bin/java"
 JAVA_INSTALL_DIR3="/opt/ibm"
 JAVA_INSTALL_DIR_EXE3="jre/bin/java"
-MIN_JAVA_VERSION="1.5"
+MIN_JAVA_VERSION="1.6"
 
 #Default conf values
 JAVA_EXE="java"
@@ -138,15 +138,15 @@ check_java() {
 				if [ "x$FIRST_JAVA_WITH_CORRECT_VERSION" = "x" ]; then
 					FIRST_JAVA_WITH_CORRECT_VERSION="$JAVA_EXE"
 				fi
-				if [ "x$JAVA_IMPL" = "xJava(TM)" ] || [ "x$JAVA_IMPL" = "xIcedTea" ]; then
+				if [ "x$JAVA_IMPL" = "xJava(TM)" ] || [ "x$JAVA_IMPL" = "xOpenJDK" ]; then
 					echo "OK"
-					create_run_conf
-					JAVA_OK="1"
 				else
-					echo "NOK, ProjectLibre requires Sun, IBM or IcedTea implementation"
+					echo "Warning, Unknown Java implementation"
 				fi
+                create_run_conf
+                JAVA_OK="1"
 			else
-				echo "NOK, version < 1.5"
+				echo "NOK, version < 1.6"
 			fi
 		else
 			echo "NOK"
@@ -301,7 +301,7 @@ if [ "$JAVA_OK" -eq "0" ]; then
 
 	if [ "$JAVA_OK" -eq "0" ]; then
 		echo "Java not found or incorrect version."
-		echo "Please install Sun, IBM or IcedTea JRE 1.5+ or set JAVA_HOME environment variable if it's already installed."
+		echo "Please install OpenJDK, Oracle JRE 1.6+ or set JAVA_HOME environment variable if it's already installed."
 	else
 		echo "Java OK"
 	fi

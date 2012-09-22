@@ -7,8 +7,6 @@ Requirements:
 
 	You can download java here:  http://www.java.com/en/download/index.jsp
 
-	If you are on Mac OS X 10.5 or later, Java 6 is pre-installed. (For Mac OS X 10.5 you may have to set Java 6 as default instead of Java 5)
-
 Installation:
 	Unzip the files to the folder of your choice.
 

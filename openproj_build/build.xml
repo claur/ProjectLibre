@@ -139,9 +139,9 @@
 	<target name="tar" depends="dir">
 		<exec executable="chmod"> <!-- to preserve permissions -->
 			<arg value="+x"/>
-			<arg value="${packages}/projectlibre-${version}/openproj.sh"/>
+			<arg value="${packages}/projectlibre-${version}/projectlibre.sh"/>
 		</exec>
-		<exec executable="tar"> <!-- to preserve permissions -->
+		<exec executable="gnutar"> <!-- to preserve permissions also add export COPYFILE_DISABLE=true -->
 			<arg value="--numeric-owner"/>
 			<arg value="--owner=0"/>
 			<arg value="--group=0"/>
@@ -163,19 +163,24 @@
 
 	<target name="rpm-binary" depends="dist">
 		<mkdir dir="${rpm}/RPMS" />
+		<mkdir dir="${rpm}/RPMS/i586" />
+		<mkdir dir="${rpm}/RPMS/noarch" />
+		<mkdir dir="${rpm}/RPMS/x86_64" />
 		<mkdir dir="${rpm}/SPECS" />
 		<mkdir dir="${rpm}/SOURCES" />
 		<mkdir dir="${rpm}/BUILD" />
 		<mkdir dir="${rpm}/SRPMS" />
 		<mkdir dir="${rpm}/INSTALL" />
+		<mkdir dir="${rpm}/tmp" />
 
 		<copy todir="${rpm}/SPECS" file="${resources}/rpm/projectlibre.spec">
 			<filterset>
-				<filter token="version" value="${version}"/>
+				<filter token="basedir" value="${basedir}"/>
+				<filter token="version" value="${rpm_version}"/>
 			    <filter token="rpm_revision" value="${rpm_revision}"/>
 			</filterset>
 		</copy>
-		<copy todir="${rpm}/INSTALL/usr/share/projectlibre/" >
+		<copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/projectlibre/" >
 			<fileset dir="${dist}">
 				<include name="**"/>
 			</fileset>
@@ -186,22 +191,22 @@
 				<include name="license/**"/>
 			</fileset>
 		</copy>
-		<mkdir dir="${rpm}/INSTALL/usr/bin/" />
+		<mkdir dir="${rpm}/${rpm_filesroot}${rpm_prefix}/bin/" />
 		<exec executable="cp"> <!-- to preserve permissions -->
 			<arg value="${resources}/projectlibre"/>
-			<arg value="${rpm}/INSTALL/usr/bin/projectlibre"/>
+			<arg value="${rpm}/${rpm_filesroot}${rpm_prefix}/bin/projectlibre"/>
 		</exec>
-		<copy todir="${rpm}/INSTALL/usr/share/icons" >
+		<copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/icons" >
 			<fileset dir="${resources}">
 				<include name="projectlibre.png"/>
 			</fileset>
 		</copy>
-		<copy todir="${rpm}/INSTALL/usr/share/applications" >
+		<copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/applications" >
 			<fileset dir="${resources}">
 				<include name="projectlibre.desktop"/>
 			</fileset>
 		</copy>
-		<copy todir="${rpm}/INSTALL/usr/share/mime/packages" >
+		<copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/mime/packages" >
 			<fileset dir="${resources}">
 				<include name="projectlibre.xml"/>
 			</fileset>
@@ -209,31 +214,32 @@
 
 		<exec executable="chmod">
 			<arg value="a+x"/>
-			<arg value="${rpm}/INSTALL/usr/bin/projectlibre"/>
+			<arg value="${rpm}/${rpm_filesroot}${rpm_prefix}/bin/projectlibre"/>
 		</exec>
-		<!--copy todir="${rpm}/INSTALL/usr/share/apps/kdesktop/Desktop" >
+		<!--copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/apps/kdesktop/Desktop" >
 			<fileset dir="${resources}">
 				<include name="openproj.desktop"/>
 			</fileset>
 		</copy-->
 	</target>
-	<target name="rpm-create" depends="rpm-binary">
-		 <rpm specfile="projectlibre.spec" topdir="${rpm}" command="-bb --buildroot ${basedir}/${rpm}/INSTALL"/>
+	<target name="rpm" depends="rpm-binary,rpm-create">
 	</target>
-	<target name="rpm-create-nodeps">
-		 <rpm specfile="projectlibre.spec" topdir="${rpm}" command="-bb --buildroot ${basedir}/${rpm}/INSTALL"/>
+	<target name="rpm-create">
+			<exec executable="${rpm_rpmbuild}">
+				<arg value="-bb"/>
+				<!--arg value="- - buildroot"/-->
+				<!--arg value="${basedir}/${rpm}/INSTALL"/-->
+				<arg value="${rpm}/SPECS/projectlibre.spec"/>
+			</exec>
+		<!-- SET .rpmmacros 
+		%_topdir        %(echo $HOME)/.../openproj_build/rpm
+		%_tmppath       %(echo $HOME)/.../openproj_build/rpm
+		-->
+		 <!-- rpm specfile="${rpm}/SPECS/projectlibre.spec" topdir="${rpm}"/-->
+		 <!--rpm specfile="${rpm}/SPECS/projectlibre.spec" topdir="${rpm}" command="-bb - - buildroot ${basedir}/${rpm}/INSTALL"/-->
+		
+		
 	</target>
-	<target name="rpm-package" depends="rpm-binary">
-		<exec executable="tar"> <!-- to preserve permissions -->
-			<arg value="--numeric-owner"/>
-			<arg value="--owner=0"/>
-			<arg value="--group=0"/>
-			<arg value="-czf"/>
-			<arg value="${packages}/projectlibre-${version}-rpm.tar.gz"/>
-			<arg value="rpm"/>
-		</exec>
-	</target>
-	<target name="rpm" depends="rpm-binary,rpm-create"/>
 
 	<target name="deb-prepare">
 		<mkdir dir="../debian" />
@@ -266,10 +272,12 @@
 
 		<copy todir="${deb}/DEBIAN" file="${resources}/deb/control" >
 			<filterset>
-				<filter token="version" value="${version}"/>
+				<filter token="version" value="${deb_version}"/>
 			    <filter token="deb_revision" value="${deb_revision}"/>
 			</filterset>
 		</copy>
+		<!-- in control Installed-Size: xxx should be calculated each with something like:
+		du -sx - - exclude DEBIAN deb/projectlibre/ -->
 		<copy todir="${deb}/DEBIAN" >
 			<fileset dir="${resources}/deb/">
 				<include name="postinst"/>
@@ -292,7 +300,7 @@
 				<include name="copyright"/>
 			</fileset>
 			<filterset>
-				<filter token="version" value="${version}"/>
+				<filter token="version" value="${deb_version}"/>
 			    <filter token="deb_revision" value="${deb_revision}"/>
 			</filterset>
 		</copy>
@@ -347,49 +355,32 @@
 		</exec>
 
 	</target>
-	<target name="deb-create-nodeps">
-		<exec executable="sudo"> <!-- need 0/0 -->
+	<target name="deb-create">
+		 <!-- need 0/0 -->
+		<!--exec executable="sudo">
 			<arg value="chown"/>
 			<arg value="-R"/>
-			<arg value="0:0"/>
+			<arg value="root:wheel"/>
 			<arg value="${deb}"/>
-		</exec>
+		</exec-->
 
-		<exec executable="sudo">
-			<arg value="dpkg-deb"/>
+		<exec executable="/opt/local/bin/dpkg-deb">
 			<arg value="--build"/>
 			<arg value="${basedir}/${deb}"/>
-			<arg value="${basedir}/${debroot}/projectlibre_${version}-${deb_revision}.deb"/>
+			<arg value="${basedir}/${debroot}/projectlibre_${deb_version}-${deb_revision}.deb"/>
 		</exec>
 
-		<exec executable="sudo">
+		<!--exec executable="sudo">
 			<arg value="chown"/>
 			<arg value="-R"/>
 			<arg value="${user.name}"/>
 			<arg value="${debroot}"/>
-		</exec>
-
-	</target>
-	<target name="deb-create" depends="deb-binary">
-		<exec executable="sudo"> <!-- need 0/0 -->
-			<arg value="chown"/>
-			<arg value="-R"/>
-			<arg value="0:0"/>
-			<arg value="${deb}"/>
-		</exec>
-
-		<exec executable="sudo">
-			<arg value="dpkg-deb"/>
-			<arg value="--build"/>
-			<arg value="${basedir}/${deb}"/>
-			<arg value="${basedir}/${debroot}/projectlibre_${version}-${deb_revision}.deb"/>
-		</exec>
-
-		<exec executable="sudo">
-			<arg value="chown"/>
-			<arg value="-R"/>
-			<arg value="${user.name}"/>
-			<arg value="${debroot}"/>
+		</exec-->
+		<exec executable="sh"> <!-- dpkg-deb package with wheel group on Mac OS X is causing check issues on Ubuntu. Workaround to put numeric owner group in tars. requires gnutar -->
+			<arg value="resources/deb/cleandeb.sh"/>
+			<arg value="${basedir}/${debroot}"/>
+			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
+			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
 		</exec>
 
 	</target>
@@ -406,7 +397,7 @@
 
 		<copy todir="${packages}/${macapp}/Contents" file="${resources}/mac/Info.plist" >
 			<filterset>
-				<filter token="version" value="${version}"/>
+				<filter token="version" value="${numericVersion3}"/>
 			</filterset>
 		</copy>
 		<copy todir="${packages}/${macapp}/Contents" file="${resources}/mac/PkgInfo" />
@@ -445,6 +436,49 @@
 
 	</target>
 
+	<target name="mac-new" depends="dist">
+		<mkdir dir="${packages}/mac-new/${macapp}" />
+		<mkdir dir="${packages}/mac-new/${macapp}/Contents" />
+		<mkdir dir="${packages}/mac-new/${macapp}/Contents/MacOS" />
+		<mkdir dir="${packages}/mac-new/${macapp}/Contents/Resources" />
+		<mkdir dir="${packages}/mac-new/${macapp}/Contents/Java" />
+
+		<copy todir="${packages}/mac-new/${macapp}/Contents" file="${resources}/mac/new/Info.plist" >
+			<filterset>
+				<filter token="version" value="${numericVersion3}"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/mac-new/${macapp}/Contents" file="${resources}/mac/new/PkgInfo" />
+		<copy todir="${packages}/mac-new/${macapp}/Contents/Resources" >
+			<fileset dir="${resources}/mac">
+				<include name="projectlibre.icns"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/mac-new/${macapp}/Contents/Java" >
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+			<fileset dir="${dist}">
+				<include name="projectlibre.jar"/>
+				<include name="lib/*.jar"/>
+			</fileset>
+		</copy>
+		 <!-- to preserve permissions -->
+		<exec executable="cp">
+			<arg value="${resources}/mac/JavaAppLauncher"/>
+			<arg value="${packages}/mac-new/${macapp}/Contents/MacOS"/>
+		</exec>
+
+
+		<exec executable="chmod"> <!-- remove group write permissions -->
+			<arg value="-R"/>
+			<arg value="g-w"/>
+			<arg value="${packages}/mac-new/${macapp}"/>
+		</exec>
+
+
+	</target>
+
 	<target name="mac-tar" depends="mac">
 		<exec executable="tar"> <!-- to preserve permissions -->
 			<arg value="--numeric-owner"/>
@@ -457,8 +491,40 @@
 			<arg value="${macapp}"/>
 		</exec>
 	</target>
+	
+	
+	
+    <target name="wix" depends="dir">
+		<mkdir dir="${packages}/${wixbuild}-${version}"/>
+		<mkdir dir="${packages}/${wixbuild}-${version}/projectlibre"/>
 
-	<target name="package" depends="dir,tar,zip,rpm,deb,mac-tar">
+		<copy todir="${packages}/${wixbuild}-${version}" file="${resources}/wix/projectlibre.wxs" >
+			<filterset>
+				<filter token="version" value="${numericVersion4}"/>
+				<filter token="resourcedir" value="projectlibre"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/${wixbuild}-${version}" file="${resources}/wix/projectlibre.nsi" />
+		<copy todir="${packages}/${wixbuild}-${version}/projectlibre">
+			<fileset dir="${packages}/projectlibre-${version}">
+				<include name="**"/>
+				<exclude name="projectlibre.sh"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/${wixbuild}-${version}/projectlibre" >
+			<fileset dir="${resources}/wix">
+				<include name="msi_images/**"/>
+				<include name="projectlibre.exe"/>
+			</fileset>
+		</copy>
+
+    </target>
+
+	
+	
+	
+
+	<target name="all" depends="dir,tar,zip,rpm,deb,mac,mac-new,wix">
 	</target>
 
 

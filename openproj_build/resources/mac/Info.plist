@@ -77,7 +77,6 @@
 		<array>
 			<string>$JAVAROOT/projectlibre.jar</string>
 			<string>$JAVAROOT/lib/openproj-contrib.jar</string>
-			<string>$JAVAROOT/lib/openproj-exchange.jar</string>
 			<string>$JAVAROOT/lib/openproj-reports.jar</string>
 			<string>$JAVAROOT/lib/openproj-script.jar</string>
 		</array>

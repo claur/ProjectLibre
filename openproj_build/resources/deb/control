@@ -3,7 +3,8 @@ Version: @version@-@deb_revision@
 Priority: optional
 Section: editors
 Architecture: all
-Depends: java7-runtime | java6-runtime | java5-runtime | jre (>= 1.5) | sun-java6-jre | sun-java5-jre | sun-java6-jdk | sun-java5-jdk
+Installed-Size: 28352
+Depends: openjdk-7-jre | openjdk-6-jre | openjdk-8-jre | sun-java6-jre | java7-runtime | java6-runtime | java8-runtime
 Maintainer: Laurent Chretienneau <lchretienneau@projectlibre.org>
 Description: A desktop replacement for Microsoft Project
  It is capable of sharing files with Microsoft Project and has very similar
