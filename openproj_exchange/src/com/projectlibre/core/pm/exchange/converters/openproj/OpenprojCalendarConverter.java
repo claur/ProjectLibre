@@ -91,7 +91,9 @@ import com.projity.util.DateTime;
  */
 public class OpenprojCalendarConverter {
 	public void to(WorkingCalendar openprojCalendar, WorkCalendar calendar, OpenprojImportState state){
-		openprojCalendar.setId(calendar.getId().getId());		
+		openprojCalendar.setId(calendar.getId().getId());
+		String name=calendar.getName();
+		openprojCalendar.setName(calendar.getName());
 		
 		//base calendar
 		WorkingCalendar openprojStandardCalendar=CalendarService.getInstance().getStandardInstance();

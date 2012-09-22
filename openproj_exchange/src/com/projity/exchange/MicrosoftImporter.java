@@ -303,6 +303,10 @@ public class MicrosoftImporter extends ServerFileImporter{
 		for (WorkCalendar plCalendar : plProject.getCalendarManager()) {
 			WorkingCalendar openprojCalendar=WorkingCalendar.getStandardBasedInstance();
 			ProjectConverter.getInstance().convert("openproj",ProjectConverter.Type.CALENDAR,false,openprojCalendar,plCalendar,state);
+			if (CalendarService.findBaseCalendar(openprojCalendar.getName())!= null){
+				//rename imported calendar if a calendar with the same name exists
+				openprojCalendar.setName(openprojCalendar.getName() + "[Imported]");
+			}
 			CalendarService.getInstance().add(openprojCalendar);
 			state.mapBaseCalendar(plCalendar,openprojCalendar);
 		}

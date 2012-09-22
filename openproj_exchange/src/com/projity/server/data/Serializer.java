@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright ��� 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -69,12 +70,14 @@ import java.util.TreeSet;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 
+import com.projity.association.AssociationList;
 import com.projity.association.InvalidAssociationException;
 import com.projity.company.ApplicationUser;
 import com.projity.company.UserUtil;
 import com.projity.configuration.CircularDependencyException;
 import com.projity.configuration.Configuration;
 import com.projity.configuration.FieldDictionary;
+import com.projity.configuration.Settings;
 import com.projity.field.FieldValues;
 import com.projity.grouping.core.Node;
 import com.projity.grouping.core.NodeFactory;
@@ -108,6 +111,7 @@ import com.projity.session.Session;
 import com.projity.session.SessionFactory;
 import com.projity.strings.Messages;
 import com.projity.undo.DataFactoryUndoController;
+import com.projity.util.Environment;
 
 /**
  *
@@ -165,6 +169,23 @@ public class Serializer {
     	resourceLinker.addOutline(null); // root is null
         return resourceLinker.getTransformationMap();
     }
+    
+    public static interface AssignmentClosure{
+    	public void execute(Assignment assignment,int snapshotId) throws IOException;
+    }
+    public static void forAssignments(NormalTask task,AssignmentClosure c) throws IOException{
+        for (int s=0;s<Settings.numBaselines();s++){
+            TaskSnapshot snapshot=(TaskSnapshot)task.getSnapshot(new Integer(s));
+            if (snapshot==null) continue;
+            AssociationList snapshotAssignments=snapshot.getHasAssignments().getAssignments();
+            if (snapshotAssignments.size()>0){
+                for (Iterator j=snapshotAssignments.iterator();j.hasNext();){
+                    c.execute((Assignment)j.next(),s);
+                }
+            }
+        }
+    }
+
 
     protected TaskLinker taskLinker=new TaskLinker(){
     	public Object addTransformedObjects(Object child) throws IOException, UniqueIdException{
@@ -220,51 +241,44 @@ public class Serializer {
 	        	taskData.setSubprojectId(((SubProj)task).getSubprojectUniqueId());
 	        }
 
-	        //exposed attributes
-//	        if (Environment.isNoPodServer()) addPreparedAttributes(taskData,task, project.getTaskOutline(),options); //Claur
-
 
             //assignments
             final Collection assignments=(flatAssignments==null)?new ArrayList():flatAssignments;
             if (taskDirty)
-//            Project.forAssignments(task, new Project.AssignmentClosure(){ //claur
-//            	public void execute(Assignment assignment,int s){
-//                    try {
-//						ResourceImpl r=(ResourceImpl)assignment.getResource();
-//						//if (r.isDefault()) continue;
-//						AssignmentData assignmentData=(AssignmentData)serialize(assignment,AssignmentData.FACTORY,null);
-//						assignmentData.setStatus(SerializedDataObject.UPDATE);
-////                    assignmentData.setStatus(assignment.isDirty() || taskDirty ? SerializedDataObject.UPDATE : 0);
-//
-//						if (flatAssignments==null) assignmentData.setTask(taskData);
-//						else assignmentData.setTaskId(taskData.getUniqueId());
-//						EnterpriseResourceData enterpriseResourceData=(r.isDefault())?
-//						    	null:
-//						    		((ResourceData)resourceMap.get(new Long(r.getUniqueId()))).getEnterpriseResource();
-//						if (flatAssignments==null) assignmentData.setResource(enterpriseResourceData);
-//						else assignmentData.setResourceId((enterpriseResourceData==null)?-1L:enterpriseResourceData.getUniqueId());
-//						assignmentData.setSnapshotId(s);
-//
-//						assignmentData.setCachedStart(new Date(assignment.getStart()));
-//						assignmentData.setCachedEnd(new Date(assignment.getEnd()));
-//						assignmentData.setTimesheetStatus(assignment.getTimesheetStatus());
-//						assignmentData.setLastTimesheetUpdate(new Date(assignment.getLastTimesheetUpdate()));
-//						assignmentData.setWorkflowState(assignment.getWorkflowState());
-//						assignmentData.setPercentComplete(assignment.getPercentComplete()); //assignments notification
-//						assignmentData.setDuration(assignment.getDuration()); //assignments notification
-//
-//						assignments.add(assignmentData);
-//
-//				        //exposed attributes
-//				        if (Environment.isNoPodServer()) addPreparedAttributes(assignmentData,assignment, project.getTaskOutline(),options);
-//
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//            	}
-//            });
-//            if (flatAssignments==null) taskData.setAssignments(assignments);
+            forAssignments(task, new AssignmentClosure(){ //claur
+            	public void execute(Assignment assignment,int s){
+                    try {
+						ResourceImpl r=(ResourceImpl)assignment.getResource();
+						AssignmentData assignmentData=(AssignmentData)serialize(assignment,AssignmentData.FACTORY,null);
+						assignmentData.setStatus(SerializedDataObject.UPDATE);
+
+						if (flatAssignments==null) assignmentData.setTask(taskData);
+						else assignmentData.setTaskId(taskData.getUniqueId());
+						EnterpriseResourceData enterpriseResourceData=(r.isDefault())?
+						    	null:
+						    		((ResourceData)resourceMap.get(new Long(r.getUniqueId()))).getEnterpriseResource();
+						if (flatAssignments==null) assignmentData.setResource(enterpriseResourceData);
+						else assignmentData.setResourceId((enterpriseResourceData==null)?-1L:enterpriseResourceData.getUniqueId());
+						assignmentData.setSnapshotId(s);
+
+						assignmentData.setCachedStart(new Date(assignment.getStart()));
+						assignmentData.setCachedEnd(new Date(assignment.getEnd()));
+						assignmentData.setTimesheetStatus(assignment.getTimesheetStatus());
+						assignmentData.setLastTimesheetUpdate(new Date(assignment.getLastTimesheetUpdate()));
+						assignmentData.setWorkflowState(assignment.getWorkflowState());
+						assignmentData.setPercentComplete(assignment.getPercentComplete()); //assignments notification
+						assignmentData.setDuration(assignment.getDuration()); //assignments notification
+
+						assignments.add(assignmentData);
+
+
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+            	}
+            });
+            if (flatAssignments==null) taskData.setAssignments(assignments);
 //~            taskData.setStart(new Date(task.getStart()));
 //~            taskData.setEnd(new Date(task.getEnd()));
 
@@ -745,13 +759,13 @@ public class Serializer {
 
     //DEF165936: 	Projity: .pod file import fails mapped to resource with modified calendar
     //the only way i found to make this work was to pass over the original ResourceImpls mapped by selected resource Id
-    private Project _existingProject = null;
-    Map<Long, Resource> _localResourceMap;
-    public void SetStuffForPODDeserialization(Project existingProject, Map<Long, Resource> localResourceMap)
-    {
-    	_existingProject = existingProject;
-    	_localResourceMap = localResourceMap;
-    }
+//    private Project _existingProject = null;
+//    Map<Long, Resource> _localResourceMap;
+//    public void SetStuffForPODDeserialization(Project existingProject, Map<Long, Resource> localResourceMap)
+//    {
+//    	_existingProject = existingProject;
+//    	_localResourceMap = localResourceMap;
+//    }
     public Project deserializeProject(ProjectData projectData, final boolean subproject, final Session reindex, Map enterpriseResources,Closure loadResources,boolean updateDistribution) throws IOException, ClassNotFoundException {
     	DataFactoryUndoController undoController=new DataFactoryUndoController();
     	Project project=(Project)deserialize(projectData,reindex);
@@ -818,11 +832,11 @@ public class Serializer {
     		for (Iterator i=resources.iterator();i.hasNext();){
     			ResourceData resourceData=(ResourceData)i.next();
     			ResourceImpl resource=deserializeResourceAndAddToPool(resourceData,resourcePool,reindex,enterpriseResources);
-    			Resource origImpl =  _localResourceMap.get(resourceData.getUniqueId());
-    			//old code below
-    			//resourceNodeMap.put(resourceData.getEnterpriseResource(),NodeFactory.getInstance().createNode(resource));
-    			//replaced with change for DEF165936
-    			resourceNodeMap.put(resourceData.getEnterpriseResource(),NodeFactory.getInstance().createNode(origImpl));
+    			
+       			//Change for DEF165936 but doesn't work
+    			//Resource origImpl =  _localResourceMap.get(resourceData.getUniqueId());
+    			//resourceNodeMap.put(resourceData.getEnterpriseResource(),NodeFactory.getInstance().createNode(origImpl));
+     			resourceNodeMap.put(resourceData.getEnterpriseResource(),NodeFactory.getInstance().createNode(resource));
     		}
     	project.setResourcePool(resourcePool);
 
@@ -895,7 +909,8 @@ public class Serializer {
     				if (!task1.isExternal() && task2.isExternal()) return -1; //keep external tasks at the end
     				else if (task1.isExternal() && !task2.isExternal()) return 1;
     				else if (task1.getChildPosition()>task2.getChildPosition()) return 1;
-    				else return -1;
+    				else if (task1.getChildPosition()<task2.getChildPosition()) return -1;
+    				else return 0;
     			}
     		});
 

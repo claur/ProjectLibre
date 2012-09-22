@@ -148,16 +148,17 @@ public abstract class TaskLinker extends Linker {
 			this.obj = obj;
 		}
 	}
-	protected List<PreparedAttributes> preparedAttributes;
-
-	public void addPreparedAttributes(SerializedDataObject data, Object obj, NodeModel model,SerializeOptions options) {
-		if (preparedAttributes==null) preparedAttributes=new ArrayList<PreparedAttributes>();
-		TypeSystemConverter converter=TypeSystemConverterFactory.getInstance().getConverter();
-		Predicate fieldFilter=options==null?null:options.getFieldFilter();
-   		if (data instanceof TaskData) preparedAttributes.add(new PreparedAttributes(data,obj,converter.getDirtyExtraFields(obj,fieldFilter),converter.getExposedTaskFields(fieldFilter),model));
-		else if (data instanceof AssignmentData) preparedAttributes.add(new PreparedAttributes(data,obj,converter.getDirtyExtraFields(obj,fieldFilter),converter.getExposedAssignmentFields(fieldFilter),model));
-
-	}
+//	protected List<PreparedAttributes> preparedAttributes; //claur
+//
+//	public void addPreparedAttributes(SerializedDataObject data, Object obj, NodeModel model,SerializeOptions options) {
+//		if (preparedAttributes==null) preparedAttributes=new ArrayList<PreparedAttributes>();
+//		TypeSystemConverter converter=TypeSystemConverterFactory.getInstance().getConverter();
+//		Predicate fieldFilter=options==null?null:options.getFieldFilter();
+//   		if (data instanceof TaskData) preparedAttributes.add(new PreparedAttributes(data,obj,converter.getDirtyExtraFields(obj,fieldFilter),converter.getExposedTaskFields(fieldFilter),model));
+//		else if (data instanceof AssignmentData) preparedAttributes.add(new PreparedAttributes(data,obj,converter.getDirtyExtraFields(obj,fieldFilter),converter.getExposedAssignmentFields(fieldFilter),model));
+//
+//	}
+	
 	public void computeAttributes(){
 //        if (Environment.isNoPodServer()){
 //           	TypeSystemConverter converter=TypeSystemConverterFactory.getInstance().getConverter();
@@ -195,12 +196,12 @@ public abstract class TaskLinker extends Linker {
 		super.addTransformedObjects();
 		computeAttributes();
 	}
-	public List<PreparedAttributes> getPreparedAttributes() {
-		return preparedAttributes;
-	}
-	public void setPreparedAttributes(List<PreparedAttributes> preparedAttributes) {
-		this.preparedAttributes = preparedAttributes;
-	}
+//	public List<PreparedAttributes> getPreparedAttributes() { //claur
+//		return preparedAttributes;
+//	}
+//	public void setPreparedAttributes(List<PreparedAttributes> preparedAttributes) {
+//		this.preparedAttributes = preparedAttributes;
+//	}
 
 	protected SerializeOptions options;
 	public SerializeOptions getOptions() {

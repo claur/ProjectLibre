@@ -108,7 +108,7 @@ public class OpenprojTaskConverter {
 		"priority", "priority", null,
 		"fixedCost", "fixedCost", null,
 		"fixedCostAccrual", "fixedCostAccrual", "com.projectlibre.core.pm.exchange.converters.openproj.type.OpenprojAccrueTypeConverter",
-		"stop", "stop", null,
+		"stop", "stop", "com.projectlibre.core.pm.exchange.converters.type.LongDateConverter",
 		"effortDriven", "effortDriven", null,
 		"schedulingType", "schedulingType", "com.projectlibre.core.pm.exchange.converters.openproj.type.OpenprojSchedulingTypeConverter",		
 		"milestone", "markTaskAsMilestone", null,
