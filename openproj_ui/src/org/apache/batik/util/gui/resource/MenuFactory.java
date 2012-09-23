@@ -145,7 +145,7 @@ public class MenuFactory extends ResourceManager {
      *           description.
      * @param am the actions to add to menu items
      */
-    public MenuFactory(ResourceBundle rb, ActionMap am) {
+    public MenuFactory(ActionMap am, ResourceBundle...rb) {
         super(rb);
         actions = am;
 	buttonGroup = null;
@@ -237,7 +237,7 @@ public class MenuFactory extends ResourceManager {
             item = createJCheckBoxMenuItem(name);
         } else {
 	    throw new ResourceFormatException("Malformed resource",
-					      bundle.getClass().getName(),
+					      bundleNames,
 					      name+TYPE_SUFFIX);
 	}
 	
@@ -425,7 +425,7 @@ public class MenuFactory extends ResourceManager {
 		item.setMnemonic(str.charAt(0));
 	    } else {
 		throw new ResourceFormatException("Malformed mnemonic",
-						  bundle.getClass().getName(),
+						  bundleNames,
 						  name+MNEMONIC_SUFFIX);
 	    }
 	} catch (MissingResourceException e) {
@@ -441,7 +441,7 @@ public class MenuFactory extends ResourceManager {
 		} else {
 		    throw new ResourceFormatException
                         ("Malformed accelerator",
-                         bundle.getClass().getName(),
+                         bundleNames,
                          name+ACCELERATOR_SUFFIX);
 		}
 	    }

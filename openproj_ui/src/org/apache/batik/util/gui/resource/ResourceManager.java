@@ -67,14 +67,21 @@ public class ResourceManager {
     /**
      * The managed resource bundle
      */
-    protected ResourceBundle bundle;
+    protected ResourceBundle[] bundles;
+    protected String bundleNames;
 
     /**
      * Creates a new resource manager
      * @param rb a resource bundle
      */
-    public ResourceManager(ResourceBundle rb) {
-	bundle = rb;
+    public ResourceManager(ResourceBundle...rb) {
+    	bundles = rb;
+    	bundleNames="";
+    	String sep="";
+    	for (ResourceBundle bundle : bundles){
+    		bundleNames+=sep+bundle.getClass().getName();
+    		sep="; ";
+    	}
     }
 
     /**
@@ -84,7 +91,20 @@ public class ResourceManager {
      */
     public String getString(String key)
 	throws MissingResourceException {
-	return bundle.getString(key);
+    	MissingResourceException exception=null;
+    	String s=null;
+    	for (ResourceBundle bundle : bundles){
+    		try {
+				s=bundle.getString(key);
+				exception=null;
+			} catch (MissingResourceException e) {
+				exception=e;
+				continue;
+			}
+    		if (s!=null) break;
+    	}
+    	if (exception!=null) throw exception;
+    	return s;
     }
     
     public String getStringOrNull(String key) {
@@ -153,7 +173,7 @@ public class ResourceManager {
 	    return false;
 	} else {
 	    throw new ResourceFormatException("Malformed boolean",
-                                              bundle.getClass().getName(),
+                                              bundleNames,
                                               key);
 	}
     }
@@ -172,7 +192,7 @@ public class ResourceManager {
 	    return Integer.parseInt(i);
 	} catch (NumberFormatException e) {
 	    throw new ResourceFormatException("Malformed integer",
-                                              bundle.getClass().getName(),
+	    									bundleNames,
                                               key);
 	}
     }
@@ -183,7 +203,7 @@ public class ResourceManager {
         
         if(s == null || s.length() == 0){
             throw new ResourceFormatException("Malformed character",
-                                              bundle.getClass().getName(),
+            								bundleNames,
                                               key);
         }
 

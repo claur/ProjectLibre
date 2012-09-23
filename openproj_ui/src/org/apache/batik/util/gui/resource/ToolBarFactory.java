@@ -115,10 +115,10 @@ public class ToolBarFactory extends ResourceManager {
 	 * @param am
 	 *            the actions to add to menu items
 	 */
-	public ToolBarFactory(ResourceBundle rb, ActionMap am) {
+	public ToolBarFactory(ActionMap am,ResourceBundle...rb) {
 		super(rb);
 		actions = am;
-		buttonFactory = new ExtButtonFactory(rb, am);
+		buttonFactory = new ExtButtonFactory(am,rb);
 		buttonGroup = null;
 	}
 
@@ -222,7 +222,7 @@ public class ToolBarFactory extends ResourceManager {
 	    return false;
 	} else {
 	    throw new ResourceFormatException("Malformed boolean",
-                                              bundle.getClass().getName(),
+                                              bundleNames,
                                               key);
 	}
     }	

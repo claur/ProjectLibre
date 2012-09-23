@@ -119,10 +119,10 @@ public class RibbonFactory extends ResourceManager {
 	 * @param am
 	 *            the actions to add to menu items
 	 */
-	public RibbonFactory(ResourceBundle rb, ActionMap am) {
+	public RibbonFactory(ActionMap am, ResourceBundle...rb) {
 		super(rb);
 		actions = am;
-		buttonFactory = new ExtButtonFactory(rb, am);
+		buttonFactory = new ExtButtonFactory(am,rb);
 		buttonGroup = null;
 	}
 
@@ -342,7 +342,7 @@ public class RibbonFactory extends ResourceManager {
 	    return false;
 	} else {
 	    throw new ResourceFormatException("Malformed boolean",
-                                              bundle.getClass().getName(),
+                                              bundleNames,
                                               key);
 	}
     }

@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -83,6 +83,7 @@ import com.projity.util.Environment;
  */
 public class MenuManager {
 	private static final String MENU_BUNDLE = "com.projity.menu.menu";
+	private static final String MENU_INTERNAL_BUNDLE = "com.projity.menu.menuInternal";
 	private static final String MENU_BUNDLE_CONF_DIR = "menu";
 	public static final String STANDARD_MENU ="StandardMenuBar";
 	public static final String MAC_STANDARD_MENU ="MacStandardMenuBar";
@@ -100,7 +101,8 @@ public class MenuManager {
 	public static final String STANDARD_RIBBON = "StandardRibbon";
 
 	//private static MenuManager instance = null;
-	static ResourceBundle bundle;
+	static ResourceBundle bundle,internalBundle;
+	static ResourceBundle[] bundles;
 	/*static*/ ExtMenuFactory menuFactory;
 	ExtToolBarFactory toolBarFactory;
 	ExtRibbonFactory ribbonFactory;
@@ -121,10 +123,12 @@ public class MenuManager {
 				}
 			}catch(Exception e){}
 			if (bundle==null) bundle =  ResourceBundle.getBundle(MENU_BUNDLE,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader());
+			if (internalBundle==null) internalBundle =  ResourceBundle.getBundle(MENU_INTERNAL_BUNDLE,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader());
+			bundles=new ResourceBundle[]{internalBundle,bundle};
 		}
-		menuFactory = new ExtMenuFactory(bundle,rootActionMap);
-		toolBarFactory = new ExtToolBarFactory(bundle,rootActionMap);
-		if (Environment.isRibbonUI()) ribbonFactory = new ExtRibbonFactory(bundle,rootActionMap);
+		menuFactory = new ExtMenuFactory(rootActionMap,bundles);
+		toolBarFactory = new ExtToolBarFactory(rootActionMap,bundles);
+		if (Environment.isRibbonUI()) ribbonFactory = new ExtRibbonFactory(rootActionMap,bundles);
 	}
 
 	public static MenuManager getInstance(ActionMap rootActionMap) {
@@ -143,7 +147,19 @@ public class MenuManager {
 	}
 
 	public static String getMenuString(String key) {
-		return bundle.getString(key);
+    	MissingResourceException exception=null;
+    	String s=null;
+    	for (ResourceBundle bundle : bundles){
+    		try {
+				s=bundle.getString(key);
+			} catch (MissingResourceException e) {
+				exception=e;
+				continue;
+			}
+    		if (s!=null) break;
+    	}
+    	if (exception!=null) throw exception;
+    	return s;
 	}
 	public String getString(String key) {
 		return menuFactory.getString(key);

@@ -131,7 +131,7 @@ public class ButtonFactory extends ResourceManager {
 	 * @param am
 	 *            the actions to bind to the button
 	 */
-	public ButtonFactory(ResourceBundle rb, ActionMap am) {
+	public ButtonFactory(ActionMap am, ResourceBundle...rb) {
 		super(rb);
 		actions = am;
 		classLoader=ClassLoaderUtils.getLocalClassLoader(); //LC MODIF
@@ -396,8 +396,7 @@ public class ButtonFactory extends ResourceManager {
 			if (str.length() == 1) {
 				b.setMnemonic(str.charAt(0));
 			} else {
-				throw new ResourceFormatException("Malformed mnemonic", bundle
-						.getClass().getName(), name + MNEMONIC_SUFFIX);
+				throw new ResourceFormatException("Malformed mnemonic", bundleNames, name + MNEMONIC_SUFFIX);
 			}
 		} catch (MissingResourceException e) {
 		}
