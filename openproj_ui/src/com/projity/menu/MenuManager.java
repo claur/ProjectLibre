@@ -101,7 +101,6 @@ public class MenuManager {
 	public static final String STANDARD_RIBBON = "StandardRibbon";
 
 	//private static MenuManager instance = null;
-	static ResourceBundle bundle,internalBundle;
 	static ResourceBundle[] bundles;
 	/*static*/ ExtMenuFactory menuFactory;
 	ExtToolBarFactory toolBarFactory;
@@ -115,6 +114,7 @@ public class MenuManager {
 	}
 	private MenuManager(ActionMap rootActionMap) {
 		this.rootActionMap = rootActionMap;
+		ResourceBundle internalBundle=null,bundle=null;
 		if (bundle==null){
 			try{
 				DirectoryClassLoader dir=new DirectoryClassLoader();
@@ -122,8 +122,8 @@ public class MenuManager {
 					bundle=ResourceBundle.getBundle(MENU_BUNDLE_CONF_DIR,Locale.getDefault(),dir);
 				}
 			}catch(Exception e){}
-			if (bundle==null) bundle =  ResourceBundle.getBundle(MENU_BUNDLE,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader());
 			if (internalBundle==null) internalBundle =  ResourceBundle.getBundle(MENU_INTERNAL_BUNDLE,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader());
+			if (bundle==null) bundle =  ResourceBundle.getBundle(MENU_BUNDLE,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader());
 			bundles=new ResourceBundle[]{internalBundle,bundle};
 		}
 		menuFactory = new ExtMenuFactory(rootActionMap,bundles);
@@ -152,6 +152,7 @@ public class MenuManager {
     	for (ResourceBundle bundle : bundles){
     		try {
 				s=bundle.getString(key);
+				exception=null;
 			} catch (MissingResourceException e) {
 				exception=e;
 				continue;
