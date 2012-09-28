@@ -113,7 +113,7 @@ public class MpxAssignmentConverter {
 		//convert fields
 		FieldUtil.convertFields(assignment, net.sf.mpxj.ResourceAssignment.class, mpxAssignment, fieldsToConvert, true);
 
-		//timephased
+		// timephased
 		List<TimephasedDataType> mpxRawTimephasedData = state.getMpxTimephasedMap().get(mpxAssignment);
 		if (mpxRawTimephasedData!= null) {
 			DefaultTimephasedValues timephasedValues=new DefaultTimephasedValues();
