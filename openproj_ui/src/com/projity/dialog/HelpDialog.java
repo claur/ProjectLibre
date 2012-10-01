@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright © 2006, 2007 
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007 
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
 an open source solution from Projity. Attribution URL: http://www.projity.com 
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
@@ -75,7 +75,7 @@ import com.projity.util.Environment;
 public final class HelpDialog extends AbstractDialog {
 	private static final long serialVersionUID = 1L;
 //	private static final String helpUrl = "http://www.projectlibre.com/doc.html"; //$NON-NLS-1$
-	private static final String helpUrl = "http://www.projectlibre.com"; //$NON-NLS-1$
+	private static final String helpUrl = "http://www.projectlibre.org/wiki/projectlibre-manual-community-contributed-wiki-manual-0"; //$NON-NLS-1$
 //	private static final String videosUrl = Settings.SITE_HOME + "/demos.html"; //$NON-NLS-1$
 	private static final String videosUrl = Settings.SITE_HOME; //$NON-NLS-1$
 	public static final String donateUrl = "http://www.projectlibre.com";
