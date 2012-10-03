@@ -173,7 +173,11 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 	// projectlibre
 
-	public static final Color RIBBON_MENU_COLOR = new Color(150, 150, 150);
+	public static final Color RIBBON_MENU_COLOR = new Color(220, 220, 220);
+	/*
+	 * new Color(150, 150, 150); made a change so as the remove the Dotted lines
+	 * issue in OpenProjLogo icon - SD
+	 */
 
 	protected int appMenuButtonWidth = 180;
 	protected int appMenuButtonHeight = 40;
@@ -2163,7 +2167,6 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 			helpButton.setContentAreaFilled(false);
 			helpButton.setFocusPainted(false);
 			helpButton.setBorder(BorderFactory.createEmptyBorder());
-			// - SD
 
 			// helpButton.setDisplayState(CommandButtonDisplayState.SMALL);
 			// helpButton.setCommandButtonKind(CommandButtonKind.ACTION_ONLY);
