@@ -30,6 +30,7 @@
 package com.projectlibre.ui.ribbon;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -47,6 +48,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.TexturePaint;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,6 +63,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -173,11 +177,9 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 	// projectlibre
 
-	public static final Color RIBBON_MENU_COLOR = new Color(220, 220, 220);
-	/*
-	 * new Color(150, 150, 150); made a change so as the remove the Dotted lines
-	 * issue in OpenProjLogo icon - SD
-	 */
+	public static final Color RIBBON_MENU_COLOR = new Color(200,200,200);
+	public static final Color RIBBON_MENU_DARK_COLOR = new Color(140,140,140);
+	//public static final Color RIBBON_MENU_LIGHT_COLOR = new Color(220,220,220);
 
 	protected int appMenuButtonWidth = 180;
 	protected int appMenuButtonHeight = 40;
@@ -587,8 +589,27 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 	protected void paintBackground(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g.create();
 
+		int w=200;
+		int h=66;
 		g2d.setColor(background1);
 		g2d.fillRect(0, 0, this.ribbon.getWidth(), this.ribbon.getHeight());
+		Paint gradient = new GradientPaint(0,0,RIBBON_MENU_DARK_COLOR,200, 0,background1);
+		g2d.setPaint(gradient);
+		g2d.fillRect(0, 0, w, h);
+		
+		g2d.setColor(background1);
+		BasicStroke stroke = new BasicStroke(2);
+		g2d.setStroke(stroke);
+		g2d.draw(new Line2D.Double(0,64,w,64));//bottom
+		g2d.draw(new Line2D.Double(0,59,w,59));//middle
+		g2d.draw(new Line2D.Double(0,53,w,53));//high
+		g2d.draw(new Line2D.Double(0,45,w,45));//pl1
+		g2d.draw(new Line2D.Double(0,33,w,33));//pl2
+		g2d.draw(new Line2D.Double(0,25,this.ribbon.getWidth(),25));//pl3
+		g2d.draw(new Line2D.Double(0,11,this.ribbon.getWidth(),11));//pl3
+		
+		
+		
 
 		g2d.dispose();
 	}
