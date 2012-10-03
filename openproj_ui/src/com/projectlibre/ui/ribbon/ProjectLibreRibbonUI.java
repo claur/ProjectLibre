@@ -2163,7 +2163,6 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 			helpButton.setContentAreaFilled(false);
 			helpButton.setFocusPainted(false);
 			helpButton.setBorder(BorderFactory.createEmptyBorder());
-			// - SD
 
 			// helpButton.setDisplayState(CommandButtonDisplayState.SMALL);
 			// helpButton.setCommandButtonKind(CommandButtonKind.ACTION_ONLY);
