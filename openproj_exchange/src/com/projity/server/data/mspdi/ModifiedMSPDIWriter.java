@@ -166,7 +166,8 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 		   it would be a pain to setup the development environment to build this... so we will hack this for now
 		   --TAF2009-07-29
 	    */
-		if (Double.isNaN(mpx.getFixedCost().doubleValue()))
+		Number fixedCost = mpx.getFixedCost();
+		if (fixedCost == null || Double.isNaN(fixedCost.doubleValue()))
 			mpx.setFixedCost(null);
 
 		Project.Tasks.Task xml = super.writeTask(mpx);
