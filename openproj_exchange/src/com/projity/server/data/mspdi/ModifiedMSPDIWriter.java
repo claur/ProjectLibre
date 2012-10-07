@@ -25,10 +25,12 @@ package com.projity.server.data.mspdi;
 
 import java.math.BigInteger;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.xml.bind.JAXBException;
 
@@ -42,6 +44,7 @@ import net.sf.mpxj.mspdi.MSPDIWriter;
 import net.sf.mpxj.mspdi.schema.Project;
 import net.sf.mpxj.mspdi.schema.TimephasedDataType;
 
+import com.projectlibre.core.time.TimeUtil;
 import com.projity.association.AssociationList;
 import com.projity.configuration.Settings;
 import com.projity.contrib.util.Log;
@@ -204,7 +207,7 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 		Calendar resume = DateTime.calendarInstance();
 		resume.setTimeInMillis(projityAssignment.getResume());
 		xml.setResume(resume);
-		writeAssigmentBaselinesAndTimephased(xml, mpx);
+		writeAssigmentBaselinesAndTimephased(xml, mpx,projityAssignment.getStart(),projityAssignment.getFinish());
 
 		return (xml);
 	}
@@ -304,14 +307,27 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 //		}, factory);
 	}
 	private void writeAssigmentBaselinesAndTimephased(final Project.Assignments.Assignment xml,
-			ResourceAssignment mpx){ //claur signature changed
+			ResourceAssignment mpx, final long assignmentStart, final long assignmentFinish){ //claur signature changed
 		int snapshotId = ((Integer) projitySnapshotIdMap.get(mpx)).intValue();
 		final Assignment projityAssignment = (Assignment) projityAssignmentMap.get(mpx);
 		// baselines
 		final List timephasedList = xml.getTimephasedData();
+		final long[] offset=new long[1];
+		offset[0]=-1L;
 		TimephasedService.getInstance().consumeTimephased(projityAssignment, new TimephasedConsumer() {
 			public void consumeTimephased(Object timephased) {
 				TimephasedDataType t=(TimephasedDataType) timephased;
+				if (offset[0]==-1L){ //workaround for scheduling bug
+					//assuming easliest timephased comes first
+					if (t.getStart().getTimeInMillis()<assignmentStart)
+						offset[0]=assignmentStart-t.getStart().getTimeInMillis();
+					else offset[0]=0;
+				}
+				if (offset[0]>0){
+					t.getStart().setTimeInMillis(t.getStart().getTimeInMillis()+offset[0]);
+					t.getFinish().setTimeInMillis(t.getFinish().getTimeInMillis()+offset[0]);
+				}
+				System.out.println("TimephasedDataType: "+t.getStart().getTime()+", "+t.getFinish().getTime());
 				//if ("PT0H0M0S".equals(t.getValue())) return;
 				((TimephasedDataType) timephased).setUID(xml.getUID());
 				timephasedList.add(timephased);

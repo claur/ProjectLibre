@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright © 2006, 2007 
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007 
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
 an open source solution from Projity. Attribution URL: http://www.projity.com 
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
@@ -51,6 +51,7 @@ package com.projity.server.data.mspdi;
 
 import java.math.BigInteger;
 import java.util.Calendar;
+import java.util.Date;
 
 import net.sf.mpxj.TimeUnit;
 import net.sf.mpxj.mspdi.schema.ObjectFactory;
