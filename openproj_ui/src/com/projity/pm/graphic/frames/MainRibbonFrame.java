@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -54,6 +54,7 @@ import java.awt.HeadlessException;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.JMenuBar;
 import javax.swing.WindowConstants;
 
 import org.pushingpixels.flamingo.api.common.icon.ResizableIcon;
@@ -68,12 +69,18 @@ import com.projity.util.Environment;
 public class MainRibbonFrame extends JRibbonFrame implements FrameHolder{
 	private static final long serialVersionUID = -5161903673269959353L;
 	protected GraphicManager graphicManager;
+	private ResizableIcon appMenuIcon;
 
 	public MainRibbonFrame(String name, String projectUrl, String server) throws HeadlessException {
 		super(name);
 		setIconImage(IconManager.getImage("application.icon"));
-		setApplicationIcon(IconManager.getRibbonIcon("logo.ProjectLibre",144,31));
+		appMenuIcon=IconManager.getRibbonIcon("logo.ProjectLibre",144,31);
+		setApplicationIcon(IconManager.getRibbonIcon("application.icon",128,128));
 		init();
+	}
+
+	public synchronized ResizableIcon getApplicationIcon() {
+		return appMenuIcon;
 	}
 
 	public GraphicManager getGraphicManager() {
@@ -103,5 +110,7 @@ public class MainRibbonFrame extends JRibbonFrame implements FrameHolder{
 	public void setVisible(boolean visible){
 		super.setVisible(visible);
 	}
+	
+
 
 }
