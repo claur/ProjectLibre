@@ -661,7 +661,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setColor(FlamingoUtilities.getBorderColor());
-	//	g2d.draw(outerContour);		//borders removed	-SD		
+		g2d.draw(outerContour);		//borders removed	-SD		
 
 		// check whether the currently selected task is a contextual task
 		RibbonTask selected = this.ribbon.getSelectedTask();
