@@ -327,7 +327,6 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 					t.getStart().setTimeInMillis(t.getStart().getTimeInMillis()+offset[0]);
 					t.getFinish().setTimeInMillis(t.getFinish().getTimeInMillis()+offset[0]);
 				}
-				System.out.println("TimephasedDataType: "+t.getStart().getTime()+", "+t.getFinish().getTime());
 				//if ("PT0H0M0S".equals(t.getValue())) return;
 				((TimephasedDataType) timephased).setUID(xml.getUID());
 				timephasedList.add(timephased);
