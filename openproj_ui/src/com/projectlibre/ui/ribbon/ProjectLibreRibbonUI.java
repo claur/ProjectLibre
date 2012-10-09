@@ -600,7 +600,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 		g2d.setColor(background1);
 		BasicStroke stroke = new BasicStroke(2);
 		g2d.setStroke(stroke);
-		g2d.draw(new Line2D.Double(0,64,w,64));//bottom
+		g2d.draw(new Line2D.Double(0,64,w,64));//bottom		//-Icon BgTexture
 		g2d.draw(new Line2D.Double(0,59,w,59));//middle
 		g2d.draw(new Line2D.Double(0,53,w,53));//high
 		g2d.draw(new Line2D.Double(0,45,w,45));//pl1
@@ -661,7 +661,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setColor(FlamingoUtilities.getBorderColor());
-		g2d.draw(outerContour);
+	//	g2d.draw(outerContour);		//borders removed	-SD		
 
 		// check whether the currently selected task is a contextual task
 		RibbonTask selected = this.ribbon.getSelectedTask();
