@@ -219,7 +219,6 @@ public class ButtonFactory extends ResourceManager {
 	public AbstractCommandButton createRibbonButton(final String name)
 			throws MissingResourceException, ResourceFormatException,
 			MissingListenerException {
-		
 		// Icon
 		ResizableIcon icon=null;
 		try {

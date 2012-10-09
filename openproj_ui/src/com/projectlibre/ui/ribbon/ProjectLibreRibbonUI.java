@@ -92,6 +92,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
 
+import org.pushingpixels.flamingo.api.common.AbstractCommandButton;
 import org.pushingpixels.flamingo.api.common.CommandToggleButtonGroup;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JScrollablePanel;
@@ -896,6 +897,12 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 				taskBarPanel.removeAll();
 				for (Component regComp : ribbon.getTaskbarComponents()) {
 					taskBarPanel.add(regComp);
+					if (regComp instanceof AbstractCommandButton){ //claur workaround to have correct background for task bar buttons
+						AbstractCommandButton b=(AbstractCommandButton)regComp;
+						b.setOpaque(true);
+						b.setBackground(taskBarPanel.getBackground());
+					}
+
 				}
 				// taskbar takes all available width
 				taskBarPanel.setBounds(ins.left
@@ -1145,6 +1152,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 			this.setOpaque(true);
 			/* this.setBorder(new EmptyBorder(1, 0, 1, 0)); */
 			this.setBorder(BorderFactory.createEmptyBorder());
+			setBackground(background3);
 		}
 
 		/*

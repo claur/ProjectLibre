@@ -29,6 +29,7 @@
  */
 package org.pushingpixels.flamingo.api.ribbon;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
