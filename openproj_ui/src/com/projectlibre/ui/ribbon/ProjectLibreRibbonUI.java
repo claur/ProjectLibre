@@ -463,6 +463,13 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 		ribbon.add(ribbon.getFileSelector());
 
 		ribbon.add(ribbon.getProjectViews());
+		
+		ribbon.addMouseListener(new MouseAdapter() {				//repaint to remove the undo-redo button glichtes - SD
+			public void mouseEntered(MouseEvent me)
+			{
+				ribbon.repaint();
+			}	
+		});
 
 		this.applicationMenuButton = new JRibbonApplicationMenuButton(
 				this.ribbon);
