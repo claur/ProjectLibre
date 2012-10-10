@@ -92,6 +92,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
 
+import org.pushingpixels.flamingo.api.common.AbstractCommandButton;
 import org.pushingpixels.flamingo.api.common.CommandToggleButtonGroup;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JScrollablePanel;
@@ -432,7 +433,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 				bandHostPanel, JScrollablePanel.ScrollType.HORIZONTALLY);
 		this.bandScrollablePanel.setScrollOnRollover(false);
 		this.ribbon.add(this.bandScrollablePanel);
-
+		
+		
 		// task toggle buttons scrollable panel
 		TaskToggleButtonsHostPanel taskToggleButtonsHostPanel = createTaskToggleButtonsHostPanel();
 		taskToggleButtonsHostPanel
@@ -668,7 +670,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setColor(FlamingoUtilities.getBorderColor());
-		g2d.draw(outerContour);		//borders removed	-SD		
+		//g2d.draw(outerContour);		//borders removed	-SD		
+		g2d.drawLine(x, y, x + width, y); //claur ignoring contour but top line is needed
 
 		// check whether the currently selected task is a contextual task
 		RibbonTask selected = this.ribbon.getSelectedTask();
@@ -903,6 +906,12 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 				taskBarPanel.removeAll();
 				for (Component regComp : ribbon.getTaskbarComponents()) {
 					taskBarPanel.add(regComp);
+					if (regComp instanceof AbstractCommandButton){ //claur workaround to have correct background for task bar buttons
+						AbstractCommandButton b=(AbstractCommandButton)regComp;
+						b.setOpaque(true);
+						b.setBackground(taskBarPanel.getBackground());
+					}
+
 				}
 				// taskbar takes all available width
 				taskBarPanel.setBounds(ins.left
@@ -1027,7 +1036,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 							+ bandInsets.top, c.getWidth() - 2 * ins.left - 2
 							* ins.right - 1, c.getHeight() - extraHeight
 							- ins.top - ins.bottom - bandInsets.top
-							- bandInsets.bottom);
+							/*- bandInsets.bottom*/ -1); //claur ignoring bandInsets.bottom, useless insets. Just keeping 1px
+					
 					// System.out.println("Scrollable : "
 					// + bandScrollablePanel.getBounds());
 					BandHostPanel bandHostPanel = bandScrollablePanel.getView();
@@ -1152,6 +1162,7 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 			this.setOpaque(true);
 			/* this.setBorder(new EmptyBorder(1, 0, 1, 0)); */
 			this.setBorder(BorderFactory.createEmptyBorder());
+			setBackground(background3);
 		}
 
 		/*
