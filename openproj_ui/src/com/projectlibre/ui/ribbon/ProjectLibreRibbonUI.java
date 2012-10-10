@@ -433,7 +433,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 				bandHostPanel, JScrollablePanel.ScrollType.HORIZONTALLY);
 		this.bandScrollablePanel.setScrollOnRollover(false);
 		this.ribbon.add(this.bandScrollablePanel);
-
+		
+		
 		// task toggle buttons scrollable panel
 		TaskToggleButtonsHostPanel taskToggleButtonsHostPanel = createTaskToggleButtonsHostPanel();
 		taskToggleButtonsHostPanel
@@ -662,7 +663,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setColor(FlamingoUtilities.getBorderColor());
-		g2d.draw(outerContour);		//borders removed	-SD		
+		//g2d.draw(outerContour);		//borders removed	-SD		
+		g2d.drawLine(x, y, x + width, y); //claur ignoring contour but top line is needed
 
 		// check whether the currently selected task is a contextual task
 		RibbonTask selected = this.ribbon.getSelectedTask();
@@ -1027,7 +1029,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 							+ bandInsets.top, c.getWidth() - 2 * ins.left - 2
 							* ins.right - 1, c.getHeight() - extraHeight
 							- ins.top - ins.bottom - bandInsets.top
-							- bandInsets.bottom);
+							/*- bandInsets.bottom*/ -1); //claur ignoring bandInsets.bottom, useless insets. Just keeping 1px
+					
 					// System.out.println("Scrollable : "
 					// + bandScrollablePanel.getBounds());
 					BandHostPanel bandHostPanel = bandScrollablePanel.getView();
