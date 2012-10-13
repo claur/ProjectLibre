@@ -47,7 +47,7 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj"  and “ProjectLibre” logos visible to all users. 
+user interface screen the "OpenProj"  and "ProjectLibre" logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
 justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
@@ -68,14 +68,16 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj" and “ProjectLibre” logos visible to all users. 
+user interface screen the "OpenProj" and "ProjectLibre" logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
-justified on the top left of the screen adjacent to the File menu.  The logo must be 
+justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
 package com.projectlibre.core.time;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -87,8 +89,12 @@ import java.util.TimeZone;
  *
  */
 public class TimeUtil { //not thread safe
+	protected static long MINUTE=60000L;
+	protected static long HOUR=60*MINUTE;
+	protected static long DAY=24*HOUR;
 	protected static Calendar calendar;
 	protected static Calendar localCalendar;
+	protected static DateFormat format;
 	protected static Calendar getCalendar(){
 		if (calendar==null)
 			calendar=Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -112,12 +118,21 @@ public class TimeUtil { //not thread safe
 		return t+getTimeZoneOffset(t);
 	}
 	
+	public static String toUTCString(long t){
+		if (format==null){
+			format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			format.setTimeZone(TimeZone.getTimeZone("UTC"));
+		}
+		return format.format(new Date(t));
+	}
+	
 	public static long toHoursAndMinutes(long date) { //corrects the problem of mpx giving hours in local timezone not utc
 		Calendar calendar=getCalendar();
 		calendar.setTimeInMillis(date);
 		int tz=getTimeZoneOffset(date);
-		long t=60000L * (60L * calendar.get(Calendar.HOUR_OF_DAY) + calendar.get(Calendar.MINUTE)) + tz;
-		t=t%(24*3600000L);
+		long t=(60L * calendar.get(Calendar.HOUR_OF_DAY) + calendar.get(Calendar.MINUTE)) * MINUTE + tz;
+		//t can be negative because of timezone adjustment
+		t=(t+DAY)%DAY; 
 		return t;
 	}
 	
