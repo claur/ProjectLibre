@@ -11,9 +11,11 @@
 			<include name="openproj-reports.jar" />
 		</fileset>
 	</path>
+	
+ 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="../openproj_contrib/ant-lib/ant-contrib-1.jar"/>
+	
 
 	<target name="contrib">
-	 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="../openproj_contrib/ant-lib/ant-contrib.jar"/>
 		<if>
 		 <equals arg1="${build_contrib}" arg2="true" />
 		 <then>
@@ -162,83 +164,86 @@
 	</target>
 
 	<target name="rpm-binary" depends="dist">
-		<mkdir dir="${rpm}/RPMS" />
-		<mkdir dir="${rpm}/RPMS/i586" />
-		<mkdir dir="${rpm}/RPMS/noarch" />
-		<mkdir dir="${rpm}/RPMS/x86_64" />
-		<mkdir dir="${rpm}/SPECS" />
-		<mkdir dir="${rpm}/SOURCES" />
-		<mkdir dir="${rpm}/BUILD" />
-		<mkdir dir="${rpm}/SRPMS" />
-		<mkdir dir="${rpm}/INSTALL" />
-		<mkdir dir="${rpm}/tmp" />
+		<for list="${rpm_builds}" param="rpmbuild">
+		  <sequential>
+			<mkdir dir="${rpm}_@{rpmbuild}/RPMS" />
+			<mkdir dir="${rpm}_@{rpmbuild}/RPMS/i586" />
+			<mkdir dir="${rpm}_@{rpmbuild}/RPMS/noarch" />
+			<mkdir dir="${rpm}_@{rpmbuild}/RPMS/x86_64" />
+			<mkdir dir="${rpm}_@{rpmbuild}/SPECS" />
+			<mkdir dir="${rpm}_@{rpmbuild}/SOURCES" />
+			<mkdir dir="${rpm}_@{rpmbuild}/BUILD" />
+			<mkdir dir="${rpm}_@{rpmbuild}/SRPMS" />
+			<mkdir dir="${rpm}_@{rpmbuild}/INSTALL" />
+			<mkdir dir="${rpm}_@{rpmbuild}/tmp" />
 
-		<copy todir="${rpm}/SPECS" file="${resources}/rpm/projectlibre.spec">
-			<filterset>
-				<filter token="basedir" value="${basedir}"/>
-				<filter token="version" value="${rpm_version}"/>
-			    <filter token="rpm_revision" value="${rpm_revision}"/>
-			</filterset>
-		</copy>
-		<copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/projectlibre/" >
-			<fileset dir="${dist}">
-				<include name="**"/>
-			</fileset>
-			<fileset dir="${resources}">
-				<include name="samples/**"/>
-			</fileset>
-			<fileset dir=".">
-				<include name="license/**"/>
-			</fileset>
-		</copy>
-		<mkdir dir="${rpm}/${rpm_filesroot}${rpm_prefix}/bin/" />
-		<exec executable="cp"> <!-- to preserve permissions -->
-			<arg value="${resources}/projectlibre"/>
-			<arg value="${rpm}/${rpm_filesroot}${rpm_prefix}/bin/projectlibre"/>
-		</exec>
-		<copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/icons" >
-			<fileset dir="${resources}">
-				<include name="projectlibre.png"/>
-			</fileset>
-		</copy>
-		<copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/applications" >
-			<fileset dir="${resources}">
-				<include name="projectlibre.desktop"/>
-			</fileset>
-		</copy>
-		<copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/mime/packages" >
-			<fileset dir="${resources}">
-				<include name="projectlibre.xml"/>
-			</fileset>
-		</copy>
+			<copy tofile="${rpm}_@{rpmbuild}/SPECS/projectlibre.spec" file="${resources}/rpm/projectlibre_@{rpmbuild}.spec">
+				<filterset>
+					<filter token="basedir" value="${basedir}"/>
+					<filter token="version" value="${rpm_version}"/>
+				    <filter token="rpm_revision" value="${rpm_revision}"/>
+				</filterset>
+			</copy>
+			<copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/projectlibre/" >
+				<fileset dir="${dist}">
+					<include name="**"/>
+				</fileset>
+				<fileset dir="${resources}">
+					<include name="samples/**"/>
+				</fileset>
+				<fileset dir=".">
+					<include name="license/**"/>
+				</fileset>
+			</copy>
+			<mkdir dir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/bin/" />
+			<exec executable="cp"> <!-- to preserve permissions -->
+				<arg value="${resources}/projectlibre"/>
+				<arg value="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/bin/projectlibre"/>
+			</exec>
+			<copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/pixmaps" >
+				<fileset dir="${resources}">
+					<include name="projectlibre.png"/>
+				</fileset>
+			</copy>
+			<copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/applications" >
+				<fileset dir="${resources}">
+					<include name="projectlibre.desktop"/>
+				</fileset>
+			</copy>
+			<copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/mime/packages" >
+				<fileset dir="${resources}">
+					<include name="projectlibre.xml"/>
+				</fileset>
+			</copy>
 
-		<exec executable="chmod">
-			<arg value="a+x"/>
-			<arg value="${rpm}/${rpm_filesroot}${rpm_prefix}/bin/projectlibre"/>
-		</exec>
-		<!--copy todir="${rpm}/${rpm_filesroot}${rpm_prefix}/share/apps/kdesktop/Desktop" >
-			<fileset dir="${resources}">
-				<include name="openproj.desktop"/>
-			</fileset>
-		</copy-->
+			<exec executable="chmod">
+				<arg value="a+x"/>
+				<arg value="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/bin/projectlibre"/>
+			</exec>
+			<!--copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/apps/kdesktop/Desktop" >
+				<fileset dir="${resources}">
+					<include name="openproj.desktop"/>
+				</fileset>
+			</copy-->
+		  </sequential>
+		</for>
 	</target>
 	<target name="rpm" depends="rpm-binary,rpm-create">
 	</target>
 	<target name="rpm-create">
+		<for list="${rpm_builds}" param="rpmbuild">
+		  <sequential>
 			<exec executable="${rpm_rpmbuild}">
 				<arg value="-bb"/>
 				<!--arg value="- - buildroot"/-->
 				<!--arg value="${basedir}/${rpm}/INSTALL"/-->
-				<arg value="${rpm}/SPECS/projectlibre.spec"/>
+				<arg value="${rpm}_@{rpmbuild}/SPECS/projectlibre.spec"/>
 			</exec>
-		<!-- SET .rpmmacros 
-		%_topdir        %(echo $HOME)/.../openproj_build/rpm
-		%_tmppath       %(echo $HOME)/.../openproj_build/rpm
-		-->
-		 <!-- rpm specfile="${rpm}/SPECS/projectlibre.spec" topdir="${rpm}"/-->
-		 <!--rpm specfile="${rpm}/SPECS/projectlibre.spec" topdir="${rpm}" command="-bb - - buildroot ${basedir}/${rpm}/INSTALL"/-->
-		
-		
+			<move tofile="${packages}/projectlibre-${rpm_version}-${rpm_revision}.@{rpmbuild}.rpm" file="${rpm}_@{rpmbuild}/RPMS/noarch/projectlibre-${rpm_version}-${rpm_revision}.noarch.rpm" />
+			<delete dir="${rpm}_@{rpmbuild}"/>
+		  </sequential>
+		</for>
+		<move tofile="${packages}/projectlibre-${rpm_version}-${rpm_revision}.rpm" file="${packages}/projectlibre-${rpm_version}-${rpm_revision}.mageia.rpm" />
 	</target>
 
 	<target name="deb-prepare">
@@ -324,7 +329,7 @@
 			<arg value="${resources}/projectlibre"/>
 			<arg value="${deb}/usr/bin/projectlibre"/>
 		</exec>
-		<copy todir="${deb}/usr/share/icons" >
+		<copy todir="${deb}/usr/share/pixmaps" >
 			<fileset dir="${resources}">
 				<include name="projectlibre.png"/>
 			</fileset>
@@ -382,6 +387,9 @@
 			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
 			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
 		</exec>
+
+		<move todir="${packages}" file="${debroot}/projectlibre_${deb_version}-${deb_revision}.deb" />
+		<delete dir="${debroot}"/>
 
 	</target>
 	<target name="deb" depends="deb-binary,deb-create"/>
@@ -520,11 +528,21 @@
 
     </target>
 
-	
+	<target name="readme">
+		<copy tofile="${packages}/README.txt" file="${resources}/README_SF.txt" >
+			<filterset>
+				<filter token="version" value="${version}"/>
+				<filter token="rpm_version" value="${rpm_version}"/>
+				<filter token="rpm_revision" value="${rpm_revision}"/>
+				<filter token="deb_version" value="${deb_version}"/>
+				<filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+	</target>
 	
 	
 
-	<target name="all" depends="dir,tar,zip,rpm,deb,mac,mac-new,wix">
+	<target name="all" depends="dir,tar,zip,mac,mac-new,wix,readme,rpm,deb">
 	</target>
 
 
@@ -532,9 +550,15 @@
 	<target name="clean">
 		<delete dir="${build}"/>
 		<delete dir="${dist}"/>
-		<delete dir="${rpmroot}"/>
 		<delete dir="${debroot}"/>
 		<delete dir="${packages}"/>
+		<for list="${rpm_builds}" param="rpmbuild">
+		  <sequential>
+			<delete dir="${rpm}_@{rpmbuild}"/>
+		  </sequential>
+		</for>
 	</target>
+	
+
 
 </project>
