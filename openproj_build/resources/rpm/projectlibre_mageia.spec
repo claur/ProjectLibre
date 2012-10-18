@@ -10,8 +10,8 @@
 %define _target_cpu i386
 %define _target_os Linux
 
-%define _topdir @basedir@/rpm
-%define _tmppath @basedir@/rpm
+%define _topdir @basedir@/rpm_mageia
+%define _tmppath @basedir@/rpm_mageia
 
 
 Summary: ProjectLibre
@@ -19,7 +19,7 @@ Name: projectlibre
 Version: @version@
 Release: @rpm_revision@
 License: CPAL
-Group: Applications/Office
+Group: Office
 URL: http://www.projectlibre.org
 Vendor: ProjectLibre
 Packager: Laurent Chretienneau
@@ -59,6 +59,6 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %defattr(-,root,root)
 %{_datadir}/projectlibre
 %{_bindir}/projectlibre
-%{_datadir}/icons/projectlibre.png
+%{_datadir}/pixmaps/projectlibre.png
 %{_datadir}/applications/projectlibre.desktop
 %{_datadir}/mime/packages/projectlibre.xml

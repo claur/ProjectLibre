@@ -11,7 +11,7 @@
 	<target name="init">
 		<mkdir dir="${build}"/>
 		<mkdir dir="${tmp}"/>
-	 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="ant-lib/ant-contrib.jar"/>
+	 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="ant-lib/ant-contrib-1.jar"/>
 		<if>
 		 <equals arg1="${shrink}" arg2="true" />
 		 <then>
