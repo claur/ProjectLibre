@@ -2588,6 +2588,12 @@ protected boolean loadLocalDocument(String fileName,boolean merge){ //uses serve
 		    addCtrlAccel(KeyEvent.VK_G, ACTION_GOTO, null);
 		    addCtrlAccel(KeyEvent.VK_L, ACTION_GOTO, null);
 		    addCtrlAccel(KeyEvent.VK_F, ACTION_FIND, null);
+		    addCtrlAccel(KeyEvent.VK_Z, ACTION_UNDO, null);
+		    addCtrlAccel(KeyEvent.VK_Y, ACTION_REDO, null);
+		    addCtrlAccel(KeyEvent.VK_N, ACTION_NEW_PROJECT, null);
+		    addCtrlAccel(KeyEvent.VK_O, ACTION_OPEN_PROJECT, null);
+		    addCtrlAccel(KeyEvent.VK_S, ACTION_SAVE_PROJECT, null);
+		    addCtrlAccel(KeyEvent.VK_P, ACTION_PRINT, null);
 		    addCtrlAccel(KeyEvent.VK_I, ACTION_INSERT_TASK, null);
 		    addCtrlAccel(KeyEvent.VK_PERIOD, ACTION_INDENT, null);
 		    addCtrlAccel(KeyEvent.VK_COMMA, ACTION_OUTDENT, null);
