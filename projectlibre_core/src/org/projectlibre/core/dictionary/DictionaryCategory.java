@@ -74,11 +74,45 @@ justified on the top left of the screen adjacent to the File menu. The logo must
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
-package com.projectlibre.core.fields;
+package org.projectlibre.core.dictionary;
 
 /**
  * @author Laurent Chretienneau
  *
  */
-public class Field {
+public class DictionaryCategory {
+	public static final String DEFAULT_CATEGORY="default";
+	protected Class<?> classe;
+	protected String category;
+	public DictionaryCategory(Class<?> classe, String category) {
+		this.classe = classe;
+		this.category=category;
+	}
+	public DictionaryCategory(Class<?> classe) {
+		this(classe,DEFAULT_CATEGORY);
+	}
+	public Class<?> getClasse() {
+		return classe;
+	}
+	public void setClasse(Class<?> classe) {
+		this.classe = classe;
+	}
+	
+	@Override
+	public int hashCode() {
+		return classe.hashCode()+category.hashCode();
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof DictionaryCategory){
+			DictionaryCategory key=(DictionaryCategory)obj;
+			return classe.equals(key.getClasse()) && category.equals(category);
+		}
+		return false;
+	}
+	@Override
+	public String toString() {
+		return classe.getName()+"/"+category;
+	}
+	
 }

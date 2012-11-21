@@ -74,11 +74,20 @@ justified on the top left of the screen adjacent to the File menu. The logo must
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
-package com.projectlibre.core.fields;
+package org.projectlibre.core.configuration.adapters;
 
-/**
- * @author Laurent Chretienneau
- *
- */
-public class Field {
+import java.util.ArrayList;
+import java.util.List;
+
+ 
+public class MapAdapterList<K, V> { 
+    protected List<MapAdapterEntry<K, V>> entry = new ArrayList<MapAdapterEntry<K, V>>();
+ 
+    public List<MapAdapterEntry<K, V>> getEntry() {
+        return entry;
+    }
+ 
+    public void setEntry(List<MapAdapterEntry<K, V>> entry) {
+        this.entry = entry;
+    }
 }

@@ -74,11 +74,142 @@ justified on the top left of the screen adjacent to the File menu. The logo must
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
-package com.projectlibre.core.fields;
+package org.projectlibre.core.configuration;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.Unmarshaller.Listener;
+
+import org.projectlibre.core.dictionary.Dictionary;
+import org.projectlibre.core.dictionary.DictionaryCategory;
+import org.projectlibre.core.dictionary.HasName;
 
 /**
  * @author Laurent Chretienneau
  *
  */
-public class Field {
+public class Configuration {
+	protected static Configuration instance;
+	protected List<ConfigurationFile> configurations=new ArrayList<ConfigurationFile>();
+	protected Dictionary dictionary=new Dictionary();
+	
+	public static synchronized Configuration getInstance(){
+		if (instance==null)
+			instance=new Configuration();
+		return instance;
+	}
+
+	public Dictionary getDictionary() {
+		return dictionary;
+	}
+	
+	public synchronized void register(String file,Class<?>... classesToBeBound){
+		configurations.add(new ConfigurationFile(file, classesToBeBound));
+	}
+	
+	public synchronized void load(){
+//		try {
+//			Thread.sleep(5000L);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+		for (ConfigurationFile config : configurations){
+			if (!config.isBinded()){
+				config.setRoot(load(config.getFile(),config.getClassesToBeBound()));
+				config.setBinded(true);
+			}
+		}
+	}
+	
+	
+	public class DictionaryListener extends Listener{
+
+		@Override
+		public void beforeUnmarshal(Object target, Object parent) {
+		}
+
+		@Override
+		public void afterUnmarshal(Object target, Object parent) {
+			if (target instanceof HasName)
+				dictionary.add((HasName)target);
+		}
+
+	}
+	
+	
+	
+	public synchronized Object load(String resourceName, Class<?>... classesToBeBound) {
+		try {
+			JAXBContext context = JAXBContext.newInstance(classesToBeBound);
+			Unmarshaller unmarshaller = context.createUnmarshaller();
+			unmarshaller.setSchema(null);
+			unmarshaller.setListener(new DictionaryListener());
+			InputStream in = Configuration.class.getClassLoader().getResourceAsStream(resourceName);
+			//TODO handle null case if not found
+			return unmarshaller.unmarshal(in);
+		} catch(JAXBException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public synchronized void save(String resourceName, Object configuration, Class<?> configurationClass) {
+		try {
+			JAXBContext context = JAXBContext.newInstance(configurationClass);
+			Marshaller marshaller = context.createMarshaller();			
+			marshaller.marshal(configuration, new File(resourceName));
+		} catch(JAXBException e) {
+			e.printStackTrace();
+		}
+	}
+	public static synchronized void dump(Object obj){
+		dump(obj.getClass(),obj);
+	}
+	public static synchronized void dump(Class<?> classe,Object obj){
+		if (obj==null)
+			System.out.println("null");
+		else{
+			try {
+				JAXBContext context = JAXBContext.newInstance(classe);
+				Marshaller marshaller = context.createMarshaller();
+				marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+				marshaller.marshal(obj, System.out);
+			} catch (PropertyException e) {
+				e.printStackTrace();
+			} catch (JAXBException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public synchronized void dumpDictionary(){
+		try {
+			JAXBContext context = JAXBContext.newInstance(dictionary.getClassesAsArray());
+			Marshaller marshaller = context.createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			for (DictionaryCategory category : dictionary.keySet()){
+				System.out.println("============================== "+category+" ===============================");
+				Map<String,HasName> map=dictionary.get(category);
+				for(String name : map.keySet()){
+					System.out.println("------------------ "+name+" ------------------");
+					marshaller.marshal(map.get(name), System.out);
+				}
+			}
+		} catch (PropertyException e) {
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+
 }

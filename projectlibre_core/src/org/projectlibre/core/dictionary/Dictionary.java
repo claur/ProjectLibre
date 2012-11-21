@@ -74,11 +74,142 @@ justified on the top left of the screen adjacent to the File menu. The logo must
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
-package com.projectlibre.core.fields;
+package org.projectlibre.core.dictionary;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 
 /**
  * @author Laurent Chretienneau
  *
  */
-public class Field {
+public class Dictionary implements Iterable<HasName>{
+	protected Map<DictionaryCategory, Map<String,HasName>> dictionary=new HashMap<DictionaryCategory, Map<String,HasName>>();
+	protected Set<Class<?>> classes=new HashSet<Class<?>>();
+	
+	
+	public HasName put(DictionaryCategory category, HasName hasName){
+		classes.add(category.getClasse());
+		Map<String,HasName> map=dictionary.get(category);
+		if (map==null){
+			map=new HashMap<String, HasName>();
+			dictionary.put(category,map);
+		}
+		return map.put(hasName.getName(),hasName);		
+	}
+
+	public void add(HasName hasName){
+		if (hasName instanceof HasCategories){
+			Set<String> categories=((HasCategories)hasName).getCategories();
+			if (categories!=null && categories.size()>0){
+				for (String category : categories)
+					put(new DictionaryCategory(hasName.getClass(),category),hasName);
+				return;
+			}
+		}
+		put(new DictionaryCategory(hasName.getClass()),hasName);
+	}
+	
+	public HasName get(Class<?> classe, String name) {
+		return get(new DictionaryCategory(classe), name);
+	}
+	
+	public HasName get(DictionaryCategory category, String name) {
+		Map<String,HasName> map=dictionary.get(category);
+		if (map==null)
+			return null;
+		return map.get(name);
+	}
+	
+	public Map<String,HasName> get(DictionaryCategory category) {
+		return dictionary.get(category);
+	}
+
+	public int size() {
+		return dictionary.size();
+	}
+
+	public boolean isEmpty() {
+		return dictionary.isEmpty();
+	}
+	public boolean containsKey(DictionaryCategory category) {
+		return dictionary.containsKey(category);
+	}
+	
+	public void clear() {
+		classes.clear();
+		dictionary.clear();
+		
+	}
+
+	public Set<DictionaryCategory> keySet() {
+		return dictionary.keySet();
+	}
+	
+	public Set<Class<?>> getClasses(){
+		return classes;
+	}
+	
+	public Class<?>[] getClassesAsArray(){
+		return classes.toArray(new Class<?>[classes.size()]);
+	}
+	
+	public Iterator<HasName> iterator(DictionaryCategory category) {
+		Map<String,HasName> map=dictionary.get(category);
+		if (map==null)
+			return new Iterator<HasName>() {
+				@Override
+				public boolean hasNext() {
+					return false;
+				}
+
+				@Override
+				public HasName next() {
+					return null;
+				}
+
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+			
+			};
+		return map.values().iterator();
+	}
+	
+	@Override
+	public Iterator<HasName> iterator() {
+		return new Iterator<HasName>() {
+			private Iterator<Map<String,HasName>> iterator1=dictionary.values().iterator();
+			private Iterator<HasName> iterator2=null;
+			@Override
+			public boolean hasNext() {
+				return iterator1.hasNext() 
+						|| (iterator2!=null && iterator2.hasNext());
+			}
+
+			@Override
+			public HasName next() {
+				if (iterator2==null || !iterator2.hasNext()){
+					Map<String,HasName> map=iterator1.next();
+					if (map==null)
+						throw new NoSuchElementException();
+					iterator2=map.values().iterator();
+				}
+				return iterator2.next();
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		
+		};
+	}	
+	
 }

@@ -74,11 +74,40 @@ justified on the top left of the screen adjacent to the File menu. The logo must
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
-package com.projectlibre.core.fields;
+package org.projectlibre.core.util;
+
 
 /**
  * @author Laurent Chretienneau
  *
  */
-public class Field {
+public class ArrayFormatException extends IllegalArgumentException {
+    static final long serialVersionUID = 8383729379911233L;
+
+    /**
+     * Constructs a <code>NumberFormatException</code> with no detail message.
+     */
+    public ArrayFormatException () {
+        super();
+    }
+
+    /**
+     * Constructs a <code>NumberFormatException</code> with the
+     * specified detail message.
+     *
+     * @param   s   the detail message.
+     */
+    public ArrayFormatException (String s) {
+        super (s);
+    }
+
+    /**
+     * Factory method for making a <code>NumberFormatException</code>
+     * given the specified input which caused the error.
+     *
+     * @param   s   the input causing the error
+     */
+    static ArrayFormatException forInputString(String s) {
+        return new ArrayFormatException("For input string: \"" + s + "\"");
+    }
 }

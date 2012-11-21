@@ -74,11 +74,47 @@ justified on the top left of the screen adjacent to the File menu. The logo must
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
-package com.projectlibre.core.fields;
+package org.projectlibre.core.util;
+
+import java.util.StringTokenizer;
 
 /**
  * @author Laurent Chretienneau
  *
  */
-public class Field {
+public class ArrayUtil {
+	public static double[][] stringToPath(String s)  throws ArrayFormatException {
+		s=s.replaceAll("^\\s*,?\\s*[\\(\\{\\[]",""); //trim start
+		s=s.replaceAll("[\\)\\}\\]]\\s*,?\\s*$",""); //trim end
+		String[] coords=s.split("[\\)\\}\\]]\\s*,?\\s*[\\(\\{\\[]");
+		double[][] p=new double[coords.length][2];
+		for (int i=0; i<coords.length; i++){
+			double[] c=stringToCoordinates(coords[i]);
+			p[i]=c;
+		}
+		return p;
+	}
+	public static String pathToString(double[][] p){
+		if (p==null)
+			return null;
+		StringBuilder sb=new StringBuilder();
+		for (int i=0; i<p.length; i++){
+			if (i>0) sb.append(", ");
+			coordinatesToString(p[i],sb);	
+		}
+		return sb.toString();
+	}
+	public static double[] stringToCoordinates(String s) throws ArrayFormatException {
+		StringTokenizer st=new StringTokenizer(s.trim(),",");
+		if (st.countTokens() != 2)
+			throw ArrayFormatException.forInputString(s);
+		return new double[]{Double.parseDouble(st.nextToken().trim()), Double.parseDouble(st.nextToken().trim())};
+	}
+	public static String coordinatesToString(double[] c) {
+		return coordinatesToString(c,new StringBuilder()).toString();
+	}
+	private static StringBuilder coordinatesToString(double[] c, StringBuilder sb) {
+		return sb.append('{').append(c[0]).append(", ").append(c[1]).append("}");
+	}
+
 }

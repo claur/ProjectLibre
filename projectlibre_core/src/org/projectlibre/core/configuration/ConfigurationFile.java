@@ -74,11 +74,45 @@ justified on the top left of the screen adjacent to the File menu. The logo must
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
-package com.projectlibre.core.fields;
+package org.projectlibre.core.configuration;
 
 /**
  * @author Laurent Chretienneau
  *
  */
-public class Field {
+public class ConfigurationFile {
+	protected String file;
+	protected Class<?>[] classesToBeBound;
+	protected Object root;
+	protected boolean binded;
+	public ConfigurationFile(String file, Class<?>[] classesToBeBound) {
+		super();
+		this.file = file;
+		this.classesToBeBound = classesToBeBound;
+	}
+	public String getFile() {
+		return file;
+	}
+	public void setFile(String file) {
+		this.file = file;
+	}
+	public Class<?>[] getClassesToBeBound() {
+		return classesToBeBound;
+	}
+	public void setClassesToBeBound(Class<?>[] classesToBeBound) {
+		this.classesToBeBound = classesToBeBound;
+	}
+	public Object getRoot() {
+		return root;
+	}
+	public void setRoot(Object root) {
+		this.root = root;
+	}
+	public boolean isBinded() {
+		return binded;
+	}
+	public void setBinded(boolean binded) {
+		this.binded = binded;
+	}
+	
 }
