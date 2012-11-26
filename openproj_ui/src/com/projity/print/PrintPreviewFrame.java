@@ -205,7 +205,7 @@ public class PrintPreviewFrame extends JFrame implements  ActionMap, MenuActionC
 //				return;
 //			}
 			try {
-				Class generator=ClassLoaderUtils.forName("org.projectlibre.export.PDFExport");
+				Class generator=ClassLoaderUtils.forName("org.projectlibre.export.ImageExport");
 				generator.getMethod("export", new Class[]{GraphPageable.class,Component.class}).invoke(null,new Object[]{document,PrintPreviewFrame.this});
 			} catch (Exception e) {
 				e.printStackTrace();

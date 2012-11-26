@@ -71,6 +71,7 @@ import com.projity.pm.graphic.frames.GraphicManager;
 import com.projity.strings.Messages;
 import com.projity.util.BrowserControl;
 import com.projity.util.Environment;
+import com.projity.util.VersionUtils;
 
 public final class HelpDialog extends AbstractDialog {
 	private static final long serialVersionUID = 1L;
@@ -147,9 +148,9 @@ public final class HelpDialog extends AbstractDialog {
 		// Separating the component initialization and configuration
 		// from the layout code makes both parts easier to read.
 		//TODO set minimum size
-		FormLayout layout = new FormLayout("180px" , // cols //$NON-NLS-1$
+		FormLayout layout = new FormLayout("120px,180px,120px" , // cols //$NON-NLS-1$
 			
-				"p, 6dlu,  p,6dlu,p,6dlu,p"); // rows //$NON-NLS-1$
+				"p, 6dlu,  p,6dlu,p,6dlu,p,6dlu,p,6dlu,p"); // rows //$NON-NLS-1$
 
 		// Create a builder that assists in adding components to the container.
 		// Wrap the panel with a standardized border.
@@ -161,17 +162,28 @@ public final class HelpDialog extends AbstractDialog {
 			public void mouseClicked(MouseEvent arg0) {
 				BrowserControl.displayURL("http://www.projectlibre.com");//$NON-NLS-1$
 			}});
+		builder.nextColumn();
 		builder.append(logo); 
 		builder.nextLine(2);
+		builder.nextColumn();
 		builder.append(link);
 //		builder.nextLine(2);
 //		builder.append(videos);
 		if (Environment.isOpenProj()) {
 			builder.nextLine(2);
+			builder.nextColumn();
 			builder.append(tipOfTheDay);
 		}
 		builder.nextLine(2);
+		builder.nextColumn();
 		builder.append(license);
+		
+		builder.nextLine(2);
+		String version=VersionUtils.getVersion();
+		builder.addLabel(Messages.getContextString("Text.ShortTitle")+" "+"Version "+(version==null?"Unknown":version),cc.xyw(1,  9, 3));
+		builder.nextLine(2);
+		builder.addLabel(Messages.getString("AboutDialog.copyright"),cc.xyw(1,  11, 3));
+
 		
 		if (false || Environment.isOpenProj()) { // removed donation link
 			JPanel p = new JPanel();

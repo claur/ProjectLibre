@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007 
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007 
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
 an open source solution from Projity. Attribution URL: http://www.projity.com 
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
@@ -51,6 +51,7 @@ package com.projity.session;
 
 import java.awt.Component;
 import java.io.File;
+import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
 import javax.swing.JFileChooser;
@@ -83,7 +84,8 @@ public class FileHelper {
     	fileChooser.resetChoosableFileFilters();
     	if (selectedFileName==null){
     		try {
-				fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")+File.separator+"OpenProj"));
+    			String initialDirName=Preferences.userNodeForPackage(FileHelper.class).get("lastDirectory",System.getProperty("user.home")+File.separator+"OpenProj");
+				fileChooser.setCurrentDirectory(new File(initialDirName));
 			} catch (Exception e) {
 			}
     	}
@@ -196,6 +198,8 @@ public class FileHelper {
 			}
 			else if (!fileName.endsWith(".pod")) fileName+=".pod";
 		}
+		
+		Preferences.userNodeForPackage(FileHelper.class).put("lastDirectory",file.getParent());
 		return fileName;
     	
     }
