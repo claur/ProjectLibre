@@ -2078,7 +2078,7 @@ protected boolean loadLocalDocument(String fileName,boolean merge){ //uses serve
 	void savePDF() {
 		GraphPageable document=PrintDocumentFactory.getInstance().createDocument(getCurrentFrame(),false,false);
 		try {
-			Class generator=ClassLoaderUtils.forName("org.projectlibre.export.PDFExport"); //claur
+			Class generator=ClassLoaderUtils.forName("org.projectlibre.export.ImageExport"); //claur
 			generator.getMethod("export", new Class[]{GraphPageable.class,Component.class}).invoke(null,new Object[]{document,getContainer()});
 		} catch (Exception e) {
 			e.printStackTrace();
