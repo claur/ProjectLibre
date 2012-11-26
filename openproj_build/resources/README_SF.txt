@@ -3,7 +3,7 @@ The major improvements includes:
 - Compatibility with Microsoft Project 2010
 - New Ribbon User Interface
 - PDF feature
-_ Print, print preview improvements
+- Print, print preview improvements
 - Major bug fixes and more
 
 
