@@ -74,13 +74,39 @@ justified on the top left of the screen adjacent to the File menu. The logo must
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
-package org.projectlibre.core.dictionary;
+package com.projectlibre.pm.scheduler;
+
+import java.util.EventObject;
 
 /**
  * @author Laurent Chretienneau
  *
  */
-public interface HasName {
-	public String getName();
-	public void setName(String name);
+public class ScheduleChangedEvent extends EventObject {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4656467852454865716L;
+
+	/**
+	 * @param source
+	 */
+	public ScheduleChangedEvent(Object source) {
+		super(source);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public Object getSource() {
+		// TODO Auto-generated method stub
+		return super.getSource();
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return super.toString();
+	}
+
 }

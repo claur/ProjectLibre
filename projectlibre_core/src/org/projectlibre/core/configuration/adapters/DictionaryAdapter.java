@@ -81,7 +81,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import org.projectlibre.core.dictionary.HasName;
+import org.projectlibre.core.dictionary.HasStringId;
 
  
 public class DictionaryAdapter<T> extends XmlAdapter<DictionaryAdapterList<T>, Map<String, T>> {
@@ -155,7 +155,7 @@ public class DictionaryAdapter<T> extends XmlAdapter<DictionaryAdapterList<T>, M
     public Map<String, T> unmarshal(DictionaryAdapterList<T> list) throws Exception {
         HashMap<String, T> map = new HashMap<String, T>(); 
     	for (T element : list.getEntry()) {
-            map.put(((HasName)element).getName(), element); //T must implement HasName
+            map.put(((HasStringId)element).getId(), element); //T must implement HasName
         }
         return map;
     }

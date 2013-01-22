@@ -91,7 +91,7 @@ import javax.xml.bind.Unmarshaller.Listener;
 
 import org.projectlibre.core.dictionary.Dictionary;
 import org.projectlibre.core.dictionary.DictionaryCategory;
-import org.projectlibre.core.dictionary.HasName;
+import org.projectlibre.core.dictionary.HasStringId;
 
 /**
  * @author Laurent Chretienneau
@@ -139,8 +139,8 @@ public class Configuration {
 
 		@Override
 		public void afterUnmarshal(Object target, Object parent) {
-			if (target instanceof HasName)
-				dictionary.add((HasName)target);
+			if (target instanceof HasStringId)
+				dictionary.add((HasStringId)target);
 		}
 
 	}
@@ -197,10 +197,10 @@ public class Configuration {
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			for (DictionaryCategory category : dictionary.keySet()){
 				System.out.println("============================== "+category+" ===============================");
-				Map<String,HasName> map=dictionary.get(category);
-				for(String name : map.keySet()){
-					System.out.println("------------------ "+name+" ------------------");
-					marshaller.marshal(map.get(name), System.out);
+				Map<String,HasStringId> map=dictionary.get(category);
+				for(String id : map.keySet()){
+					System.out.println("------------------ "+id+" ------------------");
+					marshaller.marshal(map.get(id), System.out);
 				}
 			}
 		} catch (PropertyException e) {
