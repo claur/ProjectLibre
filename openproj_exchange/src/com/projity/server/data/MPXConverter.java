@@ -243,7 +243,7 @@ public class MPXConverter {
 		if (uid <= 0)
 			uid = projityResource.getId();
 		mpxResource.setUniqueID((int)uid); // note using id and not unique id
-		mpxResource.setMaxUnits(projityResource.getMaximumUnits());
+		mpxResource.setMaxUnits(projityResource.getMaximumUnits()*100);
 
 		WorkingCalendar projityCalendar = (WorkingCalendar)projityResource.getWorkCalendar();
 		if (projityCalendar != null) { // there should be a calendar, except for the unassigned instance
