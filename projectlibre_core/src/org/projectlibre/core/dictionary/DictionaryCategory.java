@@ -81,7 +81,7 @@ package org.projectlibre.core.dictionary;
  *
  */
 public class DictionaryCategory {
-	public static final String DEFAULT_CATEGORY="default";
+	public static final String ALL_CATEGORY="ALL";
 	protected Class<?> classe;
 	protected String category;
 	public DictionaryCategory(Class<?> classe, String category) {
@@ -89,13 +89,19 @@ public class DictionaryCategory {
 		this.category=category;
 	}
 	public DictionaryCategory(Class<?> classe) {
-		this(classe,DEFAULT_CATEGORY);
+		this(classe,ALL_CATEGORY);
 	}
 	public Class<?> getClasse() {
 		return classe;
 	}
 	public void setClasse(Class<?> classe) {
 		this.classe = classe;
+	}
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
 	}
 	
 	@Override

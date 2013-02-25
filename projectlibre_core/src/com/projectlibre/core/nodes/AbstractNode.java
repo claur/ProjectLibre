@@ -47,7 +47,7 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj"  and “ProjectLibre” logos visible to all users. 
+user interface screen the "OpenProj"  and "ProjectLibre" logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
 justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
@@ -68,9 +68,9 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj" and “ProjectLibre” logos visible to all users. 
+user interface screen the "OpenProj" and "ProjectLibre" logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
-justified on the top left of the screen adjacent to the File menu.  The logo must be 
+justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
@@ -79,7 +79,11 @@ package com.projectlibre.core.nodes;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.projectlibre.core.fields.FieldId;
+import org.projectlibre.core.configuration.Configuration;
+import org.projectlibre.core.dictionary.DictionaryCategory;
+
+import com.projectlibre.core.fields.Field;
+import com.projectlibre.core.fields.FieldUtil;
 import com.projectlibre.core.fields.HasFields;
 
 /**
@@ -88,7 +92,7 @@ import com.projectlibre.core.fields.HasFields;
  */
 public class AbstractNode implements Node, HasFields{
 	protected NodeId id;
-	protected Map<FieldId, Object> fields=new HashMap<FieldId, Object>();
+	protected Map<String, Object> fieldValues=new HashMap<String, Object>();
 	protected NodeContainer container;
 	
 	@Override
@@ -109,27 +113,27 @@ public class AbstractNode implements Node, HasFields{
 		this.container = container;
 	}
 	@Override
-	public Object get(FieldId fieldId) {
-		return fields.get(fieldId);
+	public Object getPropertyValue(String property) {
+		return fieldValues.get("Field."+property);
 	}
 	@Override
-	public void set(FieldId id, Object value) {
-		fields.put(id,value);
+	public void setPropertyValue(String property, Object value) {
+		fieldValues.put("Field."+property,value);
 	}
 	@Override
-	public Object get(String name) {
-		return get(new FieldId(name));
+	public Object getFieldValue(String fieldId) {
+		return fieldValues.get(fieldId);
 	}
 	@Override
-	public void set(String name, Object value) {
-		set(new FieldId(name),value);
+	public void setFieldValue(String fieldId, Object value) {
+		fieldValues.put(fieldId,value);
 	}
 	
 	public String toString(String tab){
 		StringBuffer s=new StringBuffer();
 		s.append(tab).append("id=").append(id).append('\n');
-		for (FieldId fieldId : fields.keySet())
-			s.append(tab).append('*').append(fieldId).append('=').append(fields.get(fieldId)).append('\n');
+		for (String fieldId : fieldValues.keySet())
+			s.append(tab).append('*').append(fieldId).append('=').append(fieldValues.get(fieldId)).append('\n');
 		return s.toString();		
 	}
 	public String toString(){

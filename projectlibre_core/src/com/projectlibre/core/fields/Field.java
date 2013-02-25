@@ -76,9 +76,103 @@ back to http://www.projity.com.
 */
 package com.projectlibre.core.fields;
 
+import java.util.Set;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.projectlibre.core.configuration.Configuration;
+import org.projectlibre.core.dictionary.HasCategories;
+import org.projectlibre.core.dictionary.HasStringId;
+import org.projectlibre.strings.Strings;
+
 /**
  * @author Laurent Chretienneau
  *
  */
-public class Field {
+@XmlRootElement(name="field")
+@XmlAccessorType(XmlAccessType.NONE)
+public class Field implements HasStringId, HasCategories{
+	protected String id;
+	protected String property,confProperty;
+	protected Set<String> categories;
+	protected boolean readOnly;
+
+	@XmlID
+	@XmlAttribute(name="id")
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	@XmlAttribute(name="category")
+	public Set<String> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Set<String> categories) {
+		this.categories = categories;
+	}
+
+	@XmlAttribute(name="property")
+	protected String getConfProperty() {
+		return confProperty;
+	}
+
+	protected void setConfProperty(String confProperty) {
+		this.confProperty = confProperty;
+	}
+	
+	public String getProperty() {
+		if (property==null){
+			if (confProperty==null){
+				int i=id.indexOf('.');
+				property=id.substring(i+1);
+			} else property=confProperty;
+		}
+		return property;
+	}
+
+	public void setProperty(String property) {
+		this.property = property;
+		confProperty=property;
+	}
+	
+	
+	@XmlAttribute(name="readOnly")
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+	}
+
+	
+	
+	
+	
+
+	public String getStringValue(Object value){
+		return value==null?"":value.toString();
+	}
+
+	public String getName(){
+		return Strings.getString(id);
+	}
+	
+	
+	public static Field getField(String fieldId){
+		return (Field)Configuration.getInstance().getDictionary().get(Field.class, fieldId);
+	}
+
+
+
+
 }

@@ -90,11 +90,30 @@ import java.util.Set;
  */
 public class Dictionary implements Iterable<HasStringId>{
 	protected Map<DictionaryCategory, Map<String,HasStringId>> dictionary=new HashMap<DictionaryCategory, Map<String,HasStringId>>();
-	protected Set<Class<?>> classes=new HashSet<Class<?>>();
+	protected Map<Class<?>, Set<String>> categories=new HashMap<Class<?>, Set<String>>();
 	
 	
-	public HasStringId put(DictionaryCategory category, HasStringId hasId){
-		classes.add(category.getClasse());
+	public void add(HasStringId hasId){
+		if (hasId instanceof HasCategories){
+			Set<String> categories=((HasCategories)hasId).getCategories();
+			if (categories!=null && categories.size()>0){
+				for (String category : categories)
+					put(new DictionaryCategory(hasId.getClass(),category),hasId);
+			}
+		}
+		put(new DictionaryCategory(hasId.getClass()),hasId); //add to ALL category
+	}
+
+	private HasStringId put(DictionaryCategory category, HasStringId hasId){
+		//categories
+		Set<String> cat=categories.get(category.getClasse());
+		if (cat==null){
+			cat=new HashSet<String>();
+			categories.put(category.getClasse(),cat);
+		}
+		cat.add(category.getCategory());
+		
+		//dictionary
 		Map<String,HasStringId> map=dictionary.get(category);
 		if (map==null){
 			map=new HashMap<String, HasStringId>();
@@ -103,17 +122,6 @@ public class Dictionary implements Iterable<HasStringId>{
 		return map.put(hasId.getId(),hasId);		
 	}
 
-	public void add(HasStringId hasId){
-		if (hasId instanceof HasCategories){
-			Set<String> categories=((HasCategories)hasId).getCategories();
-			if (categories!=null && categories.size()>0){
-				for (String category : categories)
-					put(new DictionaryCategory(hasId.getClass(),category),hasId);
-				return;
-			}
-		}
-		put(new DictionaryCategory(hasId.getClass()),hasId);
-	}
 	
 	public HasStringId get(Class<?> classe, String id) {
 		return get(new DictionaryCategory(classe), id);
@@ -130,6 +138,15 @@ public class Dictionary implements Iterable<HasStringId>{
 		return dictionary.get(category);
 	}
 
+	public Map<String,HasStringId> get(Class<?> classe) { //retrieve using class/ALL category
+		return dictionary.get(new DictionaryCategory(classe));
+	}
+
+	
+	public Set<String> getCategories(Class<?> classe){
+		return categories.get(classe);
+	}
+
 	public int size() {
 		return dictionary.size();
 	}
@@ -142,7 +159,7 @@ public class Dictionary implements Iterable<HasStringId>{
 	}
 	
 	public void clear() {
-		classes.clear();
+		categories.clear();
 		dictionary.clear();
 		
 	}
@@ -152,10 +169,11 @@ public class Dictionary implements Iterable<HasStringId>{
 	}
 	
 	public Set<Class<?>> getClasses(){
-		return classes;
+		return categories.keySet();
 	}
 	
 	public Class<?>[] getClassesAsArray(){
+		Set<Class<?>> classes=getClasses();
 		return classes.toArray(new Class<?>[classes.size()]);
 	}
 	

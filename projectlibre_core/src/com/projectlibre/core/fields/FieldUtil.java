@@ -47,7 +47,7 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj"  and “ProjectLibre” logos visible to all users. 
+user interface screen the "OpenProj"  and "ProjectLibre" logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
 justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
@@ -68,9 +68,9 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj" and “ProjectLibre” logos visible to all users. 
+user interface screen the "OpenProj" and "ProjectLibre" logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
-justified on the top left of the screen adjacent to the File menu.  The logo must be 
+justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
@@ -79,7 +79,18 @@ package com.projectlibre.core.fields;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
+
+import org.projectlibre.core.configuration.Configuration;
+import org.projectlibre.core.dictionary.DictionaryCategory;
+import org.projectlibre.core.dictionary.HasStringId;
 
 /**
  * @author Laurent Chretienneau
@@ -160,10 +171,10 @@ public class FieldUtil {
 				}
 				
 				//set
-				hasFields.set(fieldName1, value);
+				hasFields.setPropertyValue(fieldName1, value);
 			} else {
 				//get value
-				Object value=hasFields.get(fieldName1);
+				Object value=hasFields.getPropertyValue(fieldName1);
 				
 				if (value==null) return; //skip null values, it will be considered as not set
 
@@ -224,16 +235,73 @@ public class FieldUtil {
 		}
 	}
 	
-	public static String toGetterMethodName(String s){
+	protected static String toGetterMethodName(String s){
 		return "get" + s.substring(0, 1).toUpperCase() + s.substring(1);
 	}
 
-	public static String toSetterMethodName(String s){
+	protected static String toSetterMethodName(String s){
 		return "set" + s.substring(0, 1).toUpperCase() + s.substring(1);
 	}
 	
-	public static Field[] getDeclaredFields(Class<?> classe){
+	protected static Field[] getDeclaredFields(Class<?> classe){
 		Field[] fields=classe.getDeclaredFields();
 		return fields;
 	}
+		
+	
+	public static com.projectlibre.core.fields.Field getField(String fieldId, String[] categories){
+		com.projectlibre.core.fields.Field field=null;
+		for (String category : categories){
+			field=(com.projectlibre.core.fields.Field)Configuration.getInstance().getDictionary().get(
+					new DictionaryCategory(com.projectlibre.core.fields.Field.class, category),
+					fieldId);
+			if (field!=null)
+				return field;
+		}
+		return field;
+	}
+	
+	public static Map<String,com.projectlibre.core.fields.Field> getFields(String[] categories){
+		Map<String,com.projectlibre.core.fields.Field> map=new HashMap<String, com.projectlibre.core.fields.Field>();
+		for (String category : categories){
+			Map<String,HasStringId> m=Configuration.getInstance().getDictionary().get(
+					new DictionaryCategory(com.projectlibre.core.fields.Field.class, category));
+			if (m!=null)
+				for (String key : m.keySet()){
+					com.projectlibre.core.fields.Field existingField=map.get(key);
+					if (existingField==null)
+						map.put(key, (com.projectlibre.core.fields.Field)m.get(key));
+				}
+		}
+		return map;
+	}
+
+	
+	public static String[] getCategories(Class<?> cl){
+		Set<String> categorySet=new HashSet<String>();
+		List<String> categories=new LinkedList<String>();
+		addCategories(cl, categories, categorySet);
+		return categories.toArray(new String[categories.size()]);
+		
+	}
+	
+	private static void addCategories(Class<?> cl, List<String> categories, Set<String> categorySet){
+		categorySet.add(cl.getName());
+		categories.add(cl.getName());
+		Class<?> superClass=cl.getSuperclass();
+		Class<?>[] interfaces=cl.getInterfaces();
+		if (superClass!=null &&
+				!categorySet.contains(superClass.getName())){
+			addCategories(superClass,categories,categorySet);
+
+		}
+		for (Class<?> i : interfaces){
+			if (!categorySet.contains(i.getName())){
+				addCategories(i,categories,categorySet);
+			}
+		}
+	}
+		
+	
+
 }

@@ -47,7 +47,7 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj"  and ÒProjectLibreÓ logos visible to all users. 
+user interface screen the "OpenProj"  and "ProjectLibre" logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
 justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
@@ -68,13 +68,15 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj" and ÒProjectLibreÓ logos visible to all users. 
+user interface screen the "OpenProj" and "ProjectLibre" logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
-justified on the top left of the screen adjacent to the File menu. ÊThe logo must be 
+justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
 package com.projectlibre.core.id;
+
+import java.util.UUID;
 
 
 /**
@@ -82,33 +84,44 @@ package com.projectlibre.core.id;
  *
  */
 public class UniqueId {
-	protected long id;
+	protected UUID id;
 
 	public UniqueId() {
 		super();
 	}
 
-	public UniqueId(long id) {
-		super();
-		this.id = id;
-	}
+//	public UniqueId(long id) {
+//		super();
+//		this.id = id;
+//	}
 
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
+//	public long getId() {
+//		return id;
+//	}
+//
+//	public void setId(long id) {
+//		this.id = id;
+//	}
+	
+	
 
 	@Override
 	public int hashCode() {
-		return (int)(id ^ (id >>> 32));
+		return id.hashCode();
+		//return (int)(id ^ (id >>> 32));
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
 	}
 
 	@Override
 	public String toString() {
-		return ""+id;
+		return id.toString();//""+id;
 	}
 	
 	@Override

@@ -93,6 +93,8 @@ import org.projectlibre.core.dictionary.Dictionary;
 import org.projectlibre.core.dictionary.DictionaryCategory;
 import org.projectlibre.core.dictionary.HasStringId;
 
+import com.projectlibre.core.fields.FieldManager;
+
 /**
  * @author Laurent Chretienneau
  *
@@ -170,10 +172,10 @@ public class Configuration {
 			e.printStackTrace();
 		}
 	}
-	public static synchronized void dump(Object obj){
-		dump(obj.getClass(),obj);
+	public static synchronized void dump(Object obj, java.io.OutputStream out){
+		dump(obj.getClass(),obj,out);
 	}
-	public static synchronized void dump(Class<?> classe,Object obj){
+	public static synchronized void dump(Class<?> classe, Object obj,  java.io.OutputStream out){
 		if (obj==null)
 			System.out.println("null");
 		else{
@@ -181,7 +183,7 @@ public class Configuration {
 				JAXBContext context = JAXBContext.newInstance(classe);
 				Marshaller marshaller = context.createMarshaller();
 				marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-				marshaller.marshal(obj, System.out);
+				marshaller.marshal(obj, out);
 			} catch (PropertyException e) {
 				e.printStackTrace();
 			} catch (JAXBException e) {
@@ -210,6 +212,13 @@ public class Configuration {
 		}
 
 	}
+	
+	protected FieldManager fieldManager=new FieldManager();
+
+	public FieldManager getFieldManager() {
+		return fieldManager;
+	}
+
 
 
 }
