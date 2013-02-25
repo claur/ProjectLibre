@@ -76,7 +76,6 @@ back to http://www.projity.com.
 */
 package com.projectlibre.core.id;
 
-import java.util.UUID;
 
 
 /**
@@ -84,44 +83,44 @@ import java.util.UUID;
  *
  */
 public class UniqueId {
-	protected UUID id;
+	protected long id;
 
 	public UniqueId() {
 		super();
 	}
 
-//	public UniqueId(long id) {
-//		super();
-//		this.id = id;
-//	}
+	public UniqueId(long id) {
+		super();
+		this.id = id;
+	}
+	public long getId() {
+		return id;
+	}
 
-//	public long getId() {
-//		return id;
-//	}
-//
-//	public void setId(long id) {
-//		this.id = id;
-//	}
+	public void setId(long id) {
+		this.id = id;
+	}
 	
 	
 
 	@Override
 	public int hashCode() {
-		return id.hashCode();
-		//return (int)(id ^ (id >>> 32));
+		//return id.hashCode();
+		return (int)(id ^ (id >>> 32));
 	}
 
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
+//	public UUID getId() {
+//		return id;
+//	}
+//
+//	public void setId(UUID id) {
+//		this.id = id;
+//	}
 
 	@Override
 	public String toString() {
-		return id.toString();//""+id;
+		//return id.toString();
+		return ""+id;
 	}
 	
 	@Override

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<field id="Field.id" category="com.projectlibre.core.nodes.Node"/>
+	<field id="Field.name" category="com.projectlibre.core.nodes.Node"/>
+	<field id="Field.duration" category="com.projectlibre.core.nodes.Node"/>
+	<field id="Field.start" category="com.projectlibre.core.nodes.Node"/>
+	<field id="Field.finish" category="com.projectlibre.core.nodes.Node"/>
+	
+	
+	
+	<fieldList id="FieldList.Task.default" category="task" 
+		fields="Field.name Field.duration Field.start Field.finish"/>
+	
+	
+	
+</configuration>

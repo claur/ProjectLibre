@@ -83,22 +83,24 @@ import com.projectlibre.core.id.UniqueId;
  *
  */
 public class CalendarId extends UniqueId {
-	protected long localId;
+//	protected long localId;
 
-//	public CalendarId(long id) {
-//		super(id);
-//	}
-	public CalendarId(long localId) { //used in MSP import 
-		super();
-		this.localId=localId;
+	public CalendarId(long id) {
+		super(id);
 	}
+//	public CalendarId(long localId) { //used in MSP import 
+//		super();
+//		this.localId=localId;
+//	}
 
 	public long getLocalId() {
-		return localId;
+		return getId();
+		//return localId;
 	}
 
 	public void setLocalId(long localId) {
-		this.localId = localId;
+		//this.localId = localId;
+		setId(localId);
 	}
 
 }
