@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007 
+Attribution Information: Attribution Copyright Notice: Copyright ��� 2006, 2007 
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
 an open source solution from Projity. Attribution URL: http://www.projity.com 
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
@@ -159,7 +159,22 @@ public class LocalSession extends AbstractSession{
     }
 
     
-    
+    public static FileImporter getImporter(String name){
+		FileImporter importer=null;
+		try {
+			importer=(FileImporter) ClassUtils.forName(name).newInstance();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return importer;
+    }
     
     
     public Job getSaveProjectJob(final List<Project> projs,final SaveOptions opt){
@@ -171,19 +186,7 @@ public class LocalSession extends AbstractSession{
 				jobQueue.endCriticalSection(job);
 			}
         });
-		FileImporter importer=null;
-		try {
-			importer=(FileImporter) ClassUtils.forName(opt.getImporter()).newInstance();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        FileImporter importer=getImporter(opt.getImporter());
 		importer.setJobQueue(jobQueue);
 		importer.setProjectFactory(ProjectFactory.getInstance());//used?
 		int count=projs.size();

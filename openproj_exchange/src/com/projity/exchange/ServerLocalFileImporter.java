@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright ��� 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -50,7 +50,9 @@ must direct them back to http://www.projity.com.
 package com.projity.exchange;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -88,7 +90,25 @@ public class ServerLocalFileImporter extends ServerFileImporter {
 
 	protected ProjectData projectData;
 
-    public Job getImportFileJob(){
+	
+	
+    @Override
+	public void importFile() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void exportFile() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	public Job getImportFileJob(){
     	final Serializer serializer=new Serializer();
     	final FileImporter importer=this;
     	final Job job=new Job(importer.getJobQueue(),"importFile",Messages.getString("LocalFileImporter.Importing"),true); //$NON-NLS-1$ //$NON-NLS-2$
@@ -331,5 +351,17 @@ public class ServerLocalFileImporter extends ServerFileImporter {
     public Job getExportFileJob(){
     	return LocalFileImporter.getExportFileJob(this);
     }
+    
+    //disabled
+    @Override
+	public boolean saveProject(Project project,OutputStream out) throws Exception{
+		return false;
+	}
+    @Override
+	public Project loadProject(InputStream in)  throws Exception{
+    	//disabled
+    	return null;
+	}
+
 
 }

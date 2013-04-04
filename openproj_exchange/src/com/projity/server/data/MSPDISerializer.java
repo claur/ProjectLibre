@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007 
+Attribution Information: Attribution Copyright Notice: Copyright ��� 2006, 2007 
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
 an open source solution from Projity. Attribution URL: http://www.projity.com 
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
@@ -49,7 +49,9 @@ must direct them back to http://www.projity.com.
 */
 package com.projity.server.data;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -294,10 +296,19 @@ public class MSPDISerializer implements ProjectSerializer {
     
 	public boolean saveProject(Project project,String fileName) {
 		try {
+			return saveProject(project,new FileOutputStream(fileName));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean saveProject(Project project,OutputStream out) {
+		try {
 			//MSPDISerializer serializer=new MSPDISerializer();
 			ModifiedMSPDIWriter data=/*serializer.*/serializeProject(project);
 			if (job!=null) job.setProgress(0.9f);
-			data.write(data.getProjectFile(),new FileOutputStream(fileName));
+			data.write(data.getProjectFile(),out);
 			if (job!=null) job.setProgress(1.0f);
 		} catch (Exception e) {
 			e.printStackTrace();

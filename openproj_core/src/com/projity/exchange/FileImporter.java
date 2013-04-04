@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007 
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007 
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
 an open source solution from Projity. Attribution URL: http://www.projity.com 
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
@@ -48,6 +48,9 @@ must be at least 100 x 25 pixels.  When users click on the "OpenProj" logo it
 must direct them back to http://www.projity.com.  
 */
 package com.projity.exchange;
+
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.projity.job.Job;
 import com.projity.job.JobQueue;
@@ -74,6 +77,11 @@ public abstract class FileImporter /*implements Runnable*/ {
 
 	public abstract Job getImportFileJob();
 	public abstract Job getExportFileJob();
+	public abstract void importFile() throws Exception;
+	public abstract void exportFile() throws Exception;
+	public abstract boolean saveProject(Project project,OutputStream out) throws Exception;
+	public abstract Project loadProject(InputStream in) throws Exception;
+
 	
 	/**
 	 * @param fileName The fileName to set.

@@ -1948,10 +1948,11 @@ protected boolean loadLocalDocument(String fileName,boolean merge){ //uses serve
 		else{
 			opt.setFileName(fileName/*+((fileName.endsWith(".xml"))?"":".xml")*/);
 			opt.setImporter(LocalSession.MICROSOFT_PROJECT_IMPORTER);
-			if (Environment.isOpenProj()) {
-				if (!Alert.okCancel(Messages.getString("Warn.saveXML")))
-					return;
-			}
+//			if (Environment.isOpenProj()) {
+//				if (!Alert.okCancel(Messages.getString("Warn.saveXML")))
+//					return;
+//			}
+			//claur
 
 		}
 		opt.setPreSaving(getSavingClosure());

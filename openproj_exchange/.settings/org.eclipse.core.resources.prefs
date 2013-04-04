@@ -1,2 +1,4 @@
 eclipse.preferences.version=1
+encoding//src/com/projity/exchange/ServerLocalFileImporter.java=UTF-8
+encoding//src/com/projity/server/data/MSPDISerializer.java=UTF-8
 encoding//src/com/projity/server/data/Serializer.java=UTF-8

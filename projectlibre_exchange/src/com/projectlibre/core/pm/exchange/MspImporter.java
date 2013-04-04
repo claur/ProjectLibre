@@ -124,6 +124,16 @@ public class MspImporter {
 	public Project importProject(String name, ProgressClosure progress) throws Exception{
 		progress.updateProgress(0.0f, "Start");
 		parseProject(name);
+		return importProject_(progress);		
+	}
+
+	public Project importProject(InputStream in, String extension, ProgressClosure progress) throws Exception{
+		progress.updateProgress(0.0f, "Start");
+		parseProject(in,extension);
+		return importProject_(progress);		
+	}
+
+	private Project importProject_(ProgressClosure progress) throws Exception{
 		progress.updateProgress(0.2f, "File parsed");
 
 		//Identity the type of conversion. It will be used AssignmentConverter
@@ -150,12 +160,9 @@ public class MspImporter {
 		return project;
 	}
 	
-	protected void parseProject(String fileName) throws Exception {
-		InputStream in=new FileInputStream(fileName);
-		
+	
+	protected void parseProject(InputStream in, String extension) throws Exception {
 		try {
-			int extensionPosition=fileName.lastIndexOf("."); 
-			String extension = extensionPosition==-1 ? "xml" : fileName.substring(extensionPosition+1).toLowerCase();
 			if (extension.equals("xml")){
 				reader=new ImprovedMSPDIReader();
 				state.setMspdi(true);
@@ -174,6 +181,12 @@ public class MspImporter {
 		}	
 
 
+	}
+	protected void parseProject(String fileName) throws Exception {
+		fileName=fileName.trim();
+		int extensionPosition=fileName.lastIndexOf("."); 
+		String extension = extensionPosition==-1 ? "xml" : fileName.substring(extensionPosition+1).toLowerCase();
+		parseProject(new FileInputStream(fileName), extension);
 	}
 	
 	

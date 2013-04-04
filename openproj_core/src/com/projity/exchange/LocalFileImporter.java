@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007
+Attribution Information: Attribution Copyright Notice: Copyright ��� 2006, 2007
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj,
 an open source solution from Projity. Attribution URL: http://www.projity.com
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with
@@ -49,23 +49,37 @@ must direct them back to http://www.projity.com.
 */
 package com.projity.exchange;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.util.Scanner;
 
+import com.projity.grouping.core.model.DefaultNodeModel;
 import com.projity.job.Job;
 import com.projity.job.JobRunnable;
+import com.projity.pm.resource.ResourcePool;
+import com.projity.pm.resource.ResourcePoolFactory;
+import com.projity.pm.task.Project;
 import com.projity.server.data.DataUtil;
 import com.projity.server.data.DocumentData;
+import com.projity.session.LocalSession;
+import com.projity.session.SessionFactory;
 import com.projity.strings.Messages;
+import com.projity.undo.DataFactoryUndoController;
 
 /**
  * Loads/Saves a project from/to a pod file
  */
 public class LocalFileImporter extends FileImporter {
 	public static final String VERSION="1.0.0"; //$NON-NLS-1$
+	private static final String PROJECT_LIBRE_FILE_SEPARATOR="@@@@@@@@@@ProjectLibreSeparator_MSXML@@@@@@@@@@";
 	/**
 	 *
 	 */
@@ -73,6 +87,161 @@ public class LocalFileImporter extends FileImporter {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
+	
+
+	@Override
+	public void importFile() throws Exception{
+		File f=new File(getFileName());
+		FileInputStream fin=new FileInputStream(f);
+		Exception ex=null;
+        try {
+			DataUtil serializer=new DataUtil();
+			System.out.println("Loading "+getFileName()+"..."); //$NON-NLS-1$ //$NON-NLS-2$
+
+			long t1=System.currentTimeMillis();
+			ObjectInputStream in=new ObjectInputStream(fin);
+			Object obj=in.readObject();
+			if (obj instanceof String) obj=in.readObject(); //check version in the future
+			DocumentData projectData=(DocumentData)obj;
+			projectData.setMaster(true);
+			projectData.setLocal(true);
+			long t2=System.currentTimeMillis();
+			System.out.println("Loading...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+
+
+			System.out.println("Deserializing..."); //$NON-NLS-1$
+			t1=System.currentTimeMillis();
+//        project=serializer.deserializeProject(projectData,false,true,resourceMap);
+			setProject(serializer.deserializeLocalDocument(projectData));
+			t2=System.currentTimeMillis();
+			System.out.println("Deserializing...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (Exception e) {
+			ex=e;
+			project=null;
+		}finally{
+			try {
+				fin.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+        
+        if (project==null){
+        	//recreate project
+        	
+        	BufferedInputStream in=null;
+			try {
+				//using xml
+				System.out.println("Trying to recover with XML...");
+				fin=new FileInputStream(f);
+				byte[] keyBuf=PROJECT_LIBRE_FILE_SEPARATOR.getBytes();
+				int bufSize=100;
+				if (bufSize<keyBuf.length) bufSize=keyBuf.length;
+				byte[] buf= new byte[bufSize];
+				in=new BufferedInputStream(fin); //use default 8192 bytes size
+				
+				int keyPos=0;
+				int n;
+//				int pos=0;
+				boolean found=false;
+				in.mark(bufSize);
+				while ( (n=in.read( buf, 0, bufSize )) != -1 ){
+				    for (int i=0; i<n; i++ ){
+				    	if (keyBuf[keyPos]==buf[i]){
+				    		if (keyPos==keyBuf.length-1){
+				    			//found keyword
+				    			found=true;
+				    			in.reset();
+				    			in.read(buf,0,i+1);
+				    			break;
+				    		}else{
+				    			keyPos++;
+				    		}
+				    	}else keyPos=0;
+				    }
+				    if (found) break;
+					in.mark(bufSize);
+//				    pos+=n;
+				}
+				
+				if (found) {
+					//xml found
+					System.out.println("XML found");
+					FileImporter importer=LocalSession.getImporter("com.projity.exchange.MicrosoftImporter");
+					
+					ResourcePool resourcePool=null;
+					DataFactoryUndoController undoController=new DataFactoryUndoController();
+					resourcePool = ResourcePoolFactory.getInstance().createResourcePool("",undoController);
+					resourcePool.setLocal(true);
+					project = Project.createProject(resourcePool,undoController);						
+					((DefaultNodeModel)project.getTaskOutline()).setDataFactory(project);		
+					importer.setProject(project);
+					
+					importer.loadProject(in);
+					System.out.println("Recovered with XML");
+				}else{
+					//unable to recover from xml
+					if (ex!=null) throw ex;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				if (in!=null){
+					try {
+						in.close();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+        }
+	}
+
+
+
+	@Override
+	public void exportFile() throws Exception{
+		File f=new File(getFileName());
+		FileOutputStream fout=new FileOutputStream(f);
+        try {
+			DataUtil serializer=new DataUtil();
+			System.out.println("Serialization..."); //$NON-NLS-1$
+			long t1=System.currentTimeMillis();
+			DocumentData projectData=serializer.serializeDocument(getProject());
+			projectData.setMaster(true);
+			projectData.setLocal(true);
+			long t2=System.currentTimeMillis();
+			System.out.println("Serialization...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("Saving "+f+"..."); //$NON-NLS-1$ //$NON-NLS-2$
+			t1=System.currentTimeMillis();
+			ObjectOutputStream out=new ObjectOutputStream(fout);
+			out.writeObject(VERSION);
+			out.writeObject(projectData);
+			out.flush();
+			//out.close();
+			t2=System.currentTimeMillis();
+			System.out.println("Saving...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        try{
+        	BufferedOutputStream bout=new BufferedOutputStream(fout);
+        	bout.write(PROJECT_LIBRE_FILE_SEPARATOR.getBytes());
+        	bout.flush();
+        	FileImporter importer=LocalSession.getImporter("com.projity.exchange.MicrosoftImporter");
+        	importer.saveProject(project, bout);
+        	bout.flush();
+        	
+        }catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        fout.close();
+	}
+
+
 
 	public Job getImportFileJob(){
 		return getImportFileJob(this);
@@ -82,26 +251,7 @@ public class LocalFileImporter extends FileImporter {
     	final Job job=new Job(importer.getJobQueue(),"importFile",Messages.getString("LocalFileImporter.Importing"),true); //$NON-NLS-1$ //$NON-NLS-2$
         job.addRunnable(new JobRunnable("Import",1.0f){ //$NON-NLS-1$
     		public Object run() throws Exception{
-    	        DataUtil serializer=new DataUtil();
-    	        System.out.println("Loading "+importer.getFileName()+"..."); //$NON-NLS-1$ //$NON-NLS-2$
-
-    	        long t1=System.currentTimeMillis();
-    	        ObjectInputStream in=new ObjectInputStream(new FileInputStream(importer.getFileName()));
-    	        Object obj=in.readObject();
-    	        if (obj instanceof String) obj=in.readObject(); //check version in the future
-    	        DocumentData projectData=(DocumentData)obj;
-    	        projectData.setMaster(true);
-    	        projectData.setLocal(true);
-    	        long t2=System.currentTimeMillis();
-    	        System.out.println("Loading...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
-
-
-    	        System.out.println("Deserializing..."); //$NON-NLS-1$
-    	        t1=System.currentTimeMillis();
-//    	        project=serializer.deserializeProject(projectData,false,true,resourceMap);
-    	        importer.setProject(serializer.deserializeLocalDocument(projectData));
-    	        t2=System.currentTimeMillis();
-    	        System.out.println("Deserializing...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+    			importer.importFile();
     			setProgress(1.0f);
                 return null;
     		}
@@ -116,28 +266,24 @@ public class LocalFileImporter extends FileImporter {
     	final Job job=new Job(importer.getJobQueue(),"exportFile",Messages.getString("LocalFileImporter.Exporting"),true); //$NON-NLS-1$ //$NON-NLS-2$
         job.addRunnable(new JobRunnable("Export",1.0f){ //$NON-NLS-1$
     		public Object run() throws Exception{
-    	        DataUtil serializer=new DataUtil();
-    	        System.out.println("Serialization..."); //$NON-NLS-1$
-    	        long t1=System.currentTimeMillis();
-    	        DocumentData projectData=serializer.serializeDocument(importer.getProject());
-    	        projectData.setMaster(true);
-    	        projectData.setLocal(true);
-    	        long t2=System.currentTimeMillis();
-    	        System.out.println("Serialization...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
-    	        File f=new File(importer.getFileName());
-    	        System.out.println("Saving "+f+"..."); //$NON-NLS-1$ //$NON-NLS-2$
-    	        t1=System.currentTimeMillis();
-    	        ObjectOutputStream out=new ObjectOutputStream(new FileOutputStream(f));
-    	        out.writeObject(VERSION);
-    	        out.writeObject(projectData);
-    	        out.close();
-    	        t2=System.currentTimeMillis();
-    	        System.out.println("Saving...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
-    			setProgress(1.0f);
+    			importer.exportFile();
+     			setProgress(1.0f);
                 return null;
     		}
         });
         return job;
     }
+    
+    //disabled
+    @Override
+	public boolean saveProject(Project project,OutputStream out) throws Exception{
+		return false;
+	}
+    
+    @Override
+	public Project loadProject(InputStream in)  throws Exception{
+    	//disabled
+    	return null;
+	}
 
 }

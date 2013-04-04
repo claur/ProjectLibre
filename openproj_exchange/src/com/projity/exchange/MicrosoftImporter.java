@@ -48,6 +48,8 @@ must be at least 100 x 25 pixels.  When users click on the "OpenProj" logo it
 must direct them back to http://www.projity.com.
 */
 package com.projity.exchange;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -124,6 +126,43 @@ public class MicrosoftImporter extends ServerFileImporter{
 	}
 
 
+	@Override
+	public void importFile() throws Exception {
+		log.info("BEGIN: MicrosoftImporter.PrepareResources");
+		parse();
+		log.info("END: MicrosoftImporter.PrepareResources");
+		Environment.setImporting(false);
+		log.info("BEGIN: Finish import");
+		convertToProjity();
+		log.info("END: Finish import");
+	}
+
+    @Override
+	public Project loadProject(InputStream in)  throws Exception{
+		log.info("BEGIN: MicrosoftImporter.PrepareResources");
+		parse(in, "xml");
+		log.info("END: MicrosoftImporter.PrepareResources");
+		Environment.setImporting(false);
+		log.info("BEGIN: Finish import");
+		convertToProjity();
+		log.info("END: Finish import");
+    	return project;
+	}
+    
+    @Override
+	public boolean saveProject(Project project,OutputStream out) throws Exception{
+		MSPDISerializer serializer = new MSPDISerializer();
+		return serializer.saveProject(project,out);
+	}
+
+	@Override
+	public void exportFile() throws Exception {
+		MSPDISerializer serializer = new MSPDISerializer();
+		//serializer.setJob(this);
+		serializer.saveProject(project,fileName);
+	}
+
+
 	private void setProgress(float p) {
 		if (jobRunnable == null)
 			log.info("Progress " + 100 * p + "%");
@@ -136,6 +175,40 @@ public class MicrosoftImporter extends ServerFileImporter{
 		this.project = p;
 		parse();
 		convertToProjity();
+	}
+	public void parse(InputStream in, String extension) throws Exception {
+		System.out.println("MicrosoftImporter.parse()");
+
+		Environment.setImporting(true); // will avoid certain popups
+		
+		setProgress(0.1f);
+		
+		
+		MspImporter plImporter=new MspImporter();
+		plProject=plImporter.importProject(in, extension, new MspImporter.ProgressClosure() {
+			@Override
+			public void updateProgress(float progress, String label) {
+				setProgress(progress*0.1f);
+				
+			}
+		});
+		log.info(plProject.toString());
+		
+		
+		if (plProject == null) {
+			String errorText = (errorDescription == null) ? Messages.getString("Message.ImportError") : errorDescription; //$NON-NLS-1$
+			if (jobRunnable != null) {
+				jobRunnable.getJob().error(errorText,false);
+				jobRunnable.getJob().cancel();
+			}
+
+			Environment.setImporting(false); // will avoid certain popups
+			throw lastException == null ? new Exception("Failed to import file") : lastException; //$NON-NLS-1$
+		}
+
+		setProgress(0.2f);
+		setProgress(1f);
+
 	}
 	public void parse() throws Exception {
 		System.out.println("MicrosoftImporter.parse()");
@@ -187,6 +260,19 @@ public class MicrosoftImporter extends ServerFileImporter{
     	lastException = null;
     	Session session=SessionFactory.getInstance().getSession(resourceMapping==null);
 		Job job=new Job(session.getJobQueue(),"importFile",Messages.getString("MicrosoftImporter.Importing"),true); //$NON-NLS-1$ //$NON-NLS-2$
+
+//    	job.addRunnable(new JobRunnable(Messages.getString("MicrosoftImporter.PrepareResources"),1.0f){ //$NON-NLS-1$
+//
+//			public Object run() throws Exception{
+//				log.info("BEGIN: MicrosoftImporter.PrepareResources");
+//				//MicrosoftImporter.this.jobRunnable = this;
+//				importFile();
+//				log.info("END: MicrosoftImporter.PrepareResources");
+//				return null;
+//			}
+//    	});
+
+		
     	job.addRunnable(new JobRunnable(Messages.getString("MicrosoftImporter.PrepareResources"),1.0f){ //$NON-NLS-1$
 
 			public Object run() throws Exception{
