@@ -159,6 +159,10 @@ public class MSPDISerializer implements ProjectSerializer {
     		net.sf.mpxj.Task taskData=(net.sf.mpxj.Task)getTransformationMap().get(outlineChild);
     		net.sf.mpxj.Task parentData=(outlineParent==null)?null:((net.sf.mpxj.Task)getTransformationMap().get(outlineParent));
    			taskData.setOutlineLevel(new Integer(((parentData==null)?1:(parentData.getOutlineLevel().intValue()+1)))); // outline levels start at 1
+   			//fix from vitaliff
+   			//setSummary is normally done in mpxj post processing
+   			if (parentData != null) 
+   				parentData.setSummary(true);
 			taskData.setOutlineNumber(((parentData==null)?"":(parentData.getOutlineNumber()+"."))+(position+1));
 			return true;
     	}
