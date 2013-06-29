@@ -187,10 +187,13 @@
 		</DirectoryRef>
 
         <Property Id="JAVA_CURRENT_VERSION">
-            <RegistrySearch Id="JRE_KEY" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw"  />
+            <RegistrySearch Id="JRE_KEY" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw"  Win64="no"/>
         </Property>
-        <Condition Message="Java is not installed. ProjectLibre requires Java version 6 or later. Please install Java: http://www.java.com/download"><![CDATA[(Installed OR JAVA_CURRENT_VERSION) AND JAVA_CURRENT_VERSION <> ""]]></Condition>
-        <Condition Message="ProjectLibre requires Java 6 or later. Please install the latest Java version : http://www.java.com/download"><![CDATA[(Installed OR JAVA_CURRENT_VERSION) AND JAVA_CURRENT_VERSION >= "1.6"]]></Condition>
+        <Property Id="JAVA_CURRENT_VERSION64">
+            <RegistrySearch Id="JRE_KEY64" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw"  Win64="yes"/>
+        </Property>
+        <Condition Message="Java is not installed. ProjectLibre requires Java version 6 or later. Please install Java: http://www.java.com/download"><![CDATA[(Installed OR JAVA_CURRENT_VERSION OR JAVA_CURRENT_VERSION64) AND (JAVA_CURRENT_VERSION <> "" OR JAVA_CURRENT_VERSION64 <> "") ]]></Condition>
+        <Condition Message="ProjectLibre requires Java 6 or later. Please install the latest Java version : http://www.java.com/download"><![CDATA[(Installed OR JAVA_CURRENT_VERSION OR JAVA_CURRENT_VERSION64) AND (JAVA_CURRENT_VERSION >= "1.6" OR JAVA_CURRENT_VERSION64 >= "1.6")]]></Condition>
 
 		<Feature Id="DefaultFeature" Title="Main Feature" Level="1">
 			<ComponentRef Id="ApplicationFiles" />
