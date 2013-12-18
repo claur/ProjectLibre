@@ -395,21 +395,116 @@
 	<target name="deb" depends="deb-binary,deb-create"/>
 	<!-- ant rpm-package then rpmbuild -bb - -buildroot /root/rpm/INSTALL /root/rpm/SPECS/openproj.spec can be also used -->
 
+    <!--target name="mac">
+    	<property environment="env"/>
+    	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask"  classpath="ant-lib/appbundler-1.0.jar"/>
+		<fileset dir="${dist}" id="appbundle.class.path">
+			<include name="projectlibre.jar"/>
+			<include name="lib/*.jar"/>
+		</fileset>
+        <bundleapp outputdirectory="${packages}"
+            name="ProjectLibre"
+        	displayname="ProjectLibre"
+            identifier="com.projectlibre.pm.Desktop"
+        	applicationCategory="public.app-category.productivity"
+        	shortversion="${numericVersion3}"
+        	copyright="2013 ProjectLibre Inc."
+        	icon="${resources}/mac/projectlibre.icns"
+        	signature="plib"
+            mainclassname="com/projity/main/Main">        	
+        	<runtime dir="/Library/Java/JavaVirtualMachines/${jvm_name}/Contents/Home" />
+        	<option value="-Xms128m"/>
+        	<option value="-Xmx768m"/>
+        	<classpath refid="appbundle.class.path"/>
+        </bundleapp>
+    </target-->
+	
+	<target name="mac-embeded" depends="dist">
+		<mkdir dir="${packages}/mac-embeded/${macapp}" />
+		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents" />
+		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/MacOS" />
+		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Resources" />
+		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Java" />
 
-	<target name="mac" depends="dist">
-		<mkdir dir="${packages}/${macapp}" />
-		<mkdir dir="${packages}/${macapp}/Contents" />
-		<mkdir dir="${packages}/${macapp}/Contents/MacOS" />
-		<mkdir dir="${packages}/${macapp}/Contents/Resources" />
-		<mkdir dir="${packages}/${macapp}/Contents/Resources/Java" />
-
-		<copy todir="${packages}/${macapp}/Contents" file="${resources}/mac/Info.plist" >
+		<copy todir="${packages}/mac-embeded/${macapp}/Contents" file="${resources}/mac/new/Info.plist" >
 			<filterset>
 				<filter token="version" value="${numericVersion3}"/>
 			</filterset>
 		</copy>
-		<copy todir="${packages}/${macapp}/Contents" file="${resources}/mac/PkgInfo" />
-		<copy todir="${packages}/${macapp}/Contents/Resources" >
+		<copy todir="${packages}/mac-embeded/${macapp}/Contents" file="${resources}/mac/new/PkgInfo" />
+		<copy todir="${packages}/mac-embeded/${macapp}/Contents/Resources" >
+			<fileset dir="${resources}/mac">
+				<include name="projectlibre.icns"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/mac-embeded/${macapp}/Contents/Java" >
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+			<fileset dir="${dist}">
+				<include name="projectlibre.jar"/>
+				<include name="lib/*.jar"/>
+			</fileset>
+		</copy>
+		 <!-- to preserve permissions -->
+		<exec executable="cp">
+			<arg value="${resources}/mac/JavaAppLauncher"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/MacOS"/>
+		</exec>
+		
+		
+		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Plugins" />
+		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}" />
+		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents" />
+		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home" />
+		<exec executable="cp">
+			<arg value="-a"/>
+			<arg value="/Library/Java/JavaVirtualMachines/${jvm_name}/Contents/Info.plist"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/"/>
+		</exec>
+		<exec executable="cp">
+			<arg value="-a"/>
+			<arg value="/Library/Java/JavaVirtualMachines/${jvm_name}/Contents/Home/jre"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/"/>
+		</exec>
+		<exec executable="rm">
+			<arg value="-rf"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/bin"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/applet"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/deploy"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/deploy.jar"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/javaws.jar"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/libdeploy.dylib"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/libnpjp2.dylib"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/plugin.jar"/>
+			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/security/javaws.policy"/>
+		</exec>
+			
+
+		<exec executable="chmod"> <!-- remove group write permissions -->
+			<arg value="-R"/>
+			<arg value="g-w"/>
+			<arg value="${packages}/mac-embeded/${macapp}"/>
+		</exec>
+
+
+	</target>
+	
+
+	<target name="mac-old" depends="dist">
+		<mkdir dir="${packages}/mac-old/${macapp}" />
+		<mkdir dir="${packages}/mac-old/${macapp}/Contents" />
+		<mkdir dir="${packages}/mac-old/${macapp}/Contents/MacOS" />
+		<mkdir dir="${packages}/mac-old/${macapp}/Contents/Resources" />
+		<mkdir dir="${packages}/mac-old/${macapp}/Contents/Resources/Java" />
+
+		<copy todir="${packages}/mac-old/${macapp}/Contents" file="${resources}/mac/old/Info.plist" >
+			<filterset>
+				<filter token="version" value="${numericVersion3}"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/mac-old/${macapp}/Contents" file="${resources}/mac/PkgInfo" />
+		<copy todir="${packages}/mac-old/${macapp}/Contents/Resources" >
 			<fileset dir="${resources}/mac">
 				<include name="projectlibre.icns"/>
 			</fileset>
@@ -417,7 +512,7 @@
 				<include name="license/**"/>
 			</fileset>
 		</copy>
-		<copy todir="${packages}/${macapp}/Contents/Resources/Java" >
+		<copy todir="${packages}/mac-old/${macapp}/Contents/Resources/Java" >
 			<fileset dir="${dist}">
 				<include name="projectlibre.jar"/>
 				<include name="lib/*.jar"/>
@@ -426,7 +521,7 @@
 		 <!-- to preserve permissions -->
 		<exec executable="cp">
 			<arg value="${resources}/mac/JavaApplicationStub"/>
-			<arg value="${packages}/${macapp}/Contents/MacOS"/>
+			<arg value="${packages}/mac-old/${macapp}/Contents/MacOS"/>
 		</exec>
 		<!--exec executable="ln">
 			<arg value="-s"/>
@@ -438,7 +533,7 @@
 		<exec executable="chmod"> <!-- remove group write permissions -->
 			<arg value="-R"/>
 			<arg value="g-w"/>
-			<arg value="${packages}/${macapp}"/>
+			<arg value="${packages}/mac-old/${macapp}"/>
 		</exec>
 
 
@@ -487,7 +582,7 @@
 
 	</target>
 
-	<target name="mac-tar" depends="mac">
+	<target name="mac-tar" depends="mac-old">
 		<exec executable="tar"> <!-- to preserve permissions -->
 			<arg value="--numeric-owner"/>
 			<arg value="--owner=0"/>
@@ -542,7 +637,7 @@
 	
 	
 
-	<target name="all" depends="dir,tar,zip,mac,mac-new,wix,readme,rpm,deb">
+	<target name="all" depends="dir,tar,zip,mac-embeded,mac-new,mac-old,wix,readme,rpm,deb">
 	</target>
 
 

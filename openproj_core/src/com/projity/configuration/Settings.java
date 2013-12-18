@@ -30,7 +30,7 @@ in Exhibits A and B of the license at http://www.projity.com/license. You should
 use the latest text at http://www.projity.com/license for your modifications.
 You may not remove this license text from the source files.]
 
-Attribution Information: Attribution Copyright Notice: Copyright � 2006, 2007 
+Attribution Information: Attribution Copyright Notice: Copyright (c) 2006, 2007 
 Projity, Inc. Attribution Phrase (not exceeding 10 words): Powered by OpenProj, 
 an open source solution from Projity. Attribution URL: http://www.projity.com 
 Graphic Image as provided in the Covered Code as file:  openproj_logo.png with 
@@ -67,7 +67,7 @@ public class Settings {
 	public static final String CLUSTER_NODES="jnp://localhost:1100";
 	public static final String SITE_HOME = "http://www.projectlibre.com";
 //	public static final String HELP_HOME = "http://projectlibre.org/wiki/index.php?title=";
-	public static final String HELP_HOME = "http://projectlibre.com";
+	public static final String HELP_HOME = "http://projectlibre.com/online_help/";
 	public static final String WEB_APP= "web";
 	public static final String WEB_HOME = SITE_HOME + "/" + WEB_APP;
 	

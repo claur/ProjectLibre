@@ -76,7 +76,7 @@ import com.projity.util.VersionUtils;
 public final class HelpDialog extends AbstractDialog {
 	private static final long serialVersionUID = 1L;
 //	private static final String helpUrl = "http://www.projectlibre.com/doc.html"; //$NON-NLS-1$
-	private static final String helpUrl = "http://www.projectlibre.org/wiki/projectlibre-manual-community-contributed-wiki-manual-0"; //$NON-NLS-1$
+	private static final String helpUrl = "http://www.projectlibre.org/online_help/"; //$NON-NLS-1$
 //	private static final String videosUrl = Settings.SITE_HOME + "/demos.html"; //$NON-NLS-1$
 	private static final String videosUrl = Settings.SITE_HOME; //$NON-NLS-1$
 	public static final String donateUrl = "http://www.projectlibre.com";
