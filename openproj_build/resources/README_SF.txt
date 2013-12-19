@@ -6,12 +6,12 @@ The major improvements includes:
 - Print, print preview improvements
 - Major bug fixes and more
 
-
 Mac OS X notes:
 ProjectLibre requires Mac OS X 10.5.7 or later.
-- Versions 10.5: download projectlibre-@version@.dmg. Update to 10.5.7+. Make sure java updates have been installed (http://support.apple.com/kb/DL848). Then select Java 6 as default in /Applications/Utility/Java Preferences.
-- Versions 10.6, 10.7, 10.8 with Java 6: download projectlibre-@version@.dmg.
-- Versions 10.7.3+, 10.8 with Java7: download projectlibre-@version@_java7.dmg
+- Versions 10.7.3+, 10.8, 10.9 with or without Java already installed: download projectlibre-@version@.dmg. It comes with Java7 embedded.
+- Versions 10.7.3+, 10.8, 10.9 with java7 already installed: download projectlibre-@version@.dmg or projectlibre-java7-1.5.8.dmg. 
+- Versions <=10.7.2: download projectlibre-java6-@version@.dmg.
+Note for 10.5: You have to update to 10.5.7+. Make sure java updates have been installed (http://support.apple.com/kb/DL848). Then select Java 6 as default in /Applications/Utility/Java Preferences.
 
 Linux notes:
 - Fedora/RedHat Enterprise/Oracle/Centos, openSUSE/SLES/SLED, Mageia/Mandriva/PCLinuxOS: download projectlibre-@rpm_version@-@rpm_revision@.rpm

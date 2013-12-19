@@ -360,6 +360,9 @@
 		</exec>
 
 	</target>
+	<target name="test">
+		<exec executable="/Users/chretien/bin/test.sh" />
+	</target>
 	<target name="deb-create">
 		 <!-- need 0/0 -->
 		<!--exec executable="sudo">
@@ -368,7 +371,7 @@
 			<arg value="root:wheel"/>
 			<arg value="${deb}"/>
 		</exec-->
-
+		
 		<exec executable="/opt/local/bin/dpkg-deb">
 			<arg value="--build"/>
 			<arg value="${basedir}/${deb}"/>
@@ -419,25 +422,25 @@
         </bundleapp>
     </target-->
 	
-	<target name="mac-embeded" depends="dist">
-		<mkdir dir="${packages}/mac-embeded/${macapp}" />
-		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents" />
-		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/MacOS" />
-		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Resources" />
-		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Java" />
+	<target name="mac-embedded" depends="dist">
+		<mkdir dir="${packages}/mac-embedded/${macapp}" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/MacOS" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Resources" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Java" />
 
-		<copy todir="${packages}/mac-embeded/${macapp}/Contents" file="${resources}/mac/new/Info.plist" >
+		<copy todir="${packages}/mac-embedded/${macapp}/Contents" file="${resources}/mac/new/Info.plist" >
 			<filterset>
 				<filter token="version" value="${numericVersion3}"/>
 			</filterset>
 		</copy>
-		<copy todir="${packages}/mac-embeded/${macapp}/Contents" file="${resources}/mac/new/PkgInfo" />
-		<copy todir="${packages}/mac-embeded/${macapp}/Contents/Resources" >
+		<copy todir="${packages}/mac-embedded/${macapp}/Contents" file="${resources}/mac/new/PkgInfo" />
+		<copy todir="${packages}/mac-embedded/${macapp}/Contents/Resources" >
 			<fileset dir="${resources}/mac">
 				<include name="projectlibre.icns"/>
 			</fileset>
 		</copy>
-		<copy todir="${packages}/mac-embeded/${macapp}/Contents/Java" >
+		<copy todir="${packages}/mac-embedded/${macapp}/Contents/Java" >
 			<fileset dir=".">
 				<include name="license/**"/>
 			</fileset>
@@ -449,42 +452,42 @@
 		 <!-- to preserve permissions -->
 		<exec executable="cp">
 			<arg value="${resources}/mac/JavaAppLauncher"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/MacOS"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/MacOS"/>
 		</exec>
 		
 		
-		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Plugins" />
-		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}" />
-		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents" />
-		<mkdir dir="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Plugins" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home" />
 		<exec executable="cp">
 			<arg value="-a"/>
 			<arg value="/Library/Java/JavaVirtualMachines/${jvm_name}/Contents/Info.plist"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/"/>
 		</exec>
 		<exec executable="cp">
 			<arg value="-a"/>
 			<arg value="/Library/Java/JavaVirtualMachines/${jvm_name}/Contents/Home/jre"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/"/>
 		</exec>
 		<exec executable="rm">
 			<arg value="-rf"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/bin"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/applet"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/deploy"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/deploy.jar"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/javaws.jar"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/libdeploy.dylib"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/libnpjp2.dylib"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/plugin.jar"/>
-			<arg value="${packages}/mac-embeded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/security/javaws.policy"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/bin"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/applet"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/deploy"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/deploy.jar"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/javaws.jar"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/libdeploy.dylib"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/libnpjp2.dylib"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/plugin.jar"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/security/javaws.policy"/>
 		</exec>
 			
 
 		<exec executable="chmod"> <!-- remove group write permissions -->
 			<arg value="-R"/>
 			<arg value="g-w"/>
-			<arg value="${packages}/mac-embeded/${macapp}"/>
+			<arg value="${packages}/mac-embedded/${macapp}"/>
 		</exec>
 
 
@@ -637,7 +640,7 @@
 	
 	
 
-	<target name="all" depends="dir,tar,zip,mac-embeded,mac-new,mac-old,wix,readme,rpm,deb">
+	<target name="all" depends="dir,tar,zip,mac-embedded,mac-new,mac-old,wix,readme,rpm,deb">
 	</target>
 
 
