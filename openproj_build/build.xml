@@ -143,7 +143,7 @@
 			<arg value="+x"/>
 			<arg value="${packages}/projectlibre-${version}/projectlibre.sh"/>
 		</exec>
-		<exec executable="gnutar"> <!-- to preserve permissions also add export COPYFILE_DISABLE=true -->
+		<exec executable="/usr/local/bin/gtar"> <!-- to preserve permissions also add export COPYFILE_DISABLE=true -->
 			<arg value="--numeric-owner"/>
 			<arg value="--owner=0"/>
 			<arg value="--group=0"/>
@@ -359,9 +359,6 @@
 			<arg value="${deb}"/>
 		</exec>
 
-	</target>
-	<target name="test">
-		<exec executable="/Users/chretien/bin/test.sh" />
 	</target>
 	<target name="deb-create">
 		 <!-- need 0/0 -->
