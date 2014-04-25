@@ -69,7 +69,6 @@ OPENPROJ_HOME="$OPENPROJ_HOME0"
 LOG_LEVEL="DEBUG"
 LOG_FILE="/dev/null"
 AUTO_CONFIGURATION="1"
-ARGS="$@"
 JAVA_OK="0"
 FIRST_JAVA_WITH_CORRECT_VERSION=""
 OS_NAME=`uname`
@@ -156,11 +155,11 @@ check_java() {
 	fi
 }
 
-run_openproj() {
+run_openproj() { # call function with parameters to hand over
 	if [ "$LOG_LEVEL" ] && [ "x$LOG_LEVEL" = "xDEBUG" ]; then
-		"$JAVA_EXE" $JAVA_OPTS -jar "$OPENPROJ_HOME/projectlibre.jar" $ARGS > "$LOG_FILE"
+		"$JAVA_EXE" $JAVA_OPTS -jar "$OPENPROJ_HOME/projectlibre.jar" "$@" > "$LOG_FILE"
 	else
-		"$JAVA_EXE" $JAVA_OPTS -jar "$OPENPROJ_HOME/projectlibre.jar" $ARGS > /dev/null 2>&1
+		"$JAVA_EXE" $JAVA_OPTS -jar "$OPENPROJ_HOME/projectlibre.jar" "$@" > /dev/null 2>&1
 	fi
 }
 
@@ -180,9 +179,7 @@ if [ -f "$RUN_CONF" ]; then
 	OPENPROJ_HOME="$OPENPROJ_HOME0"
 	#OPENPROJ_HOME can be harmful with multiple versions. disable
 	JAVA_OK="1"
-	ARGS0="$ARGS"
-	ARGS="--silentlyFail true $ARGS"
-	run_openproj || if [[ $? -eq 126 || $? -eq 127 || $? -eq 64 ]]; then
+	run_openproj --silentlyFail true "$@" || if [[ $? -eq 126 || $? -eq 127 || $? -eq 64 ]]; then
 		#126 command invoked cannot execute
 		#127 command not found
 		#64 bad java version/impl
@@ -191,7 +188,6 @@ if [ -f "$RUN_CONF" ]; then
 			#auto-detection will be performed
 		fi
 	fi
-	ARGS="$ARGS0"
 fi
 
 if [ "$JAVA_OK" -eq "0" ]; then
@@ -307,13 +303,13 @@ if [ "$JAVA_OK" -eq "0" ]; then
 	fi
 
 	if [ "$JAVA_OK" -eq "1" ]; then
-		run_openproj
+		run_openproj "$@"
 	else
 		if [ "x$FIRST_JAVA_WITH_CORRECT_VERSION" != "x" ]; then
 			echo "Trying $FIRST_JAVA_WITH_CORRECT_VERSION ..."
 			JAVA_EXE="$FIRST_JAVA_WITH_CORRECT_VERSION"
 			create_run_conf
-			run_openproj
+			run_openproj "$@"
 			echo $?
 		fi
 	fi
