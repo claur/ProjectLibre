@@ -113,7 +113,7 @@ check_java() {
 	"$JAVA_EXE" -version > "$VERSION_FILE" 2>&1 || rm -f "$VERSION_FILE"
 
 	if [ -r "$VERSION_FILE" ]; then
-		JAVA_VERSION=`cat "$VERSION_FILE" | head -n 1 | awk '{ print substr($3, 2, length($3)-2); }'`
+		JAVA_VERSION=`cat "$VERSION_FILE" | awk '/^java version/ { print substr($3, 2, length($3)-2); }'`
 		if [ "x$OS_NAME" = "xSunOS" ]; then
 			echo "    Java version: $JAVA_VERSION \c"
 		else
@@ -128,7 +128,7 @@ check_java() {
 		if [ "$JAVA_VERSION" ]; then
 			if [ "$JAVA_VERSION" -ge "$MIN_JAVA_VERSION" ];	then
 				echo "OK"
-				JAVA_IMPL=`cat "$VERSION_FILE" | head -n 2 | "$TAIL_COMMAND" -n 1 | awk '{ print $1; }'`
+				JAVA_IMPL=`cat "$VERSION_FILE" | awk '/^java version/ { getline; print $1; }'`
 				if [ "x$OS_NAME" = "xSunOS" ]; then
 					echo "    Java implementation: $JAVA_IMPL \c"
 				else
