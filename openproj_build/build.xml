@@ -381,8 +381,9 @@
 			<arg value="${user.name}"/>
 			<arg value="${debroot}"/>
 		</exec-->
-		<exec executable="sh"> <!-- dpkg-deb package with wheel group on Mac OS X is causing check issues on Ubuntu. Workaround to put numeric owner group in tars. requires gnutar -->
+		<exec executable="sh"> <!-- dpkg-deb package with wheel group on Mac OS X is causing check issues on Ubuntu. Workaround to put numeric owner group in tars. requires GNU tar -->
 			<arg value="resources/deb/cleandeb.sh"/>
+			<arg value="${gnu_tar}"/>
 			<arg value="${basedir}/${debroot}"/>
 			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
 			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
