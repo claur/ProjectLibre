@@ -368,8 +368,8 @@
 			<arg value="root:wheel"/>
 			<arg value="${deb}"/>
 		</exec-->
-		
-		<exec executable="/opt/local/bin/dpkg-deb">
+
+		<exec executable="${dpkg_deb}">
 			<arg value="--build"/>
 			<arg value="${basedir}/${deb}"/>
 			<arg value="${basedir}/${debroot}/projectlibre_${deb_version}-${deb_revision}.deb"/>
