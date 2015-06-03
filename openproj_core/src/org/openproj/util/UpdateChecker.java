@@ -81,6 +81,9 @@ public class UpdateChecker {
 	private static final String updateAddress = "http://projectlibre.org/versions-"+UPDATE_CHECKER_VERSION; //claur openproj.org version not working any more
 	private static final String downloadAddress = "http://sourceforge.net/projects/projectlibre/files/latest/download";
 	private static void checkForUpdate() {
+		if (! Preferences.userNodeForPackage(UpdateChecker.class).getBoolean("checkForUpdates", true) ) {
+			return;
+		}
 		String thisVersion = VersionUtils.getVersion();//Messages.getString("Release.version");
 		if (thisVersion==null) thisVersion="0";
 		URL url;
