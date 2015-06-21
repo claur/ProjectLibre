@@ -24,6 +24,8 @@
 
 package net.sf.mpxj;
 
+import net.sf.mpxj.common.NumberHelper;
+
 /**
  * This represents time durations as specified in an MPX file.
  */
@@ -84,10 +86,10 @@ public final class Duration implements Comparable<Duration>
     * The results obtained from it should therefore be treated with caution.
     *
     * @param type target duration type
-    * @param defaults project header containing default values
+    * @param defaults project properties containing default values
     * @return new Duration instance
     */
-   public Duration convertUnits(TimeUnit type, ProjectHeader defaults)
+   public Duration convertUnits(TimeUnit type, ProjectProperties defaults)
    {
       return (convertUnits(m_duration, m_units, type, defaults));
    }
@@ -101,10 +103,10 @@ public final class Duration implements Comparable<Duration>
     * @param duration duration value
     * @param fromUnits units to convert from
     * @param toUnits units to convert to
-    * @param defaults project header containing default values
+    * @param defaults project properties containing default values
     * @return new Duration instance
     */
-   public static Duration convertUnits(double duration, TimeUnit fromUnits, TimeUnit toUnits, ProjectHeader defaults)
+   public static Duration convertUnits(double duration, TimeUnit fromUnits, TimeUnit toUnits, ProjectProperties defaults)
    {
       return (convertUnits(duration, fromUnits, toUnits, defaults.getMinutesPerDay().doubleValue(), defaults.getMinutesPerWeek().doubleValue(), defaults.getDaysPerMonth().doubleValue()));
    }
@@ -127,62 +129,62 @@ public final class Duration implements Comparable<Duration>
    {
       switch (fromUnits)
       {
-         case YEARS :
+         case YEARS:
          {
             duration *= (minutesPerWeek * 52);
             break;
          }
 
-         case ELAPSED_YEARS :
+         case ELAPSED_YEARS:
          {
             duration *= (60 * 24 * 7 * 52);
             break;
          }
 
-         case MONTHS :
+         case MONTHS:
          {
             duration *= (minutesPerDay * daysPerMonth);
             break;
          }
 
-         case ELAPSED_MONTHS :
+         case ELAPSED_MONTHS:
          {
             duration *= (60 * 24 * 30);
             break;
          }
 
-         case WEEKS :
+         case WEEKS:
          {
             duration *= minutesPerWeek;
             break;
          }
 
-         case ELAPSED_WEEKS :
+         case ELAPSED_WEEKS:
          {
             duration *= (60 * 24 * 7);
             break;
          }
 
-         case DAYS :
+         case DAYS:
          {
             duration *= minutesPerDay;
             break;
          }
 
-         case ELAPSED_DAYS :
+         case ELAPSED_DAYS:
          {
             duration *= (60 * 24);
             break;
          }
 
-         case HOURS :
-         case ELAPSED_HOURS :
+         case HOURS:
+         case ELAPSED_HOURS:
          {
             duration *= 60;
             break;
          }
 
-         default :
+         default:
          {
             break;
          }
@@ -192,14 +194,14 @@ public final class Duration implements Comparable<Duration>
       {
          switch (toUnits)
          {
-            case HOURS :
-            case ELAPSED_HOURS :
+            case HOURS:
+            case ELAPSED_HOURS:
             {
                duration /= 60;
                break;
             }
 
-            case DAYS :
+            case DAYS:
             {
                if (minutesPerDay != 0)
                {
@@ -212,13 +214,13 @@ public final class Duration implements Comparable<Duration>
                break;
             }
 
-            case ELAPSED_DAYS :
+            case ELAPSED_DAYS:
             {
                duration /= (60 * 24);
                break;
             }
 
-            case WEEKS :
+            case WEEKS:
             {
                if (minutesPerWeek != 0)
                {
@@ -231,13 +233,13 @@ public final class Duration implements Comparable<Duration>
                break;
             }
 
-            case ELAPSED_WEEKS :
+            case ELAPSED_WEEKS:
             {
                duration /= (60 * 24 * 7);
                break;
             }
 
-            case MONTHS :
+            case MONTHS:
             {
                if (minutesPerDay != 0 && daysPerMonth != 0)
                {
@@ -250,13 +252,13 @@ public final class Duration implements Comparable<Duration>
                break;
             }
 
-            case ELAPSED_MONTHS :
+            case ELAPSED_MONTHS:
             {
                duration /= (60 * 24 * 30);
                break;
             }
 
-            case YEARS :
+            case YEARS:
             {
                if (minutesPerWeek != 0)
                {
@@ -269,13 +271,13 @@ public final class Duration implements Comparable<Duration>
                break;
             }
 
-            case ELAPSED_YEARS :
+            case ELAPSED_YEARS:
             {
                duration /= (60 * 24 * 7 * 52);
                break;
             }
 
-            default :
+            default:
             {
                break;
             }
@@ -338,7 +340,7 @@ public final class Duration implements Comparable<Duration>
       if (o instanceof Duration)
       {
          Duration rhs = (Duration) o;
-         result = m_duration == rhs.m_duration && m_units == rhs.m_units;
+         result = durationComponentEquals(rhs) && m_units == rhs.m_units;
       }
       return result;
    }
@@ -354,14 +356,38 @@ public final class Duration implements Comparable<Duration>
    /**
     * {@inheritDoc}
     */
-   public int compareTo(Duration rhs)
+   @Override public int compareTo(Duration rhs)
    {
       if (m_units != rhs.m_units)
       {
          rhs = convertUnits(rhs.m_duration, rhs.m_units, m_units, (8 * 60), (5 * 8 * 60), 20);
       }
 
-      return (m_duration < rhs.m_duration ? -1 : (m_duration == rhs.m_duration ? 0 : 1));
+      return durationComponentEquals(rhs) ? 0 : m_duration < rhs.m_duration ? -1 : 1;
+   }
+
+   /**
+    * Equality test for duration component of a Duration instance.
+    * Note that this does not take into account the units - use with care!
+    * 
+    * @param rhs duration to compare
+    * @return true if duration components are equal, within the allowable delta
+    */
+   public boolean durationComponentEquals(Duration rhs)
+   {
+      return durationValueEquals(m_duration, rhs.m_duration);
+   }
+
+   /**
+    * Equality test for two duration values.
+    * 
+    * @param lhs duration value
+    * @param rhs duration value
+    * @return true if duration values are equal, within the allowable delta
+    */
+   public static boolean durationValueEquals(double lhs, double rhs)
+   {
+      return NumberHelper.equals(lhs, rhs, 0.00001);
    }
 
    /**

@@ -23,9 +23,8 @@
 
 package net.sf.mpxj;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.EnumHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * Instances of this class represent enumerated date order values.
@@ -76,7 +75,7 @@ public enum DateOrder implements MpxjEnum
       }
       else
       {
-         value = NumberUtility.getInt(type);
+         value = NumberHelper.getInt(type);
       }
       return (getInstance(value));
    }
@@ -86,7 +85,7 @@ public enum DateOrder implements MpxjEnum
     *
     * @return int representation of the enum
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -105,7 +104,7 @@ public enum DateOrder implements MpxjEnum
    /**
     * Array mapping int types to enums.
     */
-   private static final DateOrder[] TYPE_VALUES = EnumUtility.createTypeArray(DateOrder.class);
+   private static final DateOrder[] TYPE_VALUES = EnumHelper.createTypeArray(DateOrder.class);
 
    /**
     * Internal representation of the enum int type.

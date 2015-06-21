@@ -110,6 +110,8 @@ public class MpxResourceConverter {
 		
 		"finish", "finish", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",
 		"finish:1:10", "finish:1:10", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",
+
+		"date:1:10", "date:1:10", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",
 		
 //		"duration", "duration", "com.projectlibre.core.pm.exchange.converters.mpx.type.MpxDurationConverter",
 		"duration:1:10", "duration:1:10", "com.projectlibre.core.pm.exchange.converters.mpx.type.MpxDurationConverter",

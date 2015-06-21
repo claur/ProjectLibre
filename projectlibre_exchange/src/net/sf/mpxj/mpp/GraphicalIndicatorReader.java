@@ -25,15 +25,16 @@ package net.sf.mpxj.mpp;
 
 import java.util.Date;
 
+import net.sf.mpxj.CustomFieldContainer;
 import net.sf.mpxj.Duration;
 import net.sf.mpxj.FieldType;
 import net.sf.mpxj.GraphicalIndicator;
 import net.sf.mpxj.GraphicalIndicatorCriteria;
-import net.sf.mpxj.MPPResourceField;
-import net.sf.mpxj.MPPTaskField;
-import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.TaskField;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.TestOperator;
+import net.sf.mpxj.common.FieldTypeHelper;
+import net.sf.mpxj.common.MPPResourceField;
+import net.sf.mpxj.common.MPPTaskField;
 
 /**
  * This class allows graphical indicator definitions to be read from an MPP
@@ -44,12 +45,14 @@ public final class GraphicalIndicatorReader
    /**
     * The main entry point for processing graphical indicator definitions.
     * 
-    * @param file parent project file
+    * @param indicators graphical indicators container
+    * @param properties project properties
     * @param props properties data
     */
-   public void process(ProjectFile file, Props props)
+   public void process(CustomFieldContainer indicators, ProjectProperties properties, Props props)
    {
-      m_file = file;
+      m_container = indicators;
+      m_properties = properties;
       m_data = props.getByteArray(Props.TASK_FIELD_ATTRIBUTES);
 
       if (m_data != null)
@@ -83,13 +86,13 @@ public final class GraphicalIndicatorReader
       FieldType type = null;
       switch (entityType)
       {
-         case 0x0B :
+         case 0x0B:
          {
             type = MPPTaskField.getInstance(fieldType);
             break;
          }
 
-         case 0x0C :
+         case 0x0C:
          {
             type = MPPResourceField.getInstance(fieldType);
             break;
@@ -99,7 +102,7 @@ public final class GraphicalIndicatorReader
       //System.out.println("Header: " + type);
       //System.out.println(MPPUtility.hexdump(m_data, m_dataOffset, 36, false, 16, ""));
 
-      GraphicalIndicator indicator = new GraphicalIndicator();
+      GraphicalIndicator indicator = m_container.getCustomField(type).getGraphicalIndicator();
       indicator.setFieldType(type);
       int flags = m_data[m_dataOffset];
       indicator.setProjectSummaryInheritsFromSummaryRows((flags & 0x08) != 0);
@@ -143,8 +146,6 @@ public final class GraphicalIndicatorReader
       {
          indicator.addProjectSummaryCriteria(processCriteria(type));
       }
-
-      m_file.addGraphicalIndicator(type, indicator);
    }
 
    /**
@@ -155,7 +156,7 @@ public final class GraphicalIndicatorReader
     */
    private GraphicalIndicatorCriteria processCriteria(FieldType type)
    {
-      GraphicalIndicatorCriteria criteria = new GraphicalIndicatorCriteria(m_file);
+      GraphicalIndicatorCriteria criteria = new GraphicalIndicatorCriteria(m_properties);
       criteria.setLeftValue(type);
 
       int indicatorType = MPPUtility.getInt(m_data, m_dataOffset);
@@ -198,18 +199,9 @@ public final class GraphicalIndicatorReader
 
       if (valueFlag == false)
       {
-         // 4 byte int representing the field type, we need the low bytes
-         // the high bytes define if this is a task or a resource field
-         int field = MPPUtility.getShort(m_data, m_dataOffset);
+         int fieldID = MPPUtility.getInt(m_data, m_dataOffset);
+         criteria.setRightValue(index, FieldTypeHelper.getInstance(fieldID));
          m_dataOffset += 4;
-         if (type instanceof TaskField)
-         {
-            criteria.setRightValue(index, MPPTaskField.getInstance(field));
-         }
-         else
-         {
-            criteria.setRightValue(index, MPPResourceField.getInstance(field));
-         }
       }
       else
       {
@@ -218,15 +210,15 @@ public final class GraphicalIndicatorReader
 
          switch (type.getDataType())
          {
-            case DURATION : // 0x03
+            case DURATION: // 0x03
             {
-               Duration value = MPPUtility.getAdjustedDuration(m_file, MPPUtility.getInt(m_data, m_dataOffset), MPPUtility.getDurationTimeUnits(MPPUtility.getShort(m_data, m_dataOffset + 4)));
+               Duration value = MPPUtility.getAdjustedDuration(m_properties, MPPUtility.getInt(m_data, m_dataOffset), MPPUtility.getDurationTimeUnits(MPPUtility.getShort(m_data, m_dataOffset + 4)));
                m_dataOffset += 6;
                criteria.setRightValue(index, value);
                break;
             }
 
-            case NUMERIC : // 0x05
+            case NUMERIC: // 0x05
             {
                Double value = Double.valueOf(MPPUtility.getDouble(m_data, m_dataOffset));
                m_dataOffset += 8;
@@ -234,7 +226,7 @@ public final class GraphicalIndicatorReader
                break;
             }
 
-            case CURRENCY : // 0x06
+            case CURRENCY: // 0x06
             {
                Double value = Double.valueOf(MPPUtility.getDouble(m_data, m_dataOffset) / 100);
                m_dataOffset += 8;
@@ -242,7 +234,7 @@ public final class GraphicalIndicatorReader
                break;
             }
 
-            case STRING : // 0x08
+            case STRING: // 0x08
             {
                String value = MPPUtility.getUnicodeString(m_data, m_dataOffset);
                m_dataOffset += ((value.length() + 1) * 2);
@@ -250,7 +242,7 @@ public final class GraphicalIndicatorReader
                break;
             }
 
-            case BOOLEAN : // 0x0B
+            case BOOLEAN: // 0x0B
             {
                int value = MPPUtility.getShort(m_data, m_dataOffset);
                m_dataOffset += 2;
@@ -258,7 +250,7 @@ public final class GraphicalIndicatorReader
                break;
             }
 
-            case DATE : // 0x13
+            case DATE: // 0x13
             {
                Date value = MPPUtility.getTimestamp(m_data, m_dataOffset);
                m_dataOffset += 4;
@@ -266,7 +258,7 @@ public final class GraphicalIndicatorReader
                break;
             }
 
-            default :
+            default:
             {
                break;
             }
@@ -277,5 +269,6 @@ public final class GraphicalIndicatorReader
    private byte[] m_data;
    private int m_headerOffset;
    private int m_dataOffset;
-   private ProjectFile m_file;
+   private CustomFieldContainer m_container;
+   private ProjectProperties m_properties;
 }

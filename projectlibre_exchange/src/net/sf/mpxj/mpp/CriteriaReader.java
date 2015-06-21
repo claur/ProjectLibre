@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.sf.mpxj.FieldType;
+import net.sf.mpxj.FieldTypeClass;
 import net.sf.mpxj.GenericCriteria;
 import net.sf.mpxj.GenericCriteriaPrompt;
-import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.TaskField;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.TestOperator;
 
 /**
@@ -118,7 +118,7 @@ public abstract class CriteriaReader
    /**
     * Main entry point to read criteria data.
     * 
-    * @param file parent project file
+    * @param properties project properties
     * @param data criteria data block
     * @param dataOffset offset of the data start within the larger data block
     * @param entryOffset offset of start node for walking the tree
@@ -127,9 +127,9 @@ public abstract class CriteriaReader
     * @param criteriaType optional array representing criteria types
     * @return first node of the criteria
     */
-   public GenericCriteria process(ProjectFile file, byte[] data, int dataOffset, int entryOffset, List<GenericCriteriaPrompt> prompts, List<FieldType> fields, boolean[] criteriaType)
+   public GenericCriteria process(ProjectProperties properties, byte[] data, int dataOffset, int entryOffset, List<GenericCriteriaPrompt> prompts, List<FieldType> fields, boolean[] criteriaType)
    {
-      m_file = file;
+      m_properties = properties;
       m_prompts = prompts;
       m_fields = fields;
       m_criteriaType = criteriaType;
@@ -205,33 +205,33 @@ public abstract class CriteriaReader
          {
             switch (block[0])
             {
-               case (byte) 0x0B :
+               case (byte) 0x0B:
                {
                   processBlock(list, getChildBlock(block));
                   break;
                }
 
-               case (byte) 0x06 :
+               case (byte) 0x06:
                {
                   processBlock(list, getListNextBlock(block));
                   break;
                }
 
-               case (byte) 0xED : // EQUALS
+               case (byte) 0xED: // EQUALS
                {
                   addCriteria(list, block);
                   break;
                }
 
-               case (byte) 0x19 : // AND
-               case (byte) 0x1B :
+               case (byte) 0x19: // AND
+               case (byte) 0x1B:
                {
                   addBlock(list, block, TestOperator.AND);
                   break;
                }
 
-               case (byte) 0x1A : // OR
-               case (byte) 0x1C :
+               case (byte) 0x1A: // OR
+               case (byte) 0x1C:
                {
                   addBlock(list, block, TestOperator.OR);
                   break;
@@ -257,7 +257,7 @@ public abstract class CriteriaReader
       Object rightValue1 = getValue(leftValue, rightBlock1);
       Object rightValue2 = rightBlock2 == null ? null : getValue(leftValue, rightBlock2);
 
-      GenericCriteria criteria = new GenericCriteria(m_file);
+      GenericCriteria criteria = new GenericCriteria(m_properties);
       criteria.setLeftValue(leftValue);
       criteria.setOperator(operator);
       criteria.setRightValue(0, rightValue1);
@@ -266,7 +266,7 @@ public abstract class CriteriaReader
 
       if (m_criteriaType != null)
       {
-         m_criteriaType[0] = leftValue instanceof TaskField;
+         m_criteriaType[0] = leftValue.getFieldTypeClass() == FieldTypeClass.TASK;
          m_criteriaType[1] = !m_criteriaType[0];
       }
 
@@ -287,7 +287,7 @@ public abstract class CriteriaReader
     */
    private void addBlock(List<GenericCriteria> list, byte[] block, TestOperator operator)
    {
-      GenericCriteria result = new GenericCriteria(m_file);
+      GenericCriteria result = new GenericCriteria(m_properties);
       result.setOperator(operator);
       list.add(result);
       processBlock(result.getCriteriaList(), getChildBlock(block));
@@ -307,19 +307,19 @@ public abstract class CriteriaReader
 
       switch (block[0])
       {
-         case 0x07 : // Field
+         case 0x07: // Field
          {
             result = getFieldType(block);
             break;
          }
 
-         case 0x01 : // Constant value
+         case 0x01: // Constant value
          {
             result = getConstantValue(field, block);
             break;
          }
 
-         case 0x00 : // Prompt
+         case 0x00: // Prompt
          {
             result = getPromptValue(field, block);
             break;
@@ -342,51 +342,51 @@ public abstract class CriteriaReader
 
       switch (type.getDataType())
       {
-         case DURATION :
+         case DURATION:
          {
-            value = MPPUtility.getAdjustedDuration(m_file, MPPUtility.getInt(block, getValueOffset()), MPPUtility.getDurationTimeUnits(MPPUtility.getShort(block, getTimeUnitsOffset())));
+            value = MPPUtility.getAdjustedDuration(m_properties, MPPUtility.getInt(block, getValueOffset()), MPPUtility.getDurationTimeUnits(MPPUtility.getShort(block, getTimeUnitsOffset())));
             break;
          }
 
-         case NUMERIC :
+         case NUMERIC:
          {
             value = Double.valueOf(MPPUtility.getDouble(block, getValueOffset()));
             break;
          }
 
-         case PERCENTAGE :
+         case PERCENTAGE:
          {
             value = Double.valueOf(MPPUtility.getShort(block, getValueOffset()));
             break;
          }
 
-         case CURRENCY :
+         case CURRENCY:
          {
             value = Double.valueOf(MPPUtility.getDouble(block, getValueOffset()) / 100);
             break;
          }
 
-         case STRING :
+         case STRING:
          {
             int textOffset = getTextOffset(block);
             value = MPPUtility.getUnicodeString(m_criteriaData, m_dataOffset + m_criteriaTextStart + textOffset);
             break;
          }
 
-         case BOOLEAN :
+         case BOOLEAN:
          {
             int intValue = MPPUtility.getShort(block, getValueOffset());
             value = (intValue == 1 ? Boolean.TRUE : Boolean.FALSE);
             break;
          }
 
-         case DATE :
+         case DATE:
          {
             value = MPPUtility.getTimestamp(block, getValueOffset());
             break;
          }
 
-         default :
+         default:
          {
             value = null;
             break;
@@ -415,7 +415,7 @@ public abstract class CriteriaReader
       return prompt;
    }
 
-   private ProjectFile m_file;
+   private ProjectProperties m_properties;
    private byte[] m_criteriaData;
    private boolean[] m_criteriaType;
    private int m_criteriaTextStart;

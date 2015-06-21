@@ -38,7 +38,7 @@ class ViewFactory9 implements ViewFactory
    /**
     * {@inheritDoc}
     */
-   public View createView(ProjectFile file, byte[] fixedMeta, byte[] fixedData, Var2Data varData, Map<Integer, FontBase> fontBases) throws IOException
+   @Override public View createView(ProjectFile file, byte[] fixedMeta, byte[] fixedData, Var2Data varData, Map<Integer, FontBase> fontBases) throws IOException
    {
       View view;
       int splitViewFlag = MPPUtility.getShort(fixedData, 110);
@@ -51,13 +51,13 @@ class ViewFactory9 implements ViewFactory
          ViewType type = ViewType.getInstance(MPPUtility.getShort(fixedData, 112));
          switch (type)
          {
-            case GANTT_CHART :
+            case GANTT_CHART:
             {
                view = new GanttChartView9(file, fixedMeta, fixedData, varData, fontBases);
                break;
             }
 
-            default :
+            default:
             {
                view = new GenericView9(file, fixedData, varData);
                break;

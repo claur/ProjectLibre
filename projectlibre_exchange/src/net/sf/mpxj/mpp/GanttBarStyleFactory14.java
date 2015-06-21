@@ -23,8 +23,8 @@
 
 package net.sf.mpxj.mpp;
 
-import net.sf.mpxj.MPPTaskField14;
 import net.sf.mpxj.TaskField;
+import net.sf.mpxj.common.MPPTaskField14;
 
 /**
  * Reads Gantt bar styles from an MPP14 file.
@@ -34,7 +34,7 @@ public class GanttBarStyleFactory14 implements GanttBarStyleFactory
    /**
     * {@inheritDoc}
     */
-   public GanttBarStyle[] processDefaultStyles(Props props)
+   @Override public GanttBarStyle[] processDefaultStyles(Props props)
    {
       GanttBarStyle[] barStyles = null;
       byte[] barStyleData = props.getByteArray(DEFAULT_PROPERTIES);
@@ -89,7 +89,7 @@ public class GanttBarStyleFactory14 implements GanttBarStyleFactory
    /**
     * {@inheritDoc}
     */
-   public GanttBarStyleException[] processExceptionStyles(Props props)
+   @Override public GanttBarStyleException[] processExceptionStyles(Props props)
    {
       GanttBarStyleException[] barStyle = null;
       byte[] barData = props.getByteArray(EXCEPTION_PROPERTIES);
@@ -178,25 +178,25 @@ public class GanttBarStyleFactory14 implements GanttBarStyleFactory
       {
          switch (result)
          {
-            case START_TEXT :
+            case START_TEXT:
             {
                result = TaskField.START;
                break;
             }
 
-            case FINISH_TEXT :
+            case FINISH_TEXT:
             {
                result = TaskField.FINISH;
                break;
             }
 
-            case DURATION_TEXT :
+            case DURATION_TEXT:
             {
                result = TaskField.DURATION;
                break;
             }
 
-            default :
+            default:
             {
                break;
             }

@@ -23,8 +23,7 @@
 
 package net.sf.mpxj;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
+import net.sf.mpxj.common.EnumHelper;
 
 /**
  * Enumeration representing booking types.
@@ -64,7 +63,7 @@ public enum BookingType implements MpxjEnum
     *
     * @return int representation of the enum
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -72,7 +71,7 @@ public enum BookingType implements MpxjEnum
    /**
     * Array mapping int types to enums.
     */
-   private static final BookingType[] TYPE_VALUES = EnumUtility.createTypeArray(BookingType.class);
+   private static final BookingType[] TYPE_VALUES = EnumHelper.createTypeArray(BookingType.class);
 
    /**
     * Internal representation of the enum int type.

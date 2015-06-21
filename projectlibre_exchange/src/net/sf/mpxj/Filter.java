@@ -30,7 +30,7 @@ import java.util.Map;
  * This class represents a filter which may be applied to a 
  * task or resource view.
  */
-public class Filter
+public final class Filter
 {
    /**
     * Sets the filter's unique ID.
@@ -213,7 +213,7 @@ public class Filter
     */
    @Override public String toString()
    {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append("[Filter id=");
       sb.append(m_id);
       sb.append(" name=");

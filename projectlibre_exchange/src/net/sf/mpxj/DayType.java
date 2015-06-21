@@ -23,9 +23,8 @@
 
 package net.sf.mpxj;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.EnumHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This class is used to represent a the day type used by the project calendar.
@@ -76,7 +75,7 @@ public enum DayType implements MpxjEnum
       }
       else
       {
-         value = NumberUtility.getInt(type);
+         value = NumberHelper.getInt(type);
       }
       return (getInstance(value));
    }
@@ -86,7 +85,7 @@ public enum DayType implements MpxjEnum
     *
     * @return int representation of the enum
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -94,7 +93,7 @@ public enum DayType implements MpxjEnum
    /**
     * Array mapping int types to enums.
     */
-   private static final DayType[] TYPE_VALUES = EnumUtility.createTypeArray(DayType.class);
+   private static final DayType[] TYPE_VALUES = EnumHelper.createTypeArray(DayType.class);
 
    /**
     * Internal representation of the enum int type.

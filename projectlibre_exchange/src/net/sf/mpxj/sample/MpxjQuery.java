@@ -30,7 +30,7 @@ import java.util.List;
 import net.sf.mpxj.Duration;
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Relation;
 import net.sf.mpxj.RelationType;
 import net.sf.mpxj.Resource;
@@ -82,9 +82,7 @@ public class MpxjQuery
       ProjectReader reader = ProjectReaderUtility.getProjectReader(filename);
       ProjectFile mpx = reader.read(filename);
 
-      System.out.println("MPP file type: " + mpx.getMppFileType());
-
-      listProjectHeader(mpx);
+      listProjectProperties(mpx);
 
       listResources(mpx);
 
@@ -107,23 +105,25 @@ public class MpxjQuery
       listSlack(mpx);
 
       listCalendars(mpx);
+
    }
 
    /**
-    * Reads basic summary details from the project header.
+    * Reads basic summary details from the project properties.
     *
     * @param file MPX file
     */
-   private static void listProjectHeader(ProjectFile file)
+   private static void listProjectProperties(ProjectFile file)
    {
       SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm z");
-      ProjectHeader header = file.getProjectHeader();
-      Date startDate = header.getStartDate();
-      Date finishDate = header.getFinishDate();
+      ProjectProperties properties = file.getProjectProperties();
+      Date startDate = properties.getStartDate();
+      Date finishDate = properties.getFinishDate();
       String formattedStartDate = startDate == null ? "(none)" : df.format(startDate);
       String formattedFinishDate = finishDate == null ? "(none)" : df.format(finishDate);
 
-      System.out.println("Project Header: StartDate=" + formattedStartDate + " FinishDate=" + formattedFinishDate);
+      System.out.println("MPP file type: " + properties.getMppFileType());
+      System.out.println("Project Properties: StartDate=" + formattedStartDate + " FinishDate=" + formattedFinishDate);
       System.out.println();
    }
 
@@ -149,43 +149,23 @@ public class MpxjQuery
    private static void listTasks(ProjectFile file)
    {
       SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm z");
-      String startDate;
-      String finishDate;
-      String duration;
-      Date date;
-      Duration dur;
 
       for (Task task : file.getAllTasks())
       {
-         date = task.getStart();
-         if (date != null)
-         {
-            startDate = df.format(date);
-         }
-         else
-         {
-            startDate = "(no date supplied)";
-         }
+         Date date = task.getStart();
+         String text = task.getStartText();
+         String startDate = text != null ? text : (date != null ? df.format(date) : "(no start date supplied)");
 
          date = task.getFinish();
-         if (date != null)
-         {
-            finishDate = df.format(date);
-         }
-         else
-         {
-            finishDate = "(no date supplied)";
-         }
+         text = task.getFinishText();
+         String finishDate = text != null ? text : (date != null ? df.format(date) : "(no finish date supplied)");
 
-         dur = task.getDuration();
-         if (dur != null)
-         {
-            duration = dur.toString();
-         }
-         else
-         {
-            duration = "(no duration supplied)";
-         }
+         Duration dur = task.getDuration();
+         text = task.getDurationText();
+         String duration = text != null ? text : (dur != null ? dur.toString() : "(no duration supplied)");
+
+         dur = task.getActualDuration();
+         String actualDuration = dur != null ? dur.toString() : "(no actual duration supplied)";
 
          String baselineDuration = task.getBaselineDurationText();
          if (baselineDuration == null)
@@ -201,7 +181,7 @@ public class MpxjQuery
             }
          }
 
-         System.out.println("Task: " + task.getName() + " ID=" + task.getID() + " Unique ID=" + task.getUniqueID() + " (Start Date=" + startDate + " Finish Date=" + finishDate + " Duration=" + duration + " Baseline Duration=" + baselineDuration + " Outline Level=" + task.getOutlineLevel() + " Outline Number=" + task.getOutlineNumber() + " Recurring=" + task.getRecurring() + ")");
+         System.out.println("Task: " + task.getName() + " ID=" + task.getID() + " Unique ID=" + task.getUniqueID() + " (Start Date=" + startDate + " Finish Date=" + finishDate + " Duration=" + duration + " Actual Duration" + actualDuration + " Baseline Duration=" + baselineDuration + " Outline Level=" + task.getOutlineLevel() + " Outline Number=" + task.getOutlineNumber() + " Recurring=" + task.getRecurring() + ")");
       }
       System.out.println();
    }
@@ -216,7 +196,7 @@ public class MpxjQuery
    {
       for (Task task : file.getChildTasks())
       {
-         System.out.println("Task: " + task.getName());
+         System.out.println("Task: " + task.getName() + "\t" + task.getStart() + "\t" + task.getFinish());
          listHierarchy(task, " ");
       }
 
@@ -233,7 +213,7 @@ public class MpxjQuery
    {
       for (Task child : task.getChildTasks())
       {
-         System.out.println(indent + "Task: " + child.getName());
+         System.out.println(indent + "Task: " + child.getName() + "\t" + child.getStart() + "\t" + child.getFinish());
          listHierarchy(child, indent + " ");
       }
    }
@@ -346,7 +326,7 @@ public class MpxjQuery
       {
          String notes = task.getNotes();
 
-         if (notes != null && notes.length() != 0)
+         if (notes.length() != 0)
          {
             System.out.println("Notes for " + task.getName() + ": " + notes);
          }
@@ -366,7 +346,7 @@ public class MpxjQuery
       {
          String notes = resource.getNotes();
 
-         if (notes != null && notes.length() != 0)
+         if (notes.length() != 0)
          {
             System.out.println("Notes for " + resource.getName() + ": " + notes);
          }
@@ -461,12 +441,7 @@ public class MpxjQuery
     */
    private static void listCalendars(ProjectFile file)
    {
-      for (ProjectCalendar cal : file.getBaseCalendars())
-      {
-         System.out.println(cal.toString());
-      }
-
-      for (ProjectCalendar cal : file.getResourceCalendars())
+      for (ProjectCalendar cal : file.getCalendars())
       {
          System.out.println(cal.toString());
       }

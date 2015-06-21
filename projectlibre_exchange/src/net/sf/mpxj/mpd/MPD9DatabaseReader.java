@@ -40,11 +40,12 @@ import javax.sql.DataSource;
 
 import net.sf.mpxj.MPXJException;
 import net.sf.mpxj.ProjectCalendar;
+import net.sf.mpxj.ProjectConfig;
 import net.sf.mpxj.ProjectFile;
 import net.sf.mpxj.SubProject;
 import net.sf.mpxj.Task;
+import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.listener.ProjectListener;
-import net.sf.mpxj.utility.NumberUtility;
 
 /**
  * This class reads project data from an MPD9 format database.
@@ -104,19 +105,22 @@ public final class MPD9DatabaseReader extends MPD9AbstractReader
       try
       {
          m_project = new ProjectFile();
+         m_eventManager = m_project.getEventManager();
 
-         m_project.addProjectListeners(m_projectListeners);
-         m_project.setAutoTaskID(false);
-         m_project.setAutoTaskUniqueID(false);
-         m_project.setAutoResourceID(false);
-         m_project.setAutoResourceUniqueID(false);
-         m_project.setAutoOutlineLevel(false);
-         m_project.setAutoOutlineNumber(false);
-         m_project.setAutoWBS(false);
-         m_project.setAutoCalendarUniqueID(false);
-         m_project.setAutoAssignmentUniqueID(false);
+         ProjectConfig config = m_project.getProjectConfig();
+         config.setAutoTaskID(false);
+         config.setAutoTaskUniqueID(false);
+         config.setAutoResourceID(false);
+         config.setAutoResourceUniqueID(false);
+         config.setAutoOutlineLevel(false);
+         config.setAutoOutlineNumber(false);
+         config.setAutoWBS(false);
+         config.setAutoCalendarUniqueID(false);
+         config.setAutoAssignmentUniqueID(false);
 
-         processProjectHeader();
+         m_project.getEventManager().addProjectListeners(m_projectListeners);
+
+         processProjectProperties();
          processCalendars();
          processResources();
          processResourceBaselines();
@@ -159,16 +163,16 @@ public final class MPD9DatabaseReader extends MPD9AbstractReader
    }
 
    /**
-    * Select the project header row from the database.
+    * Select the project properties from the database.
     * 
     * @throws SQLException
     */
-   private void processProjectHeader() throws SQLException
+   private void processProjectProperties() throws SQLException
    {
       List<ResultSetRow> rows = getRows("SELECT * FROM MSP_PROJECTS WHERE PROJ_ID=?", m_projectID);
       if (rows.isEmpty() == false)
       {
-         processProjectHeader(rows.get(0));
+         processProjectProperties(rows.get(0));
       }
    }
 
@@ -186,8 +190,7 @@ public final class MPD9DatabaseReader extends MPD9AbstractReader
 
       updateBaseCalendarNames();
 
-      processCalendarData(m_project.getBaseCalendars());
-      processCalendarData(m_project.getResourceCalendars());
+      processCalendarData(m_project.getCalendars());
    }
 
    /**
@@ -510,7 +513,7 @@ public final class MPD9DatabaseReader extends MPD9AbstractReader
          List<ResultSetRow> result = new LinkedList<ResultSetRow>();
 
          m_ps = m_connection.prepareStatement(sql);
-         m_ps.setInt(1, NumberUtility.getInt(var));
+         m_ps.setInt(1, NumberHelper.getInt(var));
          m_rs = m_ps.executeQuery();
          populateMetaData();
          while (m_rs.next())
@@ -546,8 +549,8 @@ public final class MPD9DatabaseReader extends MPD9AbstractReader
          List<ResultSetRow> result = new LinkedList<ResultSetRow>();
 
          m_ps = m_connection.prepareStatement(sql);
-         m_ps.setInt(1, NumberUtility.getInt(var1));
-         m_ps.setInt(2, NumberUtility.getInt(var2));
+         m_ps.setInt(1, NumberHelper.getInt(var1));
+         m_ps.setInt(2, NumberHelper.getInt(var2));
          m_rs = m_ps.executeQuery();
          populateMetaData();
          while (m_rs.next())

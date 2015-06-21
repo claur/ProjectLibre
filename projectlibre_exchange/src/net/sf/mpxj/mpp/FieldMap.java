@@ -28,22 +28,27 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import net.sf.mpxj.AccrueType;
 import net.sf.mpxj.ConstraintType;
+import net.sf.mpxj.CustomFieldContainer;
+import net.sf.mpxj.DataType;
 import net.sf.mpxj.Duration;
+import net.sf.mpxj.EarnedValueMethod;
 import net.sf.mpxj.FieldContainer;
 import net.sf.mpxj.FieldType;
 import net.sf.mpxj.Priority;
-import net.sf.mpxj.ProjectFile;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Rate;
+import net.sf.mpxj.ResourceRequestType;
 import net.sf.mpxj.TaskType;
 import net.sf.mpxj.TimeUnit;
 import net.sf.mpxj.WorkGroup;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This class is used to represent the mapping present in the MPP file
@@ -54,11 +59,13 @@ abstract class FieldMap
    /**
     * Constructor.
     * 
-    * @param file parent project file 
+    * @param properties project properties
+    * @param customFields custom field values
     */
-   public FieldMap(ProjectFile file)
+   public FieldMap(ProjectProperties properties, CustomFieldContainer customFields)
    {
-      m_file = file;
+      m_properties = properties;
+      m_customFields = customFields;
    }
 
    /**
@@ -71,11 +78,33 @@ abstract class FieldMap
       int index = 0;
       int lastDataBlockOffset = 0;
       int dataBlockIndex = 0;
+
       while (index < data.length)
       {
-         FieldType type = getFieldType(MPPUtility.getInt(data, index + 12));
+         long mask = MPPUtility.getInt(data, index + 0);
+         //mask = mask << 4;
+
          int dataBlockOffset = MPPUtility.getShort(data, index + 4);
-         int mask = MPPUtility.getInt(data, index + 0);
+         //int metaFlags = MPPUtility.getByte(data, index + 8);
+         FieldType type = getFieldType(MPPUtility.getInt(data, index + 12));
+         int category = MPPUtility.getShort(data, index + 20);
+         //int sizeInBytes = MPPUtility.getShort(data, index + 22);
+         //int metaIndex = MPPUtility.getInt(data, index + 24);
+
+         //
+         // Categories
+         //
+         // 02 - Short values [RATE_UNITS, WORKGROUP, ACCRUE, TIME_UNITS, PRIORITY, TASK_TYPE, CONSTRAINT, ACCRUE, PERCENTAGE, SHORT, WORK_UNITS]  - BOOKING_TYPE, EARNED_VALUE_METHOD, DELIVERABLE_TYPE, RESOURCE_REQUEST_TYPE - we have as string in MPXJ????
+         // 03 - Int values [DURATION, INTEGER] - Recalc outline codes as Boolean?
+         // 05 - Rate, Number [RATE, NUMERIC]
+         // 08 - String (and some durations!!!) [STRING, DURATION]
+         // 0B - Boolean (meta block 0?) - [BOOLEAN]
+         // 13 - Date - [DATE]
+         // 48 - GUID - [GUID]
+         // 64 - Boolean (meta block 1?)- [BOOLEAN]
+         // 65 - Work, Currency [WORK, CURRENCY]
+         // 66 - Units [UNITS]
+         // 1D - Raw bytes [BINARY, ASCII_STRING] - Exception: outline code indexes, they are integers, but stored as part of a binary block
 
          int varDataKey;
          if (useTypeAsVarDataKey())
@@ -88,7 +117,6 @@ abstract class FieldMap
             else
             {
                varDataKey = substitute.intValue();
-               mask = 0; // If we've made a substitution, force this to be a var data block
             }
          }
          else
@@ -97,62 +125,63 @@ abstract class FieldMap
          }
 
          FieldLocation location;
+         int metaBlock;
 
-         if (dataBlockOffset != 65535)
+         switch (category)
          {
-            location = FieldLocation.FIXED_DATA;
-         }
-         else
-         {
-            if (mask != 0)
+            case 0x0B:
             {
                location = FieldLocation.META_DATA;
+               metaBlock = 0;
+               break;
             }
-            else
+
+            case 0x64:
             {
-               if (varDataKey != 0)
+               location = FieldLocation.META_DATA;
+               metaBlock = 1;
+               break;
+            }
+
+            default:
+            {
+               metaBlock = 0;
+               if (dataBlockOffset != 65535)
                {
-                  location = FieldLocation.VAR_DATA;
+                  location = FieldLocation.FIXED_DATA;
+                  if (dataBlockOffset < lastDataBlockOffset)
+                  {
+                     ++dataBlockIndex;
+                  }
+                  lastDataBlockOffset = dataBlockOffset;
+                  int typeSize = getFixedDataFieldSize(type);
+
+                  if (dataBlockOffset + typeSize > m_maxFixedDataSize[dataBlockIndex])
+                  {
+                     m_maxFixedDataSize[dataBlockIndex] = dataBlockOffset + typeSize;
+                  }
                }
                else
                {
-                  location = FieldLocation.UNKNOWN;
+                  if (varDataKey != 0)
+                  {
+                     location = FieldLocation.VAR_DATA;
+                  }
+                  else
+                  {
+                     location = FieldLocation.UNKNOWN;
+                  }
                }
+               break;
             }
          }
 
-         if (location == FieldLocation.FIXED_DATA)
-         {
-            if (dataBlockOffset < lastDataBlockOffset)
-            {
-               ++dataBlockIndex;
-            }
-            lastDataBlockOffset = dataBlockOffset;
-
-            if (dataBlockOffset > m_maxFixedDataOffset[dataBlockIndex])
-            {
-               m_maxFixedDataOffset[dataBlockIndex] = dataBlockOffset;
-            }
-
-            //System.out.println(MPPUtility.hexdump(data, index, 28, false) + " " + MPPUtility.getShort(data, index + 12) + " " + type + " " + (type == null ? "unknown" : type.getDataType()) + " " + location + " " + dataBlockIndex + " " + dataBlockOffset + " " + varDataKey);
-         }
-
-         //                  if (location != FieldLocation.META_DATA)
-         //                  {
-         //                     System.out.println((type == null ? "?" : type.getClass().getSimpleName()+"."+type) + " " + dataBlockOffset + " " + varDataKey + " " + (MPPUtility.getInt(data, index + 12) & 0x0000FFFF));
-         //                  }
-
-         if (type != null)
-         {
-            //                        if (location != FieldLocation.META_DATA)
-            //                        {               
-            //                           System.out.println("new FieldItem("+type.getClass().getSimpleName()+"."+type + ", FieldLocation." + location +", " +dataBlockIndex+", "+dataBlockOffset + ", " + varDataKey+"),");
-            //                        }
-
-            //System.out.println(MPPUtility.hexdump(data, index, 28, false) + " " + (type instanceof net.sf.mpxj.TaskField ? "TaskField" : type instanceof net.sf.mpxj.ResourceField ? "ResourceField" : "AssignmentField") + " " + type);
-
-            m_map.put(type, new FieldItem(type, location, dataBlockIndex, dataBlockOffset, varDataKey));
-         }
+         FieldItem item = new FieldItem(type, location, dataBlockIndex, dataBlockOffset, varDataKey, mask, metaBlock);
+         //         if (location == FieldLocation.META_DATA)
+         //         {
+         //            System.out.println(MPPUtility.hexdump(data, index, 28, false) + " " + item + " mpxjDataType=" + item.getType().getDataType() + " index=" + index);
+         //         }
+         m_map.put(type, item);
 
          index += 28;
       }
@@ -185,6 +214,13 @@ abstract class FieldMap
     * @return default data
     */
    protected abstract FieldItem[] getDefaultAssignmentData();
+
+   /**
+    * Abstract method used by child classes to supply default data.
+    * 
+    * @return default data
+    */
+   protected abstract FieldItem[] getDefaultRelationData();
 
    /**
     * Given a field ID, derive the field type.
@@ -229,6 +265,74 @@ abstract class FieldMap
       else
       {
          createFieldMap(fieldMapData);
+      }
+   }
+
+   /**
+    * Creates a field map for relations.
+    * 
+    * @param props props data
+    */
+   public void createRelationFieldMap(Props props)
+   {
+      byte[] fieldMapData = null;
+      for (Integer key : RELATION_KEYS)
+      {
+         fieldMapData = props.getByteArray(key);
+         if (fieldMapData != null)
+         {
+            break;
+         }
+      }
+
+      if (fieldMapData == null)
+      {
+         populateDefaultData(getDefaultRelationData());
+      }
+      else
+      {
+         createFieldMap(fieldMapData);
+      }
+   }
+
+   /**
+    * Create a field map for enterprise custom fields.
+    * 
+    * @param props props data
+    * @param c target class
+    */
+   public void createEnterpriseCustomFieldMap(Props props, Class<?> c)
+   {
+      byte[] fieldMapData = null;
+      for (Integer key : ENTERPRISE_CUSTOM_KEYS)
+      {
+         fieldMapData = props.getByteArray(key);
+         if (fieldMapData != null)
+         {
+            break;
+         }
+      }
+
+      if (fieldMapData != null)
+      {
+         int index = 4;
+         while (index < fieldMapData.length)
+         {
+            //Looks like the custom fields have varying types, it may be that the last byte of the four represents the type?
+            //System.out.println(MPPUtility.hexdump(fieldMapData, index, 4, false));
+            int typeValue = MPPUtility.getInt(fieldMapData, index);
+            FieldType type = getFieldType(typeValue);
+            if (type != null && type.getClass() == c && type.toString().startsWith("Enterprise Custom Field"))
+            {
+               int varDataKey = (typeValue & 0xFFFF);
+               FieldItem item = new FieldItem(type, FieldLocation.VAR_DATA, 0, 0, varDataKey, 0, 0);
+               m_map.put(type, item);
+               //System.out.println(item);
+            }
+            //System.out.println((type == null ? "?" : type.getClass().getSimpleName() + "." + type) + " " + Integer.toHexString(typeValue));
+
+            index += 4;
+         }
       }
    }
 
@@ -305,20 +409,24 @@ abstract class FieldMap
     * Given a container, and a set of raw data blocks, this method extracts
     * the field data and writes it into the container.
     * 
+    * @param type expected type
     * @param container field container
     * @param id entity ID
     * @param fixedData fixed data block
     * @param varData var data block
     */
-   public void populateContainer(FieldContainer container, Integer id, byte[][] fixedData, Var2Data varData)
+   public void populateContainer(Class<? extends FieldType> type, FieldContainer container, Integer id, byte[][] fixedData, Var2Data varData)
    {
       //System.out.println(container.getClass().getSimpleName()+": " + id);
       for (FieldItem item : m_map.values())
       {
-         //System.out.println(item.m_type);
-         Object value = item.read(id, fixedData, varData);
-         //System.out.println(item.m_type.getClass().getSimpleName() + "." + item.m_type +  ": " + value);
-         container.set(item.getType(), value);
+         if (item.getType().getClass().equals(type))
+         {
+            //System.out.println(item.m_type);
+            Object value = item.read(id, fixedData, varData);
+            //System.out.println(item.m_type.getClass().getSimpleName() + "." + item.m_type +  ": " + value);
+            container.set(item.getType(), value);
+         }
       }
    }
 
@@ -328,9 +436,9 @@ abstract class FieldMap
     * @param blockIndex required block index
     * @return maximum offset
     */
-   public int getMaxFixedDataOffset(int blockIndex)
+   public int getMaxFixedDataSize(int blockIndex)
    {
-      return m_maxFixedDataOffset[blockIndex];
+      return m_maxFixedDataSize[blockIndex];
    }
 
    /**
@@ -408,7 +516,6 @@ abstract class FieldMap
          result = item.getFieldLocation();
       }
       return result;
-
    }
 
    /**
@@ -434,13 +541,13 @@ abstract class FieldMap
    }
 
    /**
-    * Retrieve the parent project file.
+    * Retrieve the project properties.
     * 
     * @return project file
     */
-   protected ProjectFile getProjectFile()
+   protected ProjectProperties getProjectProperties()
    {
-      return m_file;
+      return m_properties;
    }
 
    /**
@@ -449,7 +556,7 @@ abstract class FieldMap
    public void clear()
    {
       m_map.clear();
-      Arrays.fill(m_maxFixedDataOffset, 0);
+      Arrays.fill(m_maxFixedDataSize, 0);
    }
 
    /**
@@ -474,6 +581,78 @@ abstract class FieldMap
    }
 
    /**
+    * Determine the size of a field in a fixed data block.
+    * 
+    * @param type field data type
+    * @return field size in bytes
+    */
+   private int getFixedDataFieldSize(FieldType type)
+   {
+      int result = 0;
+      DataType dataType = type.getDataType();
+      if (dataType != null)
+      {
+         switch (dataType)
+         {
+            case DATE:
+            case INTEGER:
+            case DURATION:
+            {
+               result = 4;
+               break;
+            }
+
+            case TIME_UNITS:
+            case CONSTRAINT:
+            case PRIORITY:
+            case PERCENTAGE:
+            case TASK_TYPE:
+            case ACCRUE:
+            case SHORT:
+            case BOOLEAN:
+            case DELAY:
+            case WORKGROUP:
+            case RATE_UNITS:
+            case EARNED_VALUE_METHOD:
+            case RESOURCE_REQUEST_TYPE:
+            {
+               result = 2;
+               break;
+            }
+
+            case CURRENCY:
+            case UNITS:
+            case RATE:
+            case WORK:
+            {
+               result = 8;
+               break;
+            }
+
+            case WORK_UNITS:
+            {
+               result = 1;
+               break;
+            }
+
+            case GUID:
+            {
+               result = 16;
+               break;
+            }
+
+            default:
+            {
+               result = 0;
+               break;
+            }
+         }
+      }
+
+      return result;
+   }
+
+   /**
     * {@inheritDoc}
     */
    @Override public String toString()
@@ -486,12 +665,12 @@ abstract class FieldMap
 
       pw.println("[FieldMap");
 
-      for (int loop = 0; loop < m_maxFixedDataOffset.length; loop++)
+      for (int loop = 0; loop < m_maxFixedDataSize.length; loop++)
       {
          pw.print(" MaxFixedOffset (block ");
          pw.print(loop);
          pw.print(")=");
-         pw.println(m_maxFixedDataOffset[loop]);
+         pw.println(m_maxFixedDataSize[loop]);
       }
 
       for (FieldItem item : items)
@@ -530,14 +709,18 @@ abstract class FieldMap
        * @param fixedDataBlockIndex identifies which block the data comes from
        * @param fixedDataOffset fixed data block offset
        * @param varDataKey var data block key
+       * @param mask TODO
+       * @param metaBlock TODO
        */
-      FieldItem(FieldType type, FieldLocation location, int fixedDataBlockIndex, int fixedDataOffset, int varDataKey)
+      FieldItem(FieldType type, FieldLocation location, int fixedDataBlockIndex, int fixedDataOffset, int varDataKey, long mask, int metaBlock)
       {
          m_type = type;
          m_location = location;
          m_fixedDataBlockIndex = fixedDataBlockIndex;
          m_fixedDataOffset = fixedDataOffset;
          m_varDataKey = Integer.valueOf(varDataKey);
+         m_mask = mask;
+         m_metaBlock = metaBlock;
       }
 
       /**
@@ -554,32 +737,32 @@ abstract class FieldMap
 
          switch (m_location)
          {
-            case FIXED_DATA :
+            case FIXED_DATA:
             {
                result = readFixedData(id, fixedData, varData);
                break;
             }
 
-            case VAR_DATA :
+            case VAR_DATA:
             {
                result = readVarData(id, fixedData, varData);
                break;
             }
 
-            case META_DATA :
+            case META_DATA:
             {
                // We know that the Boolean flags are stored in the
                // "meta data" block, and can see that the first
                // four bytes of each row read from the field map
-               // data in the MPP file represtn a bit mask... but
+               // data in the MPP file represents a bit mask... but
                // we just haven't worked out how to convert this into
                // the actual location in the data. For now we rely on
-               // the ocation in the file being fixed. This is why
+               // the location in the file being fixed. This is why
                // we ignore the META_DATA case.
                break;
             }
 
-            default :
+            default:
             {
                // Unknown location - ignore this.
                break;
@@ -607,135 +790,148 @@ abstract class FieldMap
             {
                switch (m_type.getDataType())
                {
-                  case DATE :
+                  case DATE:
                   {
                      result = MPPUtility.getTimestamp(data, m_fixedDataOffset);
                      break;
                   }
 
-                  case INTEGER :
+                  case INTEGER:
                   {
                      result = Integer.valueOf(MPPUtility.getInt(data, m_fixedDataOffset));
                      break;
                   }
 
-                  case DURATION :
+                  case DURATION:
                   {
                      FieldType unitsType = m_type.getUnitsType();
                      TimeUnit units = (TimeUnit) getFieldData(id, unitsType, fixedData, varData);
                      if (units == null)
                      {
-                        units = TimeUnit.HOURS;
+                        units = getProjectProperties().getDefaultDurationUnits();
                      }
 
-                     result = MPPUtility.getAdjustedDuration(getProjectFile(), MPPUtility.getInt(data, m_fixedDataOffset), units);
+                     result = MPPUtility.getAdjustedDuration(getProjectProperties(), MPPUtility.getInt(data, m_fixedDataOffset), units);
                      break;
                   }
 
-                  case TIME_UNITS :
+                  case TIME_UNITS:
                   {
-                     result = MPPUtility.getDurationTimeUnits(MPPUtility.getShort(data, m_fixedDataOffset));
+                     result = MPPUtility.getDurationTimeUnits(MPPUtility.getShort(data, m_fixedDataOffset), getProjectProperties().getDefaultDurationUnits());
                      break;
                   }
 
-                  case CONSTRAINT :
+                  case CONSTRAINT:
                   {
                      result = ConstraintType.getInstance(MPPUtility.getShort(data, m_fixedDataOffset));
                      break;
                   }
 
-                  case PRIORITY :
+                  case PRIORITY:
                   {
                      result = Priority.getInstance(MPPUtility.getShort(data, m_fixedDataOffset));
                      break;
                   }
 
-                  case PERCENTAGE :
+                  case PERCENTAGE:
                   {
                      result = MPPUtility.getPercentage(data, m_fixedDataOffset);
                      break;
                   }
 
-                  case TASK_TYPE :
+                  case TASK_TYPE:
                   {
                      result = TaskType.getInstance(MPPUtility.getShort(data, m_fixedDataOffset));
                      break;
                   }
 
-                  case ACCRUE :
+                  case ACCRUE:
                   {
                      result = AccrueType.getInstance(MPPUtility.getShort(data, m_fixedDataOffset));
                      break;
                   }
 
-                  case CURRENCY :
+                  case CURRENCY:
+                  case UNITS:
                   {
-                     result = NumberUtility.getDouble(MPPUtility.getDouble(data, m_fixedDataOffset) / 100);
+                     result = NumberHelper.getDouble(MPPUtility.getDouble(data, m_fixedDataOffset) / 100);
                      break;
                   }
 
-                  case UNITS :
-                  {
-                     result = NumberUtility.getDouble(MPPUtility.getDouble(data, m_fixedDataOffset) / 100);
-                     break;
-                  }
-
-                  case RATE :
+                  case RATE:
                   {
                      result = new Rate(MPPUtility.getDouble(data, m_fixedDataOffset), TimeUnit.HOURS);
                      break;
                   }
 
-                  case WORK :
+                  case WORK:
                   {
                      result = Duration.getInstance(MPPUtility.getDouble(data, m_fixedDataOffset) / 60000, TimeUnit.HOURS);
                      break;
                   }
 
-                  case SHORT :
+                  case SHORT:
                   {
                      result = Integer.valueOf(MPPUtility.getShort(data, m_fixedDataOffset));
                      break;
                   }
 
-                  case BOOLEAN :
+                  case BOOLEAN:
                   {
                      result = Boolean.valueOf(MPPUtility.getShort(data, m_fixedDataOffset) != 0);
                      break;
                   }
 
-                  case DELAY :
+                  case DELAY:
                   {
                      result = MPPUtility.getDuration(MPPUtility.getShort(data, m_fixedDataOffset), TimeUnit.HOURS);
                      break;
                   }
 
-                  case WORK_UNITS :
+                  case WORK_UNITS:
                   {
                      int variableRateUnitsValue = MPPUtility.getByte(data, m_fixedDataOffset);
                      result = variableRateUnitsValue == 0 ? null : MPPUtility.getWorkTimeUnits(variableRateUnitsValue);
                      break;
                   }
 
-                  case WORKGROUP :
+                  case WORKGROUP:
                   {
                      result = WorkGroup.getInstance(MPPUtility.getShort(data, m_fixedDataOffset));
                      break;
                   }
 
-                  case RATE_UNITS :
+                  case RATE_UNITS:
                   {
                      result = TimeUnit.getInstance(MPPUtility.getShort(data, m_fixedDataOffset) - 1);
                      break;
                   }
 
-                  case GUID :
+                  case EARNED_VALUE_METHOD:
+                  {
+                     result = EarnedValueMethod.getInstance(MPPUtility.getShort(data, m_fixedDataOffset));
+                     break;
+                  }
+
+                  case RESOURCE_REQUEST_TYPE:
+                  {
+                     result = ResourceRequestType.getInstance(MPPUtility.getShort(data, m_fixedDataOffset));
+                     break;
+                  }
+
+                  case GUID:
                   {
                      result = MPPUtility.getGUID(data, m_fixedDataOffset);
                      break;
                   }
 
-                  default :
+                  case BINARY:
+                  {
+                     // Do nothing for binary data
+                     break;
+                  }
+
+                  default:
                   {
                      //System.out.println("**** UNSUPPORTED FIXED DATA TYPE");
                      break;
@@ -760,7 +956,7 @@ abstract class FieldMap
 
          switch (m_type.getDataType())
          {
-            case DURATION :
+            case DURATION:
             {
                FieldType unitsType = m_type.getUnitsType();
                TimeUnit units = (TimeUnit) getFieldData(id, unitsType, fixedData, varData);
@@ -772,110 +968,122 @@ abstract class FieldMap
                break;
             }
 
-            case TIME_UNITS :
+            case TIME_UNITS:
             {
-               result = MPPUtility.getDurationTimeUnits(varData.getShort(id, m_varDataKey));
+               result = MPPUtility.getDurationTimeUnits(varData.getShort(id, m_varDataKey), getProjectProperties().getDefaultDurationUnits());
                break;
             }
 
-            case CURRENCY :
+            case CURRENCY:
             {
-               result = NumberUtility.getDouble(varData.getDouble(id, m_varDataKey) / 100);
+               result = NumberHelper.getDouble(varData.getDouble(id, m_varDataKey) / 100);
                break;
             }
 
-            case STRING :
+            case STRING:
             {
                result = getCustomFieldUnicodeStringValue(varData, id, m_varDataKey);
                break;
             }
 
-            case DATE :
+            case DATE:
             {
                result = getCustomFieldTimestampValue(varData, id, m_varDataKey);
                break;
             }
 
-            case NUMERIC :
+            case NUMERIC:
             {
                result = getCustomFieldDoubleValue(varData, id, m_varDataKey);
                break;
             }
 
-            case INTEGER :
+            case INTEGER:
             {
                result = Integer.valueOf(varData.getInt(id, m_varDataKey));
                break;
             }
 
-            case WORK :
+            case WORK:
             {
                result = Duration.getInstance(varData.getDouble(id, m_varDataKey) / 60000, TimeUnit.HOURS);
                break;
             }
 
-            case ASCII_STRING :
+            case ASCII_STRING:
             {
                result = varData.getString(id, m_varDataKey);
                break;
             }
 
-            case DELAY :
+            case DELAY:
             {
                result = MPPUtility.getDuration(varData.getShort(id, m_varDataKey), TimeUnit.HOURS);
                break;
             }
 
-            case WORK_UNITS :
+            case WORK_UNITS:
             {
                int variableRateUnitsValue = varData.getByte(id, m_varDataKey);
                result = variableRateUnitsValue == 0 ? null : MPPUtility.getWorkTimeUnits(variableRateUnitsValue);
                break;
             }
 
-            case RATE_UNITS :
+            case RATE_UNITS:
             {
                result = TimeUnit.getInstance(varData.getShort(id, m_varDataKey) - 1);
                break;
             }
 
-            case ACCRUE :
+            case EARNED_VALUE_METHOD:
+            {
+               result = EarnedValueMethod.getInstance(varData.getShort(id, m_varDataKey));
+               break;
+            }
+
+            case RESOURCE_REQUEST_TYPE:
+            {
+               result = ResourceRequestType.getInstance(varData.getShort(id, m_varDataKey));
+               break;
+            }
+
+            case ACCRUE:
             {
                result = AccrueType.getInstance(varData.getShort(id, m_varDataKey));
                break;
             }
 
-            case SHORT :
+            case SHORT:
             {
                result = Integer.valueOf(varData.getShort(id, m_varDataKey));
                break;
             }
 
-            case BOOLEAN :
+            case BOOLEAN:
             {
                result = Boolean.valueOf(varData.getShort(id, m_varDataKey) != 0);
                break;
             }
 
-            case WORKGROUP :
+            case WORKGROUP:
             {
                result = WorkGroup.getInstance(varData.getShort(id, m_varDataKey));
                break;
             }
 
-            case GUID :
+            case GUID:
             {
                result = MPPUtility.getGUID(varData.getByteArray(id, m_varDataKey), 0);
                break;
             }
 
-            case BINARY :
+            case BINARY:
             {
                // Do nothing for binary data
                break;
             }
 
-            default :
+            default:
             {
                //System.out.println("**** UNSUPPORTED VAR DATA TYPE");
                break;
@@ -897,33 +1105,62 @@ abstract class FieldMap
       {
          Object result = null;
 
+         //
+         // Note that this simplistic approach could produce false positives
+         //
          int mask = varData.getShort(id, type);
          if ((mask & 0xFF00) != VALUE_LIST_MASK)
          {
-            byte[] data = varData.getByteArray(id, type);
-
-            if (data != null)
-            {
-               if (data.length == 512)
-               {
-                  result = MPPUtility.getUnicodeString(data);
-               }
-               else
-               {
-                  if (data.length >= 4)
-                  {
-                     result = MPPUtility.getTimestamp(data);
-                  }
-               }
-            }
+            result = getRawTimestampValue(varData, id, type);
          }
          else
          {
             int uniqueId = varData.getInt(id, 2, type);
-            CustomFieldValueItem item = getProjectFile().getCustomFieldValueItem(Integer.valueOf(uniqueId));
-            if (item != null && item.getValue() != null)
+            CustomFieldValueItem item = m_customFields.getCustomFieldValueItemByUniqueID(uniqueId);
+            if (item != null)
             {
-               result = MPPUtility.getTimestamp(item.getValue());
+               Object value = item.getValue();
+               if (value instanceof Date)
+               {
+                  result = value;
+               }
+            }
+
+            //
+            // If we can't find a custom field value with this ID, fall back to treating this as a normal value 
+            //
+            if (result == null)
+            {
+               result = getRawTimestampValue(varData, id, type);
+            }
+         }
+         return result;
+      }
+
+      /**
+       * Retrieve a timestamp value.
+       * 
+       * @param varData var data block
+       * @param id item ID
+       * @param type item type
+       * @return item value
+       */
+      private Object getRawTimestampValue(Var2Data varData, Integer id, Integer type)
+      {
+         Object result = null;
+         byte[] data = varData.getByteArray(id, type);
+         if (data != null)
+         {
+            if (data.length == 512)
+            {
+               result = MPPUtility.getUnicodeString(data, 0);
+            }
+            else
+            {
+               if (data.length >= 4)
+               {
+                  result = MPPUtility.getTimestamp(data, 0);
+               }
             }
          }
          return result;
@@ -948,14 +1185,14 @@ abstract class FieldMap
          {
             if (data.length == 512)
             {
-               result = MPPUtility.getUnicodeString(data);
+               result = MPPUtility.getUnicodeString(data, 0);
             }
             else
             {
                if (data.length >= 4)
                {
-                  int duration = MPPUtility.getInt(data);
-                  result = MPPUtility.getAdjustedDuration(getProjectFile(), duration, units);
+                  int duration = MPPUtility.getInt(data, 0);
+                  result = MPPUtility.getAdjustedDuration(getProjectProperties(), duration, units);
                }
             }
          }
@@ -975,6 +1212,9 @@ abstract class FieldMap
       {
          double result = 0;
 
+         //
+         // Note that this simplistic approach could produce false positives
+         //
          int mask = varData.getShort(id, type);
          if ((mask & 0xFF00) != VALUE_LIST_MASK)
          {
@@ -983,13 +1223,17 @@ abstract class FieldMap
          else
          {
             int uniqueId = varData.getInt(id, 2, type);
-            CustomFieldValueItem item = getProjectFile().getCustomFieldValueItem(Integer.valueOf(uniqueId));
-            if (item != null && item.getValue() != null)
+            CustomFieldValueItem item = m_customFields.getCustomFieldValueItemByUniqueID(uniqueId);
+            if (item != null)
             {
-               result = MPPUtility.getDouble(item.getValue());
+               Object value = item.getValue();
+               if (value instanceof Number)
+               {
+                  result = ((Number) value).doubleValue();
+               }
             }
          }
-         return NumberUtility.getDouble(result);
+         return NumberHelper.getDouble(result);
       }
 
       /**
@@ -1004,6 +1248,9 @@ abstract class FieldMap
       {
          String result = null;
 
+         //
+         // Note that this simplistic approach could produce false positives
+         //
          int mask = varData.getShort(id, type);
          if ((mask & 0xFF00) != VALUE_LIST_MASK)
          {
@@ -1012,10 +1259,14 @@ abstract class FieldMap
          else
          {
             int uniqueId = varData.getInt(id, 2, type);
-            CustomFieldValueItem item = getProjectFile().getCustomFieldValueItem(Integer.valueOf(uniqueId));
-            if (item != null && item.getValue() != null)
+            CustomFieldValueItem item = m_customFields.getCustomFieldValueItemByUniqueID(uniqueId);
+            if (item != null)
             {
-               result = MPPUtility.getUnicodeString(item.getValue());
+               Object value = item.getValue();
+               if (value instanceof String)
+               {
+                  result = (String) value;
+               }
             }
          }
          return result;
@@ -1078,14 +1329,14 @@ abstract class FieldMap
        * @param item item to compare with
        * @return comparison result
        */
-      public int compareTo(FieldItem item)
+      @Override public int compareTo(FieldItem item)
       {
          int result = m_location.compareTo(item.m_location);
          if (result == 0)
          {
             switch (m_location)
             {
-               case FIXED_DATA :
+               case FIXED_DATA:
                {
                   result = m_fixedDataBlockIndex - item.m_fixedDataBlockIndex;
                   if (result == 0)
@@ -1095,13 +1346,13 @@ abstract class FieldMap
                   break;
                }
 
-               case VAR_DATA :
+               case VAR_DATA:
                {
                   result = m_varDataKey.intValue() - item.m_varDataKey.intValue();
                   break;
                }
 
-               default :
+               default:
                {
                   break;
                }
@@ -1115,7 +1366,7 @@ abstract class FieldMap
        */
       @Override public String toString()
       {
-         StringBuffer buffer = new StringBuffer();
+         StringBuilder buffer = new StringBuilder();
          buffer.append("[FieldItem type=");
          buffer.append(m_type);
          buffer.append(" location=");
@@ -1123,7 +1374,7 @@ abstract class FieldMap
 
          switch (m_location)
          {
-            case FIXED_DATA :
+            case FIXED_DATA:
             {
                buffer.append(" fixedDataBlockIndex=");
                buffer.append(m_fixedDataBlockIndex);
@@ -1132,14 +1383,24 @@ abstract class FieldMap
                break;
             }
 
-            case VAR_DATA :
+            case VAR_DATA:
             {
                buffer.append(" varDataKey=");
                buffer.append(m_varDataKey);
                break;
             }
 
-            default :
+            case META_DATA:
+            {
+               buffer.append(" mask=");
+               buffer.append(Long.toHexString(m_mask));
+               buffer.append(" block=");
+               buffer.append(m_metaBlock);
+
+               break;
+            }
+
+            default:
             {
                break;
             }
@@ -1149,22 +1410,29 @@ abstract class FieldMap
 
          return buffer.toString();
       }
-
       private FieldType m_type;
       private FieldLocation m_location;
       private int m_fixedDataBlockIndex;
       private int m_fixedDataOffset;
       private Integer m_varDataKey;
+      private long m_mask;
+      private int m_metaBlock;
    }
 
-   private ProjectFile m_file;
+   private ProjectProperties m_properties;
+   protected CustomFieldContainer m_customFields;
    private Map<FieldType, FieldItem> m_map = new HashMap<FieldType, FieldItem>();
-   private int[] m_maxFixedDataOffset = new int[MAX_FIXED_DATA_BLOCKS];
+   private int[] m_maxFixedDataSize = new int[MAX_FIXED_DATA_BLOCKS];
 
    private static final Integer[] TASK_KEYS =
    {
       Props.TASK_FIELD_MAP,
       Props.TASK_FIELD_MAP2
+   };
+
+   private static final Integer[] ENTERPRISE_CUSTOM_KEYS =
+   {
+      Props.ENTERPRISE_CUSTOM_FIELD_MAP
    };
 
    private static final Integer[] RESOURCE_KEYS =
@@ -1177,6 +1445,11 @@ abstract class FieldMap
    {
       Props.ASSIGNMENT_FIELD_MAP,
       Props.ASSIGNMENT_FIELD_MAP2
+   };
+
+   private static final Integer[] RELATION_KEYS =
+   {
+      Props.RELATION_FIELD_MAP
    };
 
    private static final int VALUE_LIST_MASK = 0x0700;

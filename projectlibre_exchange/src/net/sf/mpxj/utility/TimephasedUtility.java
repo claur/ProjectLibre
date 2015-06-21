@@ -36,6 +36,8 @@ import net.sf.mpxj.TimeUnit;
 import net.sf.mpxj.TimephasedCost;
 import net.sf.mpxj.TimephasedItem;
 import net.sf.mpxj.TimephasedWork;
+import net.sf.mpxj.common.DateHelper;
+import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.mpp.TimescaleUnits;
 
 /**
@@ -139,7 +141,7 @@ public final class TimephasedUtility
          int startIndex = lastStartIndex == -1 ? -1 : getStartIndex(range, cost, lastStartIndex);
          if (startIndex == -1)
          {
-            result.add(NumberUtility.DOUBLE_ZERO);
+            result.add(NumberHelper.DOUBLE_ZERO);
          }
          else
          {
@@ -194,7 +196,7 @@ public final class TimephasedUtility
          for (int loop = startIndex; loop < assignments.size(); loop++)
          {
             T assignment = assignments.get(loop);
-            int compareResult = DateUtility.compare(assignment.getStart(), assignment.getFinish(), rangeStart);
+            int compareResult = DateHelper.compare(assignment.getStart(), assignment.getFinish(), rangeStart);
 
             //
             // The start of the target range falls after the assignment end - 
@@ -220,7 +222,7 @@ public final class TimephasedUtility
             // the assignment start. We need to determine if the end of the
             // target range overlaps the assignment.
             //
-            compareResult = DateUtility.compare(assignment.getStart(), assignment.getFinish(), rangeEnd);
+            compareResult = DateHelper.compare(assignment.getStart(), assignment.getFinish(), rangeEnd);
             if (compareResult >= 0)
             {
                result = loop;
@@ -248,14 +250,14 @@ public final class TimephasedUtility
 
       switch (rangeUnits)
       {
-         case MINUTES :
-         case HOURS :
+         case MINUTES:
+         case HOURS:
          {
             result = getRangeDurationSubDay(projectCalendar, rangeUnits, range, assignments, startIndex);
             break;
          }
 
-         default :
+         default:
          {
             result = getRangeDurationWholeDay(projectCalendar, rangeUnits, range, assignments, startIndex);
             break;
@@ -396,14 +398,14 @@ public final class TimephasedUtility
 
       switch (rangeUnits)
       {
-         case MINUTES :
-         case HOURS :
+         case MINUTES:
+         case HOURS:
          {
             result = getRangeCostSubDay(projectCalendar, rangeUnits, range, assignments, startIndex);
             break;
          }
 
-         default :
+         default:
          {
             result = getRangeCostWholeDay(projectCalendar, rangeUnits, range, assignments, startIndex);
             break;

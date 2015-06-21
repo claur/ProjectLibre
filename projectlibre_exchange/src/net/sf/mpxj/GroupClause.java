@@ -25,8 +25,8 @@ package net.sf.mpxj;
 
 import java.awt.Color;
 
-import net.sf.mpxj.mpp.FontStyle;
 import net.sf.mpxj.mpp.BackgroundPattern;
+import net.sf.mpxj.mpp.FontStyle;
 
 /**
  * This class represents a clause from a definition of a group.
@@ -200,7 +200,7 @@ public final class GroupClause
     */
    @Override public String toString()
    {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append("[GroupClause field=");
       sb.append(m_field);
       sb.append(" ascending=");

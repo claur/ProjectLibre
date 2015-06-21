@@ -36,14 +36,13 @@ import org.apache.poi.poifs.filesystem.DocumentInputStream;
  */
 final class EncryptedDocumentInputStream extends InputStream
 {
-
    /**
-       * Constructor.
-       * 
-       * @param entry file entry
-       * @param mask the mask used to decrypt the stream.
-       * @throws IOException
-       */
+    * Constructor.
+    * 
+    * @param entry file entry
+    * @param mask the mask used to decrypt the stream.
+    * @throws IOException
+    */
    public EncryptedDocumentInputStream(DocumentEntry entry, int mask)
       throws IOException
    {
@@ -71,7 +70,7 @@ final class EncryptedDocumentInputStream extends InputStream
       {
          b[loop + off] ^= m_mask;
       }
-      return (result);
+      return result;
    }
 
    /**
@@ -79,13 +78,7 @@ final class EncryptedDocumentInputStream extends InputStream
     */
    @Override public int available()
    {
-      try { //claur try catch to fix compilation error
-		return m_dis.available();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-		return 0;
-	}
+	   return m_dis.available();
    }
 
    /**
@@ -93,12 +86,7 @@ final class EncryptedDocumentInputStream extends InputStream
     */
    @Override public void close()
    {
-      try { //claur try catch to fix compilation error
 		m_dis.close();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
    }
 
    /**

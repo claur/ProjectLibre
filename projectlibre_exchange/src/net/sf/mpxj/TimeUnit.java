@@ -23,9 +23,8 @@
 
 package net.sf.mpxj;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.EnumHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This class contains utility functions allowing time unit specifications
@@ -145,7 +144,7 @@ public enum TimeUnit implements MpxjEnum
       }
       else
       {
-         value = NumberUtility.getInt(type);
+         value = NumberHelper.getInt(type);
       }
       return (getInstance(value));
    }
@@ -155,7 +154,7 @@ public enum TimeUnit implements MpxjEnum
     *
     * @return int representation of the enum
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -181,7 +180,7 @@ public enum TimeUnit implements MpxjEnum
    /**
     * Array mapping int types to enums.
     */
-   private static final TimeUnit[] TYPE_VALUES = EnumUtility.createTypeArray(TimeUnit.class);
+   private static final TimeUnit[] TYPE_VALUES = EnumHelper.createTypeArray(TimeUnit.class);
 
    /**
     * Internal representation of the enum int type.

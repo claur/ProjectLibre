@@ -157,10 +157,10 @@ final class ResourceModel
       populateModel();
 
       int number;
-      char delimiter = m_parentFile.getDelimiter();
+      char delimiter = m_parentFile.getProjectProperties().getMpxDelimiter();
 
-      StringBuffer textual = new StringBuffer();
-      StringBuffer numeric = new StringBuffer();
+      StringBuilder textual = new StringBuilder();
+      StringBuilder numeric = new StringBuilder();
 
       textual.append(MPXConstants.RESOURCE_MODEL_TEXT_RECORD_NUMBER);
       numeric.append(MPXConstants.RESOURCE_MODEL_NUMERIC_RECORD_NUMBER);

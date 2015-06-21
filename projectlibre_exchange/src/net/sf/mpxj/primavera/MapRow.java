@@ -28,8 +28,8 @@ import java.util.Map;
 
 import net.sf.mpxj.Duration;
 import net.sf.mpxj.TimeUnit;
-import net.sf.mpxj.utility.BooleanUtility;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.BooleanHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * Implementation of the Row interface, wrapping a Map.
@@ -49,7 +49,7 @@ class MapRow implements Row
    /**
     * {@inheritDoc}
     */
-   public final String getString(String name)
+   @Override public final String getString(String name)
    {
       Object value = getObject(name);
       String result;
@@ -67,7 +67,7 @@ class MapRow implements Row
    /**
     * {@inheritDoc}
     */
-   public final Integer getInteger(String name)
+   @Override public final Integer getInteger(String name)
    {
       Object result = getObject(name);
       if (result != null)
@@ -83,7 +83,7 @@ class MapRow implements Row
    /**
     * {@inheritDoc}
     */
-   public final Double getDouble(String name)
+   @Override public final Double getDouble(String name)
    {
       Object result = getObject(name);
       if (result != null)
@@ -99,20 +99,7 @@ class MapRow implements Row
    /**
     * {@inheritDoc}
     */
-   public final Double getCurrency(String name)
-   {
-      Double value = getDouble(name);
-      if (value != null)
-      {
-         value = Double.valueOf(value.doubleValue() / 100);
-      }
-      return (value);
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public final boolean getBoolean(String name)
+   @Override public final boolean getBoolean(String name)
    {
       boolean result = false;
       Object value = getObject(name);
@@ -120,7 +107,7 @@ class MapRow implements Row
       {
          if (value instanceof Boolean)
          {
-            result = BooleanUtility.getBoolean((Boolean) value);
+            result = BooleanHelper.getBoolean((Boolean) value);
          }
          else
          {
@@ -133,15 +120,15 @@ class MapRow implements Row
    /**
     * {@inheritDoc}
     */
-   public final int getInt(String name)
+   @Override public final int getInt(String name)
    {
-      return (NumberUtility.getInt((Number) getObject(name)));
+      return (NumberHelper.getInt((Number) getObject(name)));
    }
 
    /**
     * {@inheritDoc}
     */
-   public final Date getDate(String name)
+   @Override public final Date getDate(String name)
    {
       return ((Date) getObject(name));
    }
@@ -149,9 +136,9 @@ class MapRow implements Row
    /**
     * {@inheritDoc}
     */
-   public final Duration getDuration(String name)
+   @Override public final Duration getDuration(String name)
    {
-      return (Duration.getInstance(NumberUtility.getDouble(getDouble(name)), TimeUnit.HOURS));
+      return (Duration.getInstance(NumberHelper.getDouble(getDouble(name)), TimeUnit.HOURS));
    }
 
    /**

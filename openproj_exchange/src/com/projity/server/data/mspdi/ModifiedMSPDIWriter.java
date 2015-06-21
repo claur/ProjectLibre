@@ -45,6 +45,8 @@ import net.sf.mpxj.mspdi.schema.Project;
 import net.sf.mpxj.mspdi.schema.TimephasedDataType;
 
 import com.projectlibre.core.time.TimeUtil;
+import com.projectlibre.core.time.TimephasedType;
+import com.projectlibre.pm.tasks.SnapshotList;
 import com.projity.association.AssociationList;
 import com.projity.configuration.Settings;
 import com.projity.contrib.util.Log;
@@ -96,12 +98,12 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 		// projity addition
 		int id = 1; // if not found below, use the default standard calendar
 		ProjectCalendar cal = ImportedCalendarService.getInstance().findExportedCalendar(
-				CalendarService.findBaseCalendar(m_projectFile.getProjectHeader().getCalendarName()));
+				CalendarService.findBaseCalendar(m_projectFile.getProjectProperties().getDefaultCalendarName()));
 		if (cal != null) {
 			id = cal.getUniqueID();
 		} else {
-			log.warn("EXPORT: Could not export project calendar: Project: " + m_projectFile.getProjectHeader().getName() + " calendar "
-					+ m_projectFile.getProjectHeader().getCalendarName());
+			log.warn("EXPORT: Could not export project calendar: Project: " + m_projectFile.getProjectProperties().getName() + " calendar "
+					+ m_projectFile.getProjectProperties().getDefaultCalendarName());
 		}
 		project.setCalendarUID(BigInteger.valueOf(id));
 
@@ -263,7 +265,7 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 	}
 	private void writeTaskBaselinesAndTimephased(final Project.Tasks.Task xml, Task mpx){
 		// baselines
-		final List baselineList = xml.getBaseline();
+		final List<Project.Tasks.Task.Baseline> baselineList = xml.getBaseline();
 
 		NormalTask projityTask = (NormalTask) projityTaskMap.get(mpx);
 		if (projityTask == null)
@@ -274,27 +276,39 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 			TaskSnapshot snapshot = (TaskSnapshot) projityTask.getSnapshot(new Integer(s));
 			if (snapshot == null)
 				continue;
-			AssociationList snapshotAssignments = snapshot.getHasAssignments().getAssignments();
-			if (snapshotAssignments.size() > 0) {
-				for (Iterator j = snapshotAssignments.iterator(); j.hasNext();) {
-					Assignment assignment = (Assignment) j.next();
-					ResourceImpl r = (ResourceImpl) assignment.getResource();
-					if (r.isDefault())
-						continue;
+			Project.Tasks.Task.Baseline baseline = m_factory.createProjectTasksTaskBaseline();
+			baseline.setNumber(BigInteger.valueOf(s));
+			Calendar start=Calendar.getInstance();
+			start.setTimeInMillis(DateTime.fromGmt(projityTask.getBaselineStart(s)));
+			baseline.setStart(start);
+			Calendar finish=Calendar.getInstance();
+			finish.setTimeInMillis(DateTime.fromGmt(projityTask.getBaselineFinish(s)));
+			baseline.setFinish(finish);
+			baseline.setWork(DatatypeConverter.printDuration(this, MPXConverter.toMPXDuration((long) projityTask.getBaselineWork(s))));
+			baselineList.add(baseline);
 
-					Project.Assignments.Assignment.Baseline baseline = m_factory
-							.createProjectAssignmentsAssignmentBaseline();
-					// For some silly reason, the baseline fields are all
-					// strings so they need to be converted
 
-					// baseline duration is missing :(
-					baseline.setNumber(s + "");
-					baseline.setStart(MPXConverter.dateToXMLString(DateTime.fromGmt(projityTask.getBaselineStart(s))));
-					baseline.setFinish(MPXConverter.dateToXMLString(DateTime.fromGmt(projityTask.getBaselineFinish(s))));
-					baseline.setWork(DatatypeConverter.printDuration(this, MPXConverter.toMPXDuration((long) projityTask.getBaselineWork(s))));
-					baselineList.add(baseline);
-				}
-			}
+//			AssociationList snapshotAssignments = snapshot.getHasAssignments().getAssignments();
+//			if (snapshotAssignments.size() > 0) {
+//				for (Iterator j = snapshotAssignments.iterator(); j.hasNext();) {
+//					Assignment assignment = (Assignment) j.next();
+//					ResourceImpl r = (ResourceImpl) assignment.getResource();
+//					if (r.isDefault())
+//						continue;
+//
+//					Project.Assignments.Assignment.Baseline baseline = m_factory
+//							.createProjectAssignmentsAssignmentBaseline();
+//					// For some silly reason, the baseline fields are all
+//					// strings so they need to be converted
+//
+//					// baseline duration is missing :(
+//					baseline.setNumber(s + "");
+//					baseline.setStart(MPXConverter.dateToXMLString(DateTime.fromGmt(projityTask.getBaselineStart(s))));
+//					baseline.setFinish(MPXConverter.dateToXMLString(DateTime.fromGmt(projityTask.getBaselineFinish(s))));
+//					baseline.setWork(DatatypeConverter.printDuration(this, MPXConverter.toMPXDuration((long) projityTask.getBaselineWork(s))));
+//					baselineList.add(baseline);
+//				}
+//			}
 
 		}
 // There is no need to write out task timephased info since it is all in assignments
@@ -311,9 +325,11 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 		int snapshotId = ((Integer) projitySnapshotIdMap.get(mpx)).intValue();
 		final Assignment projityAssignment = (Assignment) projityAssignmentMap.get(mpx);
 		// baselines
-		final List timephasedList = xml.getTimephasedData();
+		final List<TimephasedDataType> timephasedList = xml.getTimephasedData();
 		final long[] offset=new long[1];
 		offset[0]=-1L;
+		final long[] baseLineStart=new long[SnapshotList.BASELINE_COUNT];
+		final long[] baseLineFinish=new long[SnapshotList.BASELINE_COUNT];
 		TimephasedService.getInstance().consumeTimephased(projityAssignment, new TimephasedConsumer() {
 			public void consumeTimephased(Object timephased) {
 				TimephasedDataType t=(TimephasedDataType) timephased;
@@ -329,12 +345,58 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 				}
 				//if ("PT0H0M0S".equals(t.getValue())) return;
 				((TimephasedDataType) timephased).setUID(xml.getUID());
-				timephasedList.add(timephased);
+				TimephasedType type=TimephasedType.getInstance(t.getType().intValue());
+				int i=type.getSnapshotId();
+				if (i>=0 && i<SnapshotList.BASELINE_COUNT){
+					if(baseLineStart[i]<=0L || baseLineStart[i] < t.getStart().getTimeInMillis())
+						baseLineStart[i]=t.getStart().getTimeInMillis();
+					if(baseLineFinish[i]<=0L || baseLineFinish[i] < t.getFinish().getTimeInMillis())
+						baseLineFinish[i]=t.getFinish().getTimeInMillis();
+				}
+
+				timephasedList.add(t);
 			}
 			public boolean acceptValue(double value) { //TODO hack, consumeTimephased shouldn't give PT0H0M0S
 				return value!=0.0;
 			}
 		}, m_factory);
+		
+		for (int i=0; i<SnapshotList.BASELINE_COUNT; i++){
+			if (baseLineStart[i]>0 && baseLineFinish[i]>0){
+				Project.Assignments.Assignment.Baseline baseline = m_factory.createProjectAssignmentsAssignmentBaseline();
+				baseline.setStart(DatatypeConverter.printExtendedAttributeDate(new Date(baseLineStart[i])));
+				baseline.setFinish(DatatypeConverter.printExtendedAttributeDate(new Date(baseLineFinish[i])));
+				baseline.setNumber(Integer.toString(i));
+				xml.getBaseline().add(baseline);
+			}
+			
+		}
+		
+//		for (int s=0; s<SnapshotList.BASELINE_COUNT; s++){
+//			ResourceImpl r = (ResourceImpl) projityAssignment.getResource();
+//			if (r.isDefault())
+//				continue;
+//			
+//			Assignment baselineAssignment=projityAssignment.getBaselineAssignment(s, false);
+//			if (baselineAssignment==null)
+//				continue;
+//
+//			Project.Assignments.Assignment.Baseline assignmentbaseline = m_factory
+//					.createProjectAssignmentsAssignmentBaseline();
+//			// For some silly reason, the baseline fields are all
+//			// strings so they need to be converted
+//
+//			// baseline duration is missing :(
+//			assignmentbaseline.setNumber(s + "");
+//			assignmentbaseline.setStart(MPXConverter.dateToXMLString(DateTime.fromGmt(baselineAssignment.getStart())));
+//			assignmentbaseline.setFinish(MPXConverter.dateToXMLString(DateTime.fromGmt(baselineAssignment.getFinish())));
+//			assignmentbaseline.setWork(DatatypeConverter.printDuration(this, MPXConverter.toMPXDuration((long) baselineAssignment.getWork(null))));
+//			xml.getBaseline().add(assignmentbaseline);
+//
+//			
+//		}
+
+
 	}
 	public ProjectFile getProjectFile() {
 		return m_projectFile;

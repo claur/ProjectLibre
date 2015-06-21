@@ -23,7 +23,7 @@
 
 package net.sf.mpxj.mpp;
 
-import net.sf.mpxj.MPPTaskField;
+import net.sf.mpxj.common.MPPTaskField;
 
 /**
  * Reads Gantt bar styles from a MPP9 and MPP12 files.
@@ -33,7 +33,7 @@ public final class GanttBarStyleFactoryCommon implements GanttBarStyleFactory
    /**
     * {@inheritDoc}
     */
-   public GanttBarStyle[] processDefaultStyles(Props props)
+   @Override public GanttBarStyle[] processDefaultStyles(Props props)
    {
       GanttBarStyle[] barStyles = null;
       byte[] barStyleData = props.getByteArray(DEFAULT_PROPERTIES);
@@ -87,7 +87,7 @@ public final class GanttBarStyleFactoryCommon implements GanttBarStyleFactory
    /**
     * {@inheritDoc}
     */
-   public GanttBarStyleException[] processExceptionStyles(Props props)
+   @Override public GanttBarStyleException[] processExceptionStyles(Props props)
    {
       GanttBarStyleException[] barStyle = null;
       byte[] barData = props.getByteArray(EXCEPTION_PROPERTIES);

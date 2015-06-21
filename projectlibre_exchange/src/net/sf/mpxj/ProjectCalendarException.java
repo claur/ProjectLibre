@@ -25,7 +25,7 @@ package net.sf.mpxj;
 
 import java.util.Date;
 
-import net.sf.mpxj.utility.DateUtility;
+import net.sf.mpxj.common.DateHelper;
 
 /**
  * This class represents instances of Calendar Exception records from
@@ -42,8 +42,8 @@ public final class ProjectCalendarException extends ProjectCalendarDateRanges im
     */
    ProjectCalendarException(Date fromDate, Date toDate)
    {
-      m_fromDate = DateUtility.getDayStartDate(fromDate);
-      m_toDate = DateUtility.getDayEndDate(toDate);
+      m_fromDate = DateHelper.getDayStartDate(fromDate);
+      m_toDate = DateHelper.getDayEndDate(toDate);
    }
 
    /**
@@ -90,7 +90,7 @@ public final class ProjectCalendarException extends ProjectCalendarDateRanges im
 
       if (date != null)
       {
-         result = (DateUtility.compare(getFromDate(), getToDate(), date) == 0);
+         result = (DateHelper.compare(getFromDate(), getToDate(), date) == 0);
       }
 
       return (result);
@@ -99,7 +99,7 @@ public final class ProjectCalendarException extends ProjectCalendarDateRanges im
    /**
     * {@inheritDoc}
     */
-   public int compareTo(ProjectCalendarException o)
+   @Override public int compareTo(ProjectCalendarException o)
    {
       long fromTime1 = m_fromDate.getTime();
       long fromTime2 = o.m_fromDate.getTime();
@@ -111,7 +111,7 @@ public final class ProjectCalendarException extends ProjectCalendarDateRanges im
     */
    @Override public String toString()
    {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append("[ProjectCalendarException");
       sb.append(" working=" + getWorking());
       sb.append(" fromDate=" + m_fromDate);

@@ -119,13 +119,14 @@ public class OpenprojTaskConverter {
 	
 	protected String[] customFieldsToConvert=new String[]{
 			//ProjectLibre, OpenProj, converter (OpenProj -> ProjectLibre)
-		"cost:1:10", "customCost,1,10", null,
-		"start:1:10", "customStart,1,10", null,		
-		"finish:1:10", "customFinish,1,10", null,		
-		"duration:1:10", "customDuration,1,10", "com.projectlibre.core.pm.exchange.converters.openproj.type.OpenprojDurationConverter",
-		"text:1:30", "customText,1,30", null,
-		"flag:1:20", "customFlag,1,20", null,
-		"number:1:20", "customNumber,1,20", null,
+		"cost:1:10", "customCost,0,9", null,
+		"start:1:10", "customStart,0,9", "com.projectlibre.core.pm.exchange.converters.type.LongDateConverter",		
+		"finish:1:10", "customFinish,0,9", "com.projectlibre.core.pm.exchange.converters.type.LongDateConverter",	
+		"date:1:10", "customDate,0,9", "com.projectlibre.core.pm.exchange.converters.type.LongDateConverter",	
+		"duration:1:10", "customDuration,0,9", "com.projectlibre.core.pm.exchange.converters.openproj.type.OpenprojDurationConverter",
+		"text:1:30", "customText,0,29", null,
+		"flag:1:20", "customFlag,0,19", null,
+		"number:1:20", "customNumber,0,19", null,
 		
 	};
 

@@ -24,6 +24,7 @@
 package net.sf.mpxj.primavera;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,10 +43,12 @@ import javax.xml.transform.sax.SAXSource;
 
 import net.sf.mpxj.AssignmentField;
 import net.sf.mpxj.ConstraintType;
+import net.sf.mpxj.CustomFieldContainer;
 import net.sf.mpxj.DateRange;
 import net.sf.mpxj.Day;
 import net.sf.mpxj.DayType;
 import net.sf.mpxj.Duration;
+import net.sf.mpxj.EventManager;
 import net.sf.mpxj.FieldContainer;
 import net.sf.mpxj.FieldType;
 import net.sf.mpxj.MPXJException;
@@ -54,8 +56,9 @@ import net.sf.mpxj.Priority;
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectCalendarException;
 import net.sf.mpxj.ProjectCalendarHours;
+import net.sf.mpxj.ProjectConfig;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Relation;
 import net.sf.mpxj.RelationType;
 import net.sf.mpxj.Resource;
@@ -63,10 +66,17 @@ import net.sf.mpxj.ResourceAssignment;
 import net.sf.mpxj.Task;
 import net.sf.mpxj.TaskField;
 import net.sf.mpxj.TimeUnit;
+import net.sf.mpxj.common.BooleanHelper;
+import net.sf.mpxj.common.DateHelper;
+import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.listener.ProjectListener;
 import net.sf.mpxj.primavera.schema.APIBusinessObjects;
 import net.sf.mpxj.primavera.schema.ActivityType;
 import net.sf.mpxj.primavera.schema.CalendarType;
+import net.sf.mpxj.primavera.schema.CalendarType.HolidayOrExceptions;
+import net.sf.mpxj.primavera.schema.CalendarType.HolidayOrExceptions.HolidayOrException;
+import net.sf.mpxj.primavera.schema.CalendarType.StandardWorkWeek;
+import net.sf.mpxj.primavera.schema.CalendarType.StandardWorkWeek.StandardWorkHours;
 import net.sf.mpxj.primavera.schema.CurrencyType;
 import net.sf.mpxj.primavera.schema.GlobalPreferencesType;
 import net.sf.mpxj.primavera.schema.ProjectType;
@@ -75,13 +85,7 @@ import net.sf.mpxj.primavera.schema.ResourceAssignmentType;
 import net.sf.mpxj.primavera.schema.ResourceType;
 import net.sf.mpxj.primavera.schema.WBSType;
 import net.sf.mpxj.primavera.schema.WorkTimeType;
-import net.sf.mpxj.primavera.schema.CalendarType.HolidayOrExceptions;
-import net.sf.mpxj.primavera.schema.CalendarType.StandardWorkWeek;
-import net.sf.mpxj.primavera.schema.CalendarType.HolidayOrExceptions.HolidayOrException;
-import net.sf.mpxj.primavera.schema.CalendarType.StandardWorkWeek.StandardWorkHours;
 import net.sf.mpxj.reader.AbstractProjectReader;
-import net.sf.mpxj.utility.DateUtility;
-import net.sf.mpxj.utility.NumberUtility;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -95,7 +99,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
    /**
     * {@inheritDoc}
     */
-   public void addProjectListener(ProjectListener listener)
+   @Override public void addProjectListener(ProjectListener listener)
    {
       if (m_projectListeners == null)
       {
@@ -107,25 +111,37 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
    /**
     * {@inheritDoc}
     */
-   public ProjectFile read(InputStream stream) throws MPXJException
+   @Override public ProjectFile read(InputStream stream) throws MPXJException
    {
       try
       {
+         //
+         // This is a hack to ensure that the incoming file has a namespace
+         // which JAXB will accept.
+         //
+         InputStream namespaceCorrectedStream = new ReplaceOnceStream(stream, NAMESPACE_REGEX, NAMESPACE_REPLACEMENT, NAMESPACE_SCOPE, UTF8);
+
          m_projectFile = new ProjectFile();
+         m_eventManager = m_projectFile.getEventManager();
 
-         m_projectFile.setAutoTaskUniqueID(false);
-         m_projectFile.setAutoResourceUniqueID(false);
-         m_projectFile.setAutoCalendarUniqueID(false);
-         m_projectFile.setAutoAssignmentUniqueID(false);
-         m_projectFile.setTaskFieldAlias(TaskField.TEXT1, "Code");
+         ProjectConfig config = m_projectFile.getProjectConfig();
+         config.setAutoTaskUniqueID(false);
+         config.setAutoResourceUniqueID(false);
+         config.setAutoCalendarUniqueID(false);
+         config.setAutoAssignmentUniqueID(false);
 
-         m_projectFile.addProjectListeners(m_projectListeners);
+         CustomFieldContainer fields = m_projectFile.getCustomFields();
+         fields.getCustomField(TaskField.TEXT1).setAlias("WBS Code");
+         fields.getCustomField(TaskField.TEXT2).setAlias("Task ID");
+
+         m_eventManager.addProjectListeners(m_projectListeners);
 
          SAXParserFactory factory = SAXParserFactory.newInstance();
+         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
          factory.setNamespaceAware(true);
          SAXParser saxParser = factory.newSAXParser();
          XMLReader xmlReader = saxParser.getXMLReader();
-         SAXSource doc = new SAXSource(xmlReader, new InputSource(stream));
+         SAXSource doc = new SAXSource(xmlReader, new InputSource(namespaceCorrectedStream));
 
          if (CONTEXT == null)
          {
@@ -137,14 +153,22 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          APIBusinessObjects apibo = (APIBusinessObjects) unmarshaller.unmarshal(doc);
 
          List<ProjectType> projects = apibo.getProject();
-         if (projects.size() != 1)
+         ProjectType project = null;
+         for (ProjectType currentProject : projects)
          {
-            throw new MPXJException("Exoecting 1 project, found " + projects.size());
+            if (!BooleanHelper.getBoolean(currentProject.isExternal()))
+            {
+               project = currentProject;
+               break;
+            }
          }
 
-         ProjectType project = projects.get(0);
+         if (project == null)
+         {
+            throw new MPXJException("Unable to locate any non-external projects in a list of " + projects.size() + " projects");
+         }
 
-         processProjectHeader(apibo, project);
+         processProjectProperties(apibo, project);
          processCalendars(apibo);
          processResources(apibo);
          processTasks(project);
@@ -154,7 +178,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          //
          // Ensure that the unique ID counters are correct
          //
-         m_projectFile.updateUniqueCounters();
+         config.updateUniqueCounters();
 
          return (m_projectFile);
       }
@@ -183,37 +207,39 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
    }
 
    /**
-    * Process project header.
+    * Process project properties.
     * 
     * @param apibo top level object
     * @param project xml container
     */
-   private void processProjectHeader(APIBusinessObjects apibo, ProjectType project)
+   private void processProjectProperties(APIBusinessObjects apibo, ProjectType project)
    {
-      ProjectHeader header = m_projectFile.getProjectHeader();
+      ProjectProperties properties = m_projectFile.getProjectProperties();
 
-      header.setCreationDate(getValue(project.getCreateDate()));
-      header.setFinishDate(getValue(project.getFinishDate()));
-      header.setName(project.getName());
-      header.setStartDate(project.getPlannedStartDate());
-      
+      properties.setCreationDate(project.getCreateDate());
+      properties.setFinishDate(project.getFinishDate());
+      properties.setName(project.getName());
+      properties.setStartDate(project.getPlannedStartDate());
+      properties.setStatusDate(project.getDataDate());
+      properties.setProjectTitle(project.getId());
+
       List<GlobalPreferencesType> list = apibo.getGlobalPreferences();
       if (!list.isEmpty())
       {
          GlobalPreferencesType prefs = list.get(0);
 
-         header.setCreationDate(getValue(prefs.getCreateDate()));
-         header.setLastSaved(getValue(prefs.getLastUpdateDate()));
-         header.setMinutesPerDay(Integer.valueOf((int) (NumberUtility.getDouble(prefs.getHoursPerDay()) * 60)));
-         header.setMinutesPerWeek(Integer.valueOf((int) (NumberUtility.getDouble(prefs.getHoursPerWeek()) * 60)));
-         header.setWeekStartDay(Day.getInstance(NumberUtility.getInt(prefs.getStartDayOfWeek())));
+         properties.setCreationDate(prefs.getCreateDate());
+         properties.setLastSaved(prefs.getLastUpdateDate());
+         properties.setMinutesPerDay(Integer.valueOf((int) (NumberHelper.getDouble(prefs.getHoursPerDay()) * 60)));
+         properties.setMinutesPerWeek(Integer.valueOf((int) (NumberHelper.getDouble(prefs.getHoursPerWeek()) * 60)));
+         properties.setWeekStartDay(Day.getInstance(NumberHelper.getInt(prefs.getStartDayOfWeek())));
 
          List<CurrencyType> currencyList = apibo.getCurrency();
          for (CurrencyType currency : currencyList)
          {
             if (currency.getObjectId().equals(prefs.getBaseCurrencyObjectId()))
             {
-               header.setCurrencySymbol(currency.getSymbol());
+               properties.setCurrencySymbol(currency.getSymbol());
                break;
             }
          }
@@ -229,7 +255,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
    {
       for (CalendarType row : apibo.getCalendar())
       {
-         ProjectCalendar calendar = m_projectFile.addBaseCalendar();
+         ProjectCalendar calendar = m_projectFile.addCalendar();
          Integer id = row.getObjectId();
          m_calMap.put(id, calendar);
          calendar.setName(row.getName());
@@ -267,8 +293,8 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          {
             for (HolidayOrException ex : hoe.getHolidayOrException())
             {
-               Date startDate = DateUtility.getDayStartDate(ex.getDate());
-               Date endDate = DateUtility.getDayEndDate(ex.getDate());
+               Date startDate = DateHelper.getDayStartDate(ex.getDate());
+               Date endDate = DateHelper.getDayEndDate(ex.getDate());
                ProjectCalendarException pce = calendar.addCalendarException(startDate, endDate);
 
                List<WorkTimeType> workTime = ex.getWorkTime();
@@ -300,9 +326,9 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          resource.setCode(xml.getEmployeeId());
          resource.setEmailAddress(xml.getEmailAddress());
          resource.setNotes(xml.getResourceNotes());
-         resource.setCreationDate(getValue(xml.getCreateDate()));
+         resource.setCreationDate(xml.getCreateDate());
          resource.setType(RESOURCE_TYPE_MAP.get(xml.getResourceType()));
-         
+
          Integer calendarID = xml.getCalendarObjectId();
          if (calendarID != null)
          {
@@ -315,7 +341,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
                //
                if (!calendar.isDerived())
                {
-                  ProjectCalendar resourceCalendar = m_projectFile.addResourceCalendar();
+                  ProjectCalendar resourceCalendar = m_projectFile.addCalendar();
                   resourceCalendar.setParent(calendar);
                   resourceCalendar.setWorkingDay(Day.MONDAY, DayType.DEFAULT);
                   resourceCalendar.setWorkingDay(Day.TUESDAY, DayType.DEFAULT);
@@ -339,7 +365,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
                   }
                   else
                   {
-                     ProjectCalendar copy = m_projectFile.addResourceCalendar();
+                     ProjectCalendar copy = m_projectFile.addCalendar();
                      copy.copy(calendar);
                      resource.setResourceCalendar(copy);
                   }
@@ -347,7 +373,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
             }
          }
 
-         m_projectFile.fireResourceReadEvent(resource);
+         m_eventManager.fireResourceReadEvent(resource);
       }
    }
 
@@ -374,12 +400,12 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
          task.setUniqueID(uniqueID);
          task.setName(row.getName());
-         task.setBaselineCost(getValue(row.getSummaryBaselineTotalCost()));
-         task.setRemainingCost(getValue(row.getSummaryRemainingTotalCost()));
+         task.setBaselineCost(row.getSummaryBaselineTotalCost());
+         task.setRemainingCost(row.getSummaryRemainingTotalCost());
          task.setRemainingDuration(getDuration(row.getSummaryRemainingDuration()));
-         task.setStart(getValue(row.getAnticipatedStartDate()));
-         task.setFinish(getValue(row.getAnticipatedFinishDate()));
-         task.setText1(row.getCode());
+         task.setStart(row.getAnticipatedStartDate());
+         task.setFinish(row.getAnticipatedFinishDate());
+         task.setText(1, row.getCode());
       }
 
       //
@@ -389,7 +415,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
       for (WBSType row : wbs)
       {
          Task task = m_projectFile.getTaskByUniqueID(row.getObjectId());
-         Task parentTask = m_projectFile.getTaskByUniqueID(getValue(row.getParentObjectId()));
+         Task parentTask = m_projectFile.getTaskByUniqueID(row.getParentObjectId());
          if (parentTask == null)
          {
             m_projectFile.getChildTasks().add(task);
@@ -422,7 +448,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          uniqueIDs.add(uniqueID);
 
          Task task;
-         Integer parentTaskID = getValue(row.getWBSObjectId());
+         Integer parentTaskID = row.getWBSObjectId();
          Task parentTask = m_projectFile.getTaskByUniqueID(parentTaskID);
          if (parentTask == null)
          {
@@ -434,38 +460,48 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          }
 
          task.setUniqueID(uniqueID);
-         task.setPercentageComplete(row.getPhysicalPercentComplete());
+         task.setPercentageComplete(NumberHelper.getDouble(row.getPercentComplete().doubleValue() * 100.0));
          task.setName(row.getName());
          task.setRemainingDuration(getDuration(row.getRemainingDuration()));
          task.setActualWork(getDuration(row.getActualDuration()));
          task.setRemainingWork(getDuration(row.getRemainingTotalUnits()));
-         //task.setBaselineWork(row.getDuration("target_work_qty"));
-         task.setBaselineDuration(getDuration(row.getBaselineDuration()));
+         task.setBaselineDuration(getDuration(row.getPlannedDuration()));
+         task.setActualDuration(getDuration(row.getActualDuration()));
+         task.setDuration(getDuration(row.getAtCompletionDuration()));
 
-         task.setConstraintDate(getValue(row.getPrimaryConstraintDate()));
+         // ActualCost and RemainingCost will be set when we resolve the resource assignments
+         task.setActualCost(NumberHelper.DOUBLE_ZERO);
+         task.setRemainingCost(NumberHelper.DOUBLE_ZERO);
+         task.setBaselineCost(NumberHelper.DOUBLE_ZERO);
+
+         task.setConstraintDate(row.getPrimaryConstraintDate());
          task.setConstraintType(CONSTRAINT_TYPE_MAP.get(row.getPrimaryConstraintType()));
-         task.setActualStart(getValue(row.getActualStartDate()));
-         task.setActualFinish(getValue(row.getActualFinishDate()));
-         task.setLateStart(getValue(row.getLateStartDate()));
-         task.setLateFinish(getValue(row.getLateFinishDate()));
-         task.setFinish(getValue(row.getExpectedFinishDate()));
-         task.setEarlyStart(getValue(row.getEarlyStartDate()));
-         task.setEarlyFinish(getValue(row.getEarlyFinishDate()));
-         task.setBaselineStart(getValue(row.getBaselineStartDate()));
-         task.setBaselineFinish(getValue(row.getBaselineFinishDate()));
-         
+         task.setActualStart(row.getActualStartDate());
+         task.setActualFinish(row.getActualFinishDate());
+         task.setLateStart(row.getRemainingLateStartDate());
+         task.setLateFinish(row.getRemainingLateFinishDate());
+         task.setEarlyStart(row.getRemainingEarlyStartDate());
+         task.setEarlyFinish(row.getRemainingEarlyFinishDate());
+         task.setBaselineStart(row.getPlannedStartDate());
+         task.setBaselineFinish(row.getPlannedFinishDate());
+
          task.setPriority(PRIORITY_MAP.get(row.getLevelingPriority()));
-         task.setCreateDate(getValue(row.getCreateDate()));
+         task.setCreateDate(row.getCreateDate());
+         task.setText(1, row.getId());
+
+         task.setMilestone(BooleanHelper.getBoolean(MILESTONE_MAP.get(row.getType())));
+         task.setCritical(task.getEarlyStart() != null && task.getLateStart() != null && !(task.getLateStart().compareTo(task.getEarlyStart()) > 0));
 
          Integer calId = row.getCalendarObjectId();
          ProjectCalendar cal = m_calMap.get(calId);
          task.setCalendar(cal);
 
-         populateField(task, TaskField.START, TaskField.BASELINE_START, TaskField.ACTUAL_START);
-         populateField(task, TaskField.FINISH, TaskField.BASELINE_FINISH, TaskField.ACTUAL_FINISH);
+         task.setStart(row.getStartDate());
+         task.setFinish(row.getFinishDate());
+
          populateField(task, TaskField.WORK, TaskField.BASELINE_WORK, TaskField.ACTUAL_WORK);
 
-         m_projectFile.fireTaskReadEvent(task);
+         m_eventManager.fireTaskReadEvent(task);
       }
 
       updateStructure();
@@ -541,7 +577,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
             RelationType type = RELATION_TYPE_MAP.get(row.getType());
             Duration lag = getDuration(row.getLag());
             Relation relation = currentTask.addPredecessor(predecessorTask, type, lag);
-            m_projectFile.fireRelationReadEvent(relation);
+            m_eventManager.fireRelationReadEvent(relation);
          }
       }
    }
@@ -557,7 +593,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
       for (ResourceAssignmentType row : assignments)
       {
          Task task = m_projectFile.getTaskByUniqueID(mapTaskID(row.getActivityObjectId()));
-         Resource resource = m_projectFile.getResourceByUniqueID(getValue(row.getResourceObjectId()));
+         Resource resource = m_projectFile.getResourceByUniqueID(row.getResourceObjectId());
          if (task != null && resource != null)
          {
             ResourceAssignment assignment = task.addResourceAssignment(resource);
@@ -566,40 +602,26 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
             assignment.setRemainingWork(getDuration(row.getRemainingUnits()));
             assignment.setBaselineWork(getDuration(row.getPlannedUnits()));
             assignment.setActualWork(getDuration(row.getActualUnits()));
-            assignment.setBaselineCost(getValue(row.getPlannedCost()));
-            assignment.setActualCost(getValue(row.getActualCost()));
-            assignment.setActualStart(getValue(row.getActualStartDate()));
-            assignment.setActualFinish(getValue(row.getActualFinishDate()));
+            assignment.setRemainingCost(row.getRemainingCost());
+            assignment.setBaselineCost(row.getPlannedCost());
+            assignment.setActualCost(row.getActualCost());
+            assignment.setActualStart(row.getActualStartDate());
+            assignment.setActualFinish(row.getActualFinishDate());
             assignment.setBaselineStart(row.getPlannedStartDate());
             assignment.setBaselineFinish(row.getPlannedFinishDate());
-            
+
+            task.setActualCost(Double.valueOf(task.getActualCost().doubleValue() + assignment.getActualCost().doubleValue()));
+            task.setRemainingCost(Double.valueOf(task.getRemainingCost().doubleValue() + assignment.getRemainingCost().doubleValue()));
+            task.setBaselineCost(Double.valueOf(task.getBaselineCost().doubleValue() + assignment.getBaselineCost().doubleValue()));
+
             populateField(assignment, AssignmentField.WORK, AssignmentField.BASELINE_WORK, AssignmentField.ACTUAL_WORK);
             populateField(assignment, AssignmentField.COST, AssignmentField.BASELINE_COST, AssignmentField.ACTUAL_COST);
             populateField(assignment, AssignmentField.START, AssignmentField.BASELINE_START, AssignmentField.ACTUAL_START);
             populateField(assignment, AssignmentField.FINISH, AssignmentField.BASELINE_FINISH, AssignmentField.ACTUAL_FINISH);
 
-            m_projectFile.fireAssignmentReadEvent(assignment);
+            m_eventManager.fireAssignmentReadEvent(assignment);
          }
       }
-   }
-
-   /**
-    * Extracts a value from a JAXBElement instance.
-    * 
-    * @param <T> value type
-    * @param element JAXBElement instance
-    * @return value
-    */
-   private <T> T getValue(JAXBElement<T> element)
-   {
-      T result = null;
-
-      if (element != null)
-      {
-         result = element.getValue();
-      }
-
-      return result;
    }
 
    /**
@@ -608,17 +630,13 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
     * @param duration duration expressed in hours
     * @return duration instance
     */
-   private Duration getDuration(JAXBElement<Double> duration)
+   private Duration getDuration(Double duration)
    {
       Duration result = null;
 
       if (duration != null)
       {
-         Double value = duration.getValue();
-         if (value != null)
-         {
-            result = Duration.getInstance(NumberUtility.getDouble(value), TimeUnit.HOURS);
-         }
+         result = Duration.getInstance(NumberHelper.getDouble(duration), TimeUnit.HOURS);
       }
 
       return result;
@@ -672,9 +690,15 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
    }
 
    private ProjectFile m_projectFile;
+   private EventManager m_eventManager;
    private List<ProjectListener> m_projectListeners;
    private Map<Integer, Integer> m_clashMap = new HashMap<Integer, Integer>();
    private Map<Integer, ProjectCalendar> m_calMap = new HashMap<Integer, ProjectCalendar>();
+
+   private static final Charset UTF8 = Charset.forName("UTF8");
+   private static final int NAMESPACE_SCOPE = 512;
+   private static final String NAMESPACE_REGEX = "xmlns=\\\".*\\\"";
+   private static final String NAMESPACE_REPLACEMENT = "xmlns=\"http://xmlns.oracle.com/Primavera/P6/V8.3/API/BusinessObjects\"";
 
    private static final Map<String, net.sf.mpxj.ResourceType> RESOURCE_TYPE_MAP = new HashMap<String, net.sf.mpxj.ResourceType>();
    static
@@ -730,4 +754,14 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
       DAY_MAP.put("Sunday", Day.SUNDAY);
    }
 
+   private static final Map<String, Boolean> MILESTONE_MAP = new HashMap<String, Boolean>();
+   static
+   {
+      MILESTONE_MAP.put("Task Dependent", Boolean.FALSE);
+      MILESTONE_MAP.put("Resource Dependent", Boolean.FALSE);
+      MILESTONE_MAP.put("Level of Effort", Boolean.FALSE);
+      MILESTONE_MAP.put("Start Milestone", Boolean.TRUE);
+      MILESTONE_MAP.put("Finish Milestone", Boolean.TRUE);
+      MILESTONE_MAP.put("WBS Summary", Boolean.FALSE);
+   }
 }

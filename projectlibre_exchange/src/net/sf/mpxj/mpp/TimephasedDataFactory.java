@@ -32,11 +32,14 @@ import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ResourceAssignment;
 import net.sf.mpxj.TimeUnit;
 import net.sf.mpxj.TimephasedCost;
-import net.sf.mpxj.TimephasedCostData;
-import net.sf.mpxj.TimephasedCostNormaliser;
+import net.sf.mpxj.TimephasedCostContainer;
 import net.sf.mpxj.TimephasedWork;
-import net.sf.mpxj.TimephasedWorkData;
-import net.sf.mpxj.TimephasedWorkNormaliser;
+import net.sf.mpxj.TimephasedWorkContainer;
+import net.sf.mpxj.common.DefaultTimephasedCostContainer;
+import net.sf.mpxj.common.DefaultTimephasedWorkContainer;
+import net.sf.mpxj.common.NumberHelper;
+import net.sf.mpxj.common.TimephasedCostNormaliser;
+import net.sf.mpxj.common.TimephasedWorkNormaliser;
 
 /**
  * This class contains methods to create lists of TimephasedWork
@@ -58,7 +61,7 @@ final class TimephasedDataFactory
    {
       LinkedList<TimephasedWork> list = new LinkedList<TimephasedWork>();
 
-      if (data != null && data.length > 0)
+      if (calendar != null && data != null && data.length > 0)
       {
          int blockCount = MPPUtility.getShort(data, 0);
          double previousCumulativeWork = 0;
@@ -147,7 +150,7 @@ final class TimephasedDataFactory
    {
       LinkedList<TimephasedWork> list = new LinkedList<TimephasedWork>();
 
-      if (data != null && data.length > 0)
+      if (calendar != null && data != null && data.length > 0)
       {
          int blockCount = MPPUtility.getShort(data, 0);
          if (blockCount == 0)
@@ -299,9 +302,9 @@ final class TimephasedDataFactory
     * @param raw flag indicating if this data is to be treated as raw
     * @return timephased work
     */
-   public TimephasedWorkData getBaselineWork(ResourceAssignment assignment, ProjectCalendar calendar, TimephasedWorkNormaliser normaliser, byte[] data, boolean raw)
+   public TimephasedWorkContainer getBaselineWork(ResourceAssignment assignment, ProjectCalendar calendar, TimephasedWorkNormaliser normaliser, byte[] data, boolean raw)
    {
-      TimephasedWorkData result = null;
+      TimephasedWorkContainer result = null;
 
       if (data != null && data.length > 0)
       {
@@ -311,34 +314,34 @@ final class TimephasedDataFactory
          int index = 8; // 8 byte header
          int blockSize = 40;
          double previousCumulativeWorkPerformedInMinutes = 0;
-         
+
          Date blockStartDate = MPPUtility.getTimestampFromTenths(data, index + 36);
          index += blockSize;
          TimephasedWork work = null;
-         
+
          while (index + blockSize <= data.length)
          {
-            double cumulativeWorkInMinutes = ((long) MPPUtility.getDouble(data, index + 20)) / 1000;
-            if (cumulativeWorkInMinutes != previousCumulativeWorkPerformedInMinutes)
-            {                                            
+            double cumulativeWorkInMinutes = (double) ((long) MPPUtility.getDouble(data, index + 20)) / 1000;
+            if (!Duration.durationValueEquals(cumulativeWorkInMinutes, previousCumulativeWorkPerformedInMinutes))
+            {
                //double unknownWorkThisPeriodInMinutes = ((long) MPPUtility.getDouble(data, index + 0)) / 1000;
-               double normalActualWorkThisPeriodInMinutes = ((double)MPPUtility.getInt(data, index+ 8))/10;
-               double normalRemainingWorkThisPeriodInMinutes = ((double)MPPUtility.getInt(data, index+ 28))/10;               
-               double workThisPeriodInMinutes = cumulativeWorkInMinutes - previousCumulativeWorkPerformedInMinutes;               
-               double overtimeWorkThisPeriodInMinutes = workThisPeriodInMinutes - (normalActualWorkThisPeriodInMinutes+normalRemainingWorkThisPeriodInMinutes);               
-               double overtimeFactor = overtimeWorkThisPeriodInMinutes / (normalActualWorkThisPeriodInMinutes+normalRemainingWorkThisPeriodInMinutes);
-                              
+               double normalActualWorkThisPeriodInMinutes = ((double) MPPUtility.getInt(data, index + 8)) / 10;
+               double normalRemainingWorkThisPeriodInMinutes = ((double) MPPUtility.getInt(data, index + 28)) / 10;
+               double workThisPeriodInMinutes = cumulativeWorkInMinutes - previousCumulativeWorkPerformedInMinutes;
+               double overtimeWorkThisPeriodInMinutes = workThisPeriodInMinutes - (normalActualWorkThisPeriodInMinutes + normalRemainingWorkThisPeriodInMinutes);
+               double overtimeFactor = overtimeWorkThisPeriodInMinutes / (normalActualWorkThisPeriodInMinutes + normalRemainingWorkThisPeriodInMinutes);
+
                double normalWorkPerDayInMinutes = 480;
                double overtimeWorkPerDayInMinutes = normalWorkPerDayInMinutes * overtimeFactor;
-                                        
+
                work = new TimephasedWork();
                work.setFinish(MPPUtility.getTimestampFromTenths(data, index + 16));
                work.setStart(blockStartDate);
                work.setTotalAmount(Duration.getInstance(workThisPeriodInMinutes, TimeUnit.MINUTES));
-               work.setAmountPerDay(Duration.getInstance(normalWorkPerDayInMinutes+overtimeWorkPerDayInMinutes, TimeUnit.MINUTES));
-               
+               work.setAmountPerDay(Duration.getInstance(normalWorkPerDayInMinutes + overtimeWorkPerDayInMinutes, TimeUnit.MINUTES));
+
                previousCumulativeWorkPerformedInMinutes = cumulativeWorkInMinutes;
-               
+
                if (list == null)
                {
                   list = new LinkedList<TimephasedWork>();
@@ -356,7 +359,7 @@ final class TimephasedDataFactory
             {
                work.setFinish(assignment.getFinish());
             }
-            result = new TimephasedWorkData(calendar, normaliser, list, raw);
+            result = new DefaultTimephasedWorkContainer(calendar, normaliser, list, raw);
          }
       }
 
@@ -374,9 +377,9 @@ final class TimephasedDataFactory
     * @param raw flag indicating if this data is to be treated as raw
     * @return timephased work
     */
-   public TimephasedCostData getBaselineCost(ProjectCalendar calendar, TimephasedCostNormaliser normaliser, byte[] data, boolean raw)
+   public TimephasedCostContainer getBaselineCost(ProjectCalendar calendar, TimephasedCostNormaliser normaliser, byte[] data, boolean raw)
    {
-      TimephasedCostData result = null;
+      TimephasedCostContainer result = null;
 
       if (data != null && data.length > 0)
       {
@@ -393,8 +396,8 @@ final class TimephasedDataFactory
          while (index + blockSize <= data.length)
          {
             Date blockEndDate = MPPUtility.getTimestampFromTenths(data, index + 16);
-            double currentTotalCost = ((long) MPPUtility.getDouble(data, index + 8)) / 100;
-            if (previousTotalCost != currentTotalCost)
+            double currentTotalCost = (double) ((long) MPPUtility.getDouble(data, index + 8)) / 100;
+            if (!costEquals(previousTotalCost, currentTotalCost))
             {
                TimephasedCost cost = new TimephasedCost();
                cost.setStart(blockStartDate);
@@ -417,10 +420,23 @@ final class TimephasedDataFactory
 
          if (list != null)
          {
-            result = new TimephasedCostData(calendar, normaliser, list, raw);
+            result = new DefaultTimephasedCostContainer(calendar, normaliser, list, raw);
          }
       }
 
       return result;
    }
+
+   /**
+    * Equality test cost values.
+    * 
+    * @param lhs cost value
+    * @param rhs cost value
+    * @return true if costs are equal, within the allowable delta
+    */
+   private boolean costEquals(double lhs, double rhs)
+   {
+      return NumberHelper.equals(lhs, rhs, 0.00001);
+   }
+
 }

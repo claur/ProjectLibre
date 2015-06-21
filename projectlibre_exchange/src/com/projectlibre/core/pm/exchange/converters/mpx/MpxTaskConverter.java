@@ -47,7 +47,7 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj"  and ÒProjectLibreÓ logos visible to all users. 
+user interface screen the "OpenProj"  and ï¿½ProjectLibreï¿½ logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
 justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
@@ -68,9 +68,9 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj" and ÒProjectLibreÓ logos visible to all users. 
+user interface screen the "OpenProj" and ï¿½ProjectLibreï¿½ logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
-justified on the top left of the screen adjacent to the File menu. ÊThe logo must be 
+justified on the top left of the screen adjacent to the File menu. ï¿½The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
@@ -121,6 +121,8 @@ public class MpxTaskConverter {
 		
 		"finish", "finish", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",
 		"finish:1:10", "finish:1:10", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",
+
+		"date:1:10", "date:1:10", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",
 		
 		"duration", "duration", "com.projectlibre.core.pm.exchange.converters.mpx.type.MpxDurationConverter",
 		"duration:1:10", "duration:1:10", "com.projectlibre.core.pm.exchange.converters.mpx.type.MpxDurationConverter",

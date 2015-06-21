@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import net.sf.mpxj.utility.DateUtility;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.DateHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This class represents the a Calendar Definition record. Both base calendars
@@ -43,7 +43,7 @@ import net.sf.mpxj.utility.NumberUtility;
  * of this class. The class is used to define the working and non-working days
  * of the week. The default calendar defines Monday to Friday as working days.
  */
-public final class ProjectCalendar extends ProjectCalendarWeek
+public final class ProjectCalendar extends ProjectCalendarWeek implements ProjectEntityWithUniqueID
 {
    /**
     * Default constructor.
@@ -54,9 +54,9 @@ public final class ProjectCalendar extends ProjectCalendarWeek
    {
       m_projectFile = file;
 
-      if (file.getAutoCalendarUniqueID() == true)
+      if (file.getProjectConfig().getAutoCalendarUniqueID() == true)
       {
-         setUniqueID(Integer.valueOf(file.getCalendarUniqueID()));
+         setUniqueID(Integer.valueOf(file.getProjectConfig().getNextCalendarUniqueID()));
       }
    }
 
@@ -171,6 +171,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
          calendar.addDerivedCalendar(this);
       }
       clearWorkingDateCache();
+
    }
 
    @Override public ProjectCalendar getParent()
@@ -223,25 +224,19 @@ public final class ProjectCalendar extends ProjectCalendarWeek
    {
       Calendar cal = Calendar.getInstance();
       cal.setTime(startDate);
-      int dayIndex = cal.get(Calendar.DAY_OF_WEEK);
       int days = getDaysInRange(startDate, endDate);
       int duration = 0;
+      Day day = Day.getInstance(cal.get(Calendar.DAY_OF_WEEK));
 
       while (days > 0)
       {
-         if (isWorkingDate(cal.getTime(), Day.getInstance(dayIndex)) == true)
+         if (isWorkingDate(cal.getTime(), day) == true)
          {
             ++duration;
          }
 
          --days;
-
-         ++dayIndex;
-         if (dayIndex > 7)
-         {
-            dayIndex = 1;
-         }
-
+         day = day.getNextDay();
          cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) + 1);
       }
 
@@ -263,13 +258,13 @@ public final class ProjectCalendar extends ProjectCalendarWeek
          ProjectCalendarDateRanges ranges = getRanges(date, null, null);
          if (ranges == null)
          {
-            result = getParentFile().getProjectHeader().getDefaultStartTime();
+            result = getParentFile().getProjectProperties().getDefaultStartTime();
          }
          else
          {
             result = ranges.getRange(0).getStart();
          }
-         result = DateUtility.getCanonicalTime(result);
+         result = DateHelper.getCanonicalTime(result);
          m_startTimeCache.put(new Date(date.getTime()), result);
       }
       return result;
@@ -291,17 +286,17 @@ public final class ProjectCalendar extends ProjectCalendarWeek
          ProjectCalendarDateRanges ranges = getRanges(date, null, null);
          if (ranges == null)
          {
-            result = getParentFile().getProjectHeader().getDefaultEndTime();
-            result = DateUtility.getCanonicalTime(result);
+            result = getParentFile().getProjectProperties().getDefaultEndTime();
+            result = DateHelper.getCanonicalTime(result);
          }
          else
          {
             Date rangeStart = result = ranges.getRange(0).getStart();
             Date rangeFinish = ranges.getRange(ranges.getRangeCount() - 1).getEnd();
-            Date startDay = DateUtility.getDayStartDate(rangeStart);
-            Date finishDay = DateUtility.getDayStartDate(rangeFinish);
+            Date startDay = DateHelper.getDayStartDate(rangeStart);
+            Date finishDay = DateHelper.getDayStartDate(rangeFinish);
 
-            result = DateUtility.getCanonicalTime(rangeFinish);
+            result = DateHelper.getCanonicalTime(rangeFinish);
 
             //
             // Handle the case where the end of the range is at midnight -
@@ -333,12 +328,12 @@ public final class ProjectCalendar extends ProjectCalendarWeek
     */
    public Date getDate(Date startDate, Duration duration, boolean returnNextWorkStart)
    {
-      ProjectHeader header = getParentFile().getProjectHeader();
+      ProjectProperties properties = getParentFile().getProjectProperties();
       // Note: Using a double allows us to handle date values that are accurate up to seconds.
       //       However, it also means we need to truncate the value to 2 decimals to make the
       //       comparisons work as sometimes the double ends up with some extra e.g. .0000000000003
       //       that wreak havoc on the comparisons.
-      double remainingMinutes = NumberUtility.truncate(duration.convertUnits(TimeUnit.MINUTES, header).getDuration(), 2);
+      double remainingMinutes = NumberHelper.truncate(duration.convertUnits(TimeUnit.MINUTES, properties).getDuration(), 2);
       Calendar cal = Calendar.getInstance();
       cal.setTime(startDate);
       Calendar endCal = Calendar.getInstance();
@@ -352,7 +347,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
          Date currentDate = cal.getTime();
          endCal.setTime(currentDate);
          endCal.add(Calendar.DAY_OF_YEAR, 1);
-         Date currentDateEnd = DateUtility.getDayStartDate(endCal.getTime());
+         Date currentDateEnd = DateHelper.getDayStartDate(endCal.getTime());
          double currentDateWorkingMinutes = getWork(currentDate, currentDateEnd, TimeUnit.MINUTES).getDuration();
 
          //
@@ -363,7 +358,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             //
             // Deduct this day's hours from our total
             //
-            remainingMinutes = NumberUtility.truncate(remainingMinutes - currentDateWorkingMinutes, 2);
+            remainingMinutes = NumberHelper.truncate(remainingMinutes - currentDateWorkingMinutes, 2);
 
             //
             // Move the calendar forward to the next working day
@@ -389,7 +384,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             // Retrieve the start time for this day
             //
             Date startTime = getStartTime(cal.getTime());
-            DateUtility.setTime(cal, startTime);
+            DateHelper.setTime(cal, startTime);
          }
          else
          {
@@ -405,7 +400,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             // step through it to work out the end point
             //
             Date endTime = null;
-            Date currentDateStartTime = DateUtility.getCanonicalTime(currentDate);
+            Date currentDateStartTime = DateHelper.getCanonicalTime(currentDate);
             boolean firstRange = true;
             for (DateRange range : ranges)
             {
@@ -420,11 +415,11 @@ public final class ProjectCalendar extends ProjectCalendarWeek
                   continue;
                }
 
-               Date canonicalRangeEnd = DateUtility.getCanonicalTime(rangeEnd);
-               Date canonicalRangeStart = DateUtility.getCanonicalTime(rangeStart);
+               Date canonicalRangeEnd = DateHelper.getCanonicalTime(rangeEnd);
+               Date canonicalRangeStart = DateHelper.getCanonicalTime(rangeStart);
 
-               Date rangeStartDay = DateUtility.getDayStartDate(rangeStart);
-               Date rangeEndDay = DateUtility.getDayStartDate(rangeEnd);
+               Date rangeStartDay = DateHelper.getDayStartDate(rangeStart);
+               Date rangeEndDay = DateHelper.getDayStartDate(rangeEnd);
 
                if (rangeStartDay.getTime() != rangeEndDay.getTime())
                {
@@ -456,11 +451,11 @@ public final class ProjectCalendar extends ProjectCalendarWeek
 
                if (remainingMinutes > rangeMinutes)
                {
-                  remainingMinutes = NumberUtility.truncate(remainingMinutes - rangeMinutes, 2);
+                  remainingMinutes = NumberHelper.truncate(remainingMinutes - rangeMinutes, 2);
                }
                else
                {
-                  if (remainingMinutes == rangeMinutes)
+                  if (Duration.durationValueEquals(remainingMinutes, rangeMinutes))
                   {
                      endTime = canonicalRangeEnd;
                      if (rangeStartDay.getTime() != rangeEndDay.getTime())
@@ -479,7 +474,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
                }
             }
 
-            DateUtility.setTime(cal, endTime);
+            DateHelper.setTime(cal, endTime);
          }
       }
 
@@ -502,12 +497,12 @@ public final class ProjectCalendar extends ProjectCalendarWeek
     */
    public Date getStartDate(Date finishDate, Duration duration)
    {
-      ProjectHeader header = getParentFile().getProjectHeader();
+      ProjectProperties properties = getParentFile().getProjectProperties();
       // Note: Using a double allows us to handle date values that are accurate up to seconds.
       //       However, it also means we need to truncate the value to 2 decimals to make the
       //       comparisons work as sometimes the double ends up with some extra e.g. .0000000000003
       //       that wreak havoc on the comparisons.
-      double remainingMinutes = NumberUtility.truncate(duration.convertUnits(TimeUnit.MINUTES, header).getDuration(), 2);
+      double remainingMinutes = NumberHelper.truncate(duration.convertUnits(TimeUnit.MINUTES, properties).getDuration(), 2);
       Calendar cal = Calendar.getInstance();
       cal.setTime(finishDate);
       Calendar startCal = Calendar.getInstance();
@@ -521,7 +516,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
          Date currentDate = cal.getTime();
          startCal.setTime(currentDate);
          startCal.add(Calendar.DAY_OF_YEAR, -1);
-         Date currentDateEnd = DateUtility.getDayEndDate(startCal.getTime());
+         Date currentDateEnd = DateHelper.getDayEndDate(startCal.getTime());
          double currentDateWorkingMinutes = getWork(currentDateEnd, currentDate, TimeUnit.MINUTES).getDuration();
 
          //
@@ -532,7 +527,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             //
             // Deduct this day's hours from our total
             //
-            remainingMinutes = NumberUtility.truncate(remainingMinutes - currentDateWorkingMinutes, 2);
+            remainingMinutes = NumberHelper.truncate(remainingMinutes - currentDateWorkingMinutes, 2);
 
             //
             // Move the calendar backward to the previous working day
@@ -561,7 +556,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             // Retrieve the finish time for this day
             //
             Date finishTime = getFinishTime(cal.getTime());
-            DateUtility.setTime(cal, finishTime);
+            DateHelper.setTime(cal, finishTime);
          }
          else
          {
@@ -577,7 +572,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             // step through it to work out the start point
             //
             Date startTime = null;
-            Date currentDateFinishTime = DateUtility.getCanonicalTime(currentDate);
+            Date currentDateFinishTime = DateHelper.getCanonicalTime(currentDate);
             boolean firstRange = true;
             // Traverse from end to start
             for (int i = ranges.getRangeCount() - 1; i >= 0; i--)
@@ -594,11 +589,11 @@ public final class ProjectCalendar extends ProjectCalendarWeek
                   continue;
                }
 
-               Date canonicalRangeEnd = DateUtility.getCanonicalTime(rangeEnd);
-               Date canonicalRangeStart = DateUtility.getCanonicalTime(rangeStart);
+               Date canonicalRangeEnd = DateHelper.getCanonicalTime(rangeEnd);
+               Date canonicalRangeStart = DateHelper.getCanonicalTime(rangeStart);
 
-               Date rangeStartDay = DateUtility.getDayStartDate(rangeStart);
-               Date rangeEndDay = DateUtility.getDayStartDate(rangeEnd);
+               Date rangeStartDay = DateHelper.getDayStartDate(rangeStart);
+               Date rangeEndDay = DateHelper.getDayStartDate(rangeEnd);
 
                if (rangeStartDay.getTime() != rangeEndDay.getTime())
                {
@@ -630,11 +625,11 @@ public final class ProjectCalendar extends ProjectCalendarWeek
 
                if (remainingMinutes > rangeMinutes)
                {
-                  remainingMinutes = NumberUtility.truncate(remainingMinutes - rangeMinutes, 2);
+                  remainingMinutes = NumberHelper.truncate(remainingMinutes - rangeMinutes, 2);
                }
                else
                {
-                  if (remainingMinutes == rangeMinutes)
+                  if (Duration.durationValueEquals(remainingMinutes, rangeMinutes))
                   {
                      startTime = canonicalRangeStart;
                   }
@@ -647,7 +642,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
                }
             }
 
-            DateUtility.setTime(cal, startTime);
+            DateHelper.setTime(cal, startTime);
          }
       }
 
@@ -673,14 +668,14 @@ public final class ProjectCalendar extends ProjectCalendarWeek
          //
          // Do we have a start time today?
          // 
-         Date calTime = DateUtility.getCanonicalTime(cal.getTime());
+         Date calTime = DateHelper.getCanonicalTime(cal.getTime());
          Date startTime = null;
          for (DateRange range : ranges)
          {
-            Date rangeStart = DateUtility.getCanonicalTime(range.getStart());
-            Date rangeEnd = DateUtility.getCanonicalTime(range.getEnd());
-            Date rangeStartDay = DateUtility.getDayStartDate(range.getStart());
-            Date rangeEndDay = DateUtility.getDayStartDate(range.getEnd());
+            Date rangeStart = DateHelper.getCanonicalTime(range.getStart());
+            Date rangeEnd = DateHelper.getCanonicalTime(range.getEnd());
+            Date rangeStartDay = DateHelper.getDayStartDate(range.getStart());
+            Date rangeEndDay = DateHelper.getDayStartDate(range.getEnd());
 
             if (rangeStartDay.getTime() != rangeEndDay.getTime())
             {
@@ -728,7 +723,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             startTime = getStartTime(cal.getTime());
          }
 
-         DateUtility.setTime(cal, startTime);
+         DateHelper.setTime(cal, startTime);
       }
    }
 
@@ -750,13 +745,13 @@ public final class ProjectCalendar extends ProjectCalendarWeek
          //
          // Do we have a start time today?
          // 
-         Date calTime = DateUtility.getCanonicalTime(cal.getTime());
+         Date calTime = DateHelper.getCanonicalTime(cal.getTime());
          Date finishTime = null;
          for (DateRange range : ranges)
          {
-            Date rangeEnd = DateUtility.getCanonicalTime(range.getEnd());
-            Date rangeStartDay = DateUtility.getDayStartDate(range.getStart());
-            Date rangeEndDay = DateUtility.getDayStartDate(range.getEnd());
+            Date rangeEnd = DateHelper.getCanonicalTime(range.getEnd());
+            Date rangeStartDay = DateHelper.getDayStartDate(range.getStart());
+            Date rangeEndDay = DateHelper.getDayStartDate(range.getEnd());
 
             if (rangeStartDay.getTime() != rangeEndDay.getTime())
             {
@@ -797,7 +792,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             finishTime = getFinishTime(cal.getTime());
          }
 
-         DateUtility.setTime(cal, finishTime);
+         DateHelper.setTime(cal, finishTime);
       }
    }
 
@@ -908,16 +903,16 @@ public final class ProjectCalendar extends ProjectCalendarWeek
     *
     * @param uniqueID unique identifier
     */
-   public void setUniqueID(Integer uniqueID)
+   @Override public void setUniqueID(Integer uniqueID)
    {
       ProjectFile parent = getParentFile();
 
       if (m_uniqueID != null)
       {
-         parent.unmapCalendarUniqueID(m_uniqueID);
+         parent.getCalendars().unmapUniqueID(m_uniqueID);
       }
 
-      parent.mapCalendarUniqueID(uniqueID, this);
+      parent.getCalendars().mapUniqueID(uniqueID, this);
 
       m_uniqueID = uniqueID;
    }
@@ -927,7 +922,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
     *
     * @return calendar unique identifier
     */
-   public Integer getUniqueID()
+   @Override public Integer getUniqueID()
    {
       return (m_uniqueID);
    }
@@ -994,7 +989,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
          {
             int mid = (low + high) >>> 1;
             ProjectCalendarException midVal = m_exceptions.get(mid);
-            int cmp = 0 - DateUtility.compare(midVal.getFromDate(), midVal.getToDate(), targetDate);
+            int cmp = 0 - DateHelper.compare(midVal.getFromDate(), midVal.getToDate(), targetDate);
 
             if (cmp < 0)
             {
@@ -1069,8 +1064,8 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             endDate = temp;
          }
 
-         Date canonicalStartDate = DateUtility.getDayStartDate(startDate);
-         Date canonicalEndDate = DateUtility.getDayStartDate(endDate);
+         Date canonicalStartDate = DateHelper.getDayStartDate(startDate);
+         Date canonicalEndDate = DateHelper.getDayStartDate(endDate);
 
          if (canonicalStartDate.getTime() == canonicalEndDate.getTime())
          {
@@ -1142,7 +1137,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             ProjectCalendarDateRanges ranges = getRanges(endDate, null, day);
             if (ranges.getRangeCount() != 0)
             {
-               totalTime += getTotalTime(ranges, DateUtility.getDayStartDate(endDate), endDate);
+               totalTime += getTotalTime(ranges, DateHelper.getDayStartDate(endDate), endDate);
             }
          }
 
@@ -1171,29 +1166,29 @@ public final class ProjectCalendar extends ProjectCalendarWeek
     */
    private Duration convertFormat(long totalTime, TimeUnit format)
    {
-      double duration = 0;
-      double minutesPerDay = getParentFile().getProjectHeader().getMinutesPerDay().doubleValue();
-      double minutesPerWeek = getParentFile().getProjectHeader().getMinutesPerWeek().doubleValue();
-      double daysPerMonth = getParentFile().getProjectHeader().getDaysPerMonth().doubleValue();
+      double duration = totalTime;
+      double minutesPerDay = getParentFile().getProjectProperties().getMinutesPerDay().doubleValue();
+      double minutesPerWeek = getParentFile().getProjectProperties().getMinutesPerWeek().doubleValue();
+      double daysPerMonth = getParentFile().getProjectProperties().getDaysPerMonth().doubleValue();
+
       switch (format)
       {
-         case MINUTES :
+         case MINUTES:
+         case ELAPSED_MINUTES:
          {
-            duration = totalTime;
             duration /= (60 * 1000);
             break;
          }
 
-         case HOURS :
+         case HOURS:
+         case ELAPSED_HOURS:
          {
-            duration = totalTime;
             duration /= (60 * 60 * 1000);
             break;
          }
 
-         case DAYS :
+         case DAYS:
          {
-            duration = totalTime;
             if (minutesPerDay != 0)
             {
                duration /= (minutesPerDay * 60 * 1000);
@@ -1205,9 +1200,8 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             break;
          }
 
-         case WEEKS :
+         case WEEKS:
          {
-            duration = totalTime;
             if (minutesPerWeek != 0)
             {
                duration /= (minutesPerWeek * 60 * 1000);
@@ -1219,9 +1213,8 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             break;
          }
 
-         case MONTHS :
+         case MONTHS:
          {
-            duration = totalTime;
             if (daysPerMonth != 0 && minutesPerDay != 0)
             {
                duration /= (daysPerMonth * minutesPerDay * 60 * 1000);
@@ -1233,37 +1226,25 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             break;
          }
 
-         case ELAPSED_MINUTES :
+         case ELAPSED_DAYS:
          {
-            duration = totalTime / (60 * 1000);
+            duration /= (24 * 60 * 60 * 1000);
             break;
          }
 
-         case ELAPSED_HOURS :
+         case ELAPSED_WEEKS:
          {
-            duration = totalTime / (60 * 60 * 1000);
+            duration /= (7 * 24 * 60 * 60 * 1000);
             break;
          }
 
-         case ELAPSED_DAYS :
+         case ELAPSED_MONTHS:
          {
-            duration = totalTime / (24 * 60 * 60 * 1000);
+            duration /= (30 * 24 * 60 * 60 * 1000);
             break;
          }
 
-         case ELAPSED_WEEKS :
-         {
-            duration = totalTime / (7 * 24 * 60 * 60 * 1000);
-            break;
-         }
-
-         case ELAPSED_MONTHS :
-         {
-            duration = totalTime / (30 * 24 * 60 * 60 * 1000);
-            break;
-         }
-
-         default :
+         default:
          {
             throw new IllegalArgumentException("TimeUnit " + format + " not supported");
          }
@@ -1283,7 +1264,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
     */
    private long getTotalTime(ProjectCalendarDateRanges exception, Date date, boolean after)
    {
-      long currentTime = DateUtility.getCanonicalTime(date).getTime();
+      long currentTime = DateHelper.getCanonicalTime(date).getTime();
       long total = 0;
       for (DateRange range : exception)
       {
@@ -1323,8 +1304,8 @@ public final class ProjectCalendar extends ProjectCalendarWeek
       long total = 0;
       if (startDate.getTime() != endDate.getTime())
       {
-         Date start = DateUtility.getCanonicalTime(startDate);
-         Date end = DateUtility.getCanonicalTime(endDate);
+         Date start = DateHelper.getCanonicalTime(startDate);
+         Date end = DateHelper.getCanonicalTime(endDate);
 
          for (DateRange range : hours)
          {
@@ -1332,11 +1313,11 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             Date rangeEnd = range.getEnd();
             if (rangeStart != null && rangeEnd != null)
             {
-               Date canoncialRangeStart = DateUtility.getCanonicalTime(rangeStart);
-               Date canonicalRangeEnd = DateUtility.getCanonicalTime(rangeEnd);
+               Date canoncialRangeStart = DateHelper.getCanonicalTime(rangeStart);
+               Date canonicalRangeEnd = DateHelper.getCanonicalTime(rangeEnd);
 
-               Date startDay = DateUtility.getDayStartDate(rangeStart);
-               Date finishDay = DateUtility.getDayStartDate(rangeEnd);
+               Date startDay = DateHelper.getDayStartDate(rangeStart);
+               Date finishDay = DateHelper.getDayStartDate(rangeEnd);
 
                //
                // Handle the case where the end of the range is at midnight -
@@ -1380,11 +1361,11 @@ public final class ProjectCalendar extends ProjectCalendarWeek
       long total = 0;
       if (start != null && end != null)
       {
-         Date startTime = DateUtility.getCanonicalTime(start);
-         Date endTime = DateUtility.getCanonicalTime(end);
+         Date startTime = DateHelper.getCanonicalTime(start);
+         Date endTime = DateHelper.getCanonicalTime(end);
 
-         Date startDay = DateUtility.getDayStartDate(start);
-         Date finishDay = DateUtility.getDayStartDate(end);
+         Date startDay = DateHelper.getDayStartDate(start);
+         Date finishDay = DateHelper.getDayStartDate(end);
 
          //
          // Handle the case where the end of the range is at midnight -
@@ -1398,7 +1379,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             endTime = calendar.getTime();
          }
 
-         int diff = DateUtility.compare(startTime, endTime, target);
+         int diff = DateHelper.compare(startTime, endTime, target);
          if (diff == 0)
          {
             if (after == true)
@@ -1435,11 +1416,11 @@ public final class ProjectCalendar extends ProjectCalendarWeek
       long total = 0;
       if (start != null && end != null)
       {
-         Date startTime = DateUtility.getCanonicalTime(start);
-         Date endTime = DateUtility.getCanonicalTime(end);
+         Date startTime = DateHelper.getCanonicalTime(start);
+         Date endTime = DateHelper.getCanonicalTime(end);
 
-         Date startDay = DateUtility.getDayStartDate(start);
-         Date finishDay = DateUtility.getDayStartDate(end);
+         Date startDay = DateHelper.getDayStartDate(start);
+         Date finishDay = DateHelper.getDayStartDate(end);
 
          //
          // Handle the case where the end of the range is at midnight -
@@ -1634,6 +1615,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
             {
                break;
             }
+
             if (resourceHours.getRangeCount() > resourceIndex)
             {
                range2 = resourceHours.getRange(resourceIndex);
@@ -1670,7 +1652,7 @@ public final class ProjectCalendar extends ProjectCalendarWeek
                resourceIndex++;
             }
 
-            if (end.compareTo(start) > 0)
+            if (end != null && end.compareTo(start) > 0)
             {
                // Found a block
                hours.addRange(new DateRange(start, end));

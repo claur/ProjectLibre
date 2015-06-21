@@ -34,16 +34,16 @@ import java.util.UUID;
 
 import net.sf.mpxj.CurrencySymbolPosition;
 import net.sf.mpxj.Duration;
-import net.sf.mpxj.ProjectFile;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.TimeUnit;
-import net.sf.mpxj.utility.DateUtility;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.DateHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This class provides common functionality used by each of the classes
  * that read the different sections of the MPP file.
  */
-final class MPPUtility
+public final class MPPUtility
 {
    /**
     * Private constructor to prevent instantiation.
@@ -120,7 +120,7 @@ final class MPPUtility
       {
          MPPUtility.decodeBuffer(data, encryptionCode);
 
-         StringBuffer buffer = new StringBuffer();
+         StringBuilder buffer = new StringBuilder();
          char c;
 
          for (int i = 0; i < PASSWORD_MASK.length; i++)
@@ -170,18 +170,6 @@ final class MPPUtility
    }
 
    /**
-    * This method reads a single byte from the input array.
-    * The byte is assumed to be at the start of the array.
-    *
-    * @param data byte array of data
-    * @return byte value
-    */
-   public static final int getByte(byte[] data)
-   {
-      return (getByte(data, 0));
-   }
-
-   /**
     * This method reads a two byte integer from the input array.
     *
     * @param data the input array
@@ -201,18 +189,6 @@ final class MPPUtility
    }
 
    /**
-    * This method reads a two byte integer from the input array.
-    * The integer is assumed to be at the start of the array.
-    *
-    * @param data the input array
-    * @return integer value
-    */
-   public static final int getShort(byte[] data)
-   {
-      return (getShort(data, 0));
-   }
-
-   /**
     * This method reads a four byte integer from the input array.
     *
     * @param data the input array
@@ -229,18 +205,6 @@ final class MPPUtility
          ++i;
       }
       return result;
-   }
-
-   /**
-    * This method reads a four byte integer from the input array.
-    * The integer is assumed to be at the start of the array.
-    *
-    * @param data the input array
-    * @return integer value
-    */
-   public static final int getInt(byte[] data)
-   {
-      return (getInt(data, 0));
    }
 
    /**
@@ -282,30 +246,6 @@ final class MPPUtility
    }
 
    /**
-    * This method reads a six byte long from the input array.
-    * The integer is assumed to be at the start of the array.
-    *
-    * @param data the input array
-    * @return integer value
-    */
-   public static final long getLong6(byte[] data)
-   {
-      return (getLong6(data, 0));
-   }
-
-   /**
-    * This method reads a eight byte integer from the input array.
-    * The integer is assumed to be at the start of the array.
-    *
-    * @param data the input array
-    * @return integer value
-    */
-   public static final long getLong(byte[] data)
-   {
-      return (getLong(data, 0));
-   }
-
-   /**
     * This method reads an eight byte double from the input array.
     *
     * @param data the input array
@@ -314,19 +254,12 @@ final class MPPUtility
     */
    public static final double getDouble(byte[] data, int offset)
    {
-      return (Double.longBitsToDouble(getLong(data, offset)));
-   }
-
-   /**
-    * This method reads an eight byte double from the input array.
-    * The double is assumed to be at the start of the array.
-    *
-    * @param data the input array
-    * @return double value
-    */
-   public static final double getDouble(byte[] data)
-   {
-      return (Double.longBitsToDouble(getLong(data, 0)));
+      double result = Double.longBitsToDouble(getLong(data, offset));
+      if (Double.isNaN(result))
+      {
+         result = 0;
+      }
+      return result;
    }
 
    /**
@@ -386,7 +319,7 @@ final class MPPUtility
       }
       else
       {
-         result = DateUtility.getDateFromLong(EPOCH + (days * MS_PER_DAY));
+         result = DateHelper.getDateFromLong(EPOCH + (days * MS_PER_DAY));
       }
 
       return (result);
@@ -410,18 +343,6 @@ final class MPPUtility
       cal.set(Calendar.SECOND, 0);
       cal.set(Calendar.MILLISECOND, 0);
       return (cal.getTime());
-   }
-
-   /**
-    * Reads a time value. The time is represented as tenths of a
-    * minute since midnight.
-    *
-    * @param data byte array of data
-    * @return time value
-    */
-   public static final Date getTime(byte[] data)
-   {
-      return (getTime(data, 0));
    }
 
    /**
@@ -461,7 +382,7 @@ final class MPPUtility
          {
             time = 0;
          }
-         result = DateUtility.getTimestampFromLong((EPOCH + (days * MS_PER_DAY) + ((time * MS_PER_MINUTE) / 10)));
+         result = DateHelper.getTimestampFromLong((EPOCH + (days * MS_PER_DAY) + ((time * MS_PER_MINUTE) / 10)));
       }
 
       return (result);
@@ -477,33 +398,7 @@ final class MPPUtility
    public static final Date getTimestampFromTenths(byte[] data, int offset)
    {
       long ms = ((long) getInt(data, offset)) * 6000;
-      return (DateUtility.getTimestampFromLong(EPOCH + ms));
-   }
-
-   /**
-    * Reads a combined date and time value.
-    * The value is assumed to be at the start of the array.
-    *
-    * @param data byte array of data
-    * @return time value
-    */
-   public static final Date getTimestamp(byte[] data)
-   {
-      return (getTimestamp(data, 0));
-   }
-
-   /**
-    * Reads a string of two byte characters from the input array.
-    * This method assumes that the string finishes either at the
-    * end of the array, or when char zero is encountered.
-    * The value is assumed to be at the start of the array.
-    *
-    * @param data byte array of data
-    * @return string value
-    */
-   public static final String getUnicodeString(byte[] data)
-   {
-      return (getUnicodeString(data, 0));
+      return (DateHelper.getTimestampFromLong(EPOCH + ms));
    }
 
    /**
@@ -519,21 +414,23 @@ final class MPPUtility
     */
    public static final String getUnicodeString(byte[] data, int offset)
    {
-      StringBuffer buffer = new StringBuffer();
-      char c;
-
-      for (int loop = offset; loop < (data.length - 1); loop += 2)
+      StringBuilder buffer = new StringBuilder();
+      if (data != null)
       {
-         c = (char) getShort(data, loop);
+         char c;
 
-         if (c == 0)
+         for (int loop = offset; loop < (data.length - 1); loop += 2)
          {
-            break;
+            c = (char) getShort(data, loop);
+
+            if (c == 0)
+            {
+               break;
+            }
+
+            buffer.append(c);
          }
-
-         buffer.append(c);
       }
-
       return (buffer.toString());
    }
 
@@ -552,7 +449,7 @@ final class MPPUtility
     */
    public static final String getUnicodeString(byte[] data, int offset, int length)
    {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       char c;
       int loop = offset;
       int byteLength = 0;
@@ -579,20 +476,6 @@ final class MPPUtility
     * Reads a string of single byte characters from the input array.
     * This method assumes that the string finishes either at the
     * end of the array, or when char zero is encountered.
-    * The value is assumed to be at the start of the array.
-    *
-    * @param data byte array of data
-    * @return string value
-    */
-   public static final String getString(byte[] data)
-   {
-      return (getString(data, 0));
-   }
-
-   /**
-    * Reads a string of single byte characters from the input array.
-    * This method assumes that the string finishes either at the
-    * end of the array, or when char zero is encountered.
     * Reading begins at the supplied offset into the array.
     *
     * @param data byte array of data
@@ -601,7 +484,7 @@ final class MPPUtility
     */
    public static final String getString(byte[] data, int offset)
    {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       char c;
 
       for (int loop = 0; offset + loop < data.length; loop++)
@@ -670,57 +553,57 @@ final class MPPUtility
       // Value is given in 1/10 of minute
       switch (type)
       {
-         case MINUTES :
-         case ELAPSED_MINUTES :
+         case MINUTES:
+         case ELAPSED_MINUTES:
          {
             duration = value / 10;
             break;
          }
 
-         case HOURS :
-         case ELAPSED_HOURS :
+         case HOURS:
+         case ELAPSED_HOURS:
          {
             duration = value / 600; // 60 * 10
             break;
          }
 
-         case DAYS :
+         case DAYS:
          {
             duration = value / 4800; // 8 * 60 * 10
             break;
          }
 
-         case ELAPSED_DAYS :
+         case ELAPSED_DAYS:
          {
             duration = value / 14400; // 24 * 60 * 10
             break;
          }
 
-         case WEEKS :
+         case WEEKS:
          {
             duration = value / 24000; // 5 * 8 * 60 * 10
             break;
          }
 
-         case ELAPSED_WEEKS :
+         case ELAPSED_WEEKS:
          {
             duration = value / 100800; // 7 * 24 * 60 * 10
             break;
          }
 
-         case MONTHS :
+         case MONTHS:
          {
             duration = value / 96000; // 
             break;
          }
 
-         case ELAPSED_MONTHS :
+         case ELAPSED_MONTHS:
          {
             duration = value / 432000; // 30 * 24 * 60 * 10
             break;
          }
 
-         default :
+         default:
          {
             duration = value;
             break;
@@ -740,73 +623,97 @@ final class MPPUtility
     */
    public static final TimeUnit getDurationTimeUnits(int type)
    {
+      return getDurationTimeUnits(type, null);
+   }
+
+   /**
+    * This method converts between the duration units representation
+    * used in the MPP file, and the standard MPX duration units.
+    * If the supplied units are unrecognised, the units default to days.
+    *
+    * @param type MPP units
+    * @param projectDefaultDurationUnits default duration units for this project
+    * @return MPX units
+    */
+   public static final TimeUnit getDurationTimeUnits(int type, TimeUnit projectDefaultDurationUnits)
+   {
       TimeUnit units;
 
       switch (type & DURATION_UNITS_MASK)
       {
-         case 3 :
+         case 3:
          {
             units = TimeUnit.MINUTES;
             break;
          }
 
-         case 4 :
+         case 4:
          {
             units = TimeUnit.ELAPSED_MINUTES;
             break;
          }
 
-         case 5 :
+         case 5:
          {
             units = TimeUnit.HOURS;
             break;
          }
 
-         case 6 :
+         case 6:
          {
             units = TimeUnit.ELAPSED_HOURS;
             break;
          }
 
-         case 8 :
+         case 8:
          {
             units = TimeUnit.ELAPSED_DAYS;
             break;
          }
 
-         case 9 :
+         case 9:
          {
             units = TimeUnit.WEEKS;
             break;
          }
 
-         case 10 :
+         case 10:
          {
             units = TimeUnit.ELAPSED_WEEKS;
             break;
          }
 
-         case 11 :
+         case 11:
          {
             units = TimeUnit.MONTHS;
             break;
          }
 
-         case 12 :
+         case 12:
          {
             units = TimeUnit.ELAPSED_MONTHS;
             break;
          }
 
-         case 19 :
+         case 19:
          {
             units = TimeUnit.PERCENT;
             break;
          }
 
-         default :
-         case 7 :
-         case 21 : // duration in days of a recurring task
+         case 7:
+         {
+            units = TimeUnit.DAYS;
+            break;
+         }
+
+         case 21:
+         {
+            units = projectDefaultDurationUnits == null ? TimeUnit.DAYS : projectDefaultDurationUnits;
+            break;
+         }
+
+         default:
          {
             units = TimeUnit.DAYS;
             break;
@@ -822,12 +729,12 @@ final class MPPUtility
     * duration. This instance has been adjusted to take into account the
     * number of "hours per day" specified for the current project.
     *
-    * @param file parent file
+    * @param properties project properties
     * @param duration duration length
     * @param timeUnit duration units
     * @return Duration instance
     */
-   public static Duration getAdjustedDuration(ProjectFile file, int duration, TimeUnit timeUnit)
+   public static Duration getAdjustedDuration(ProjectProperties properties, int duration, TimeUnit timeUnit)
    {
       Duration result = null;
 
@@ -835,9 +742,9 @@ final class MPPUtility
       {
          switch (timeUnit)
          {
-            case DAYS :
+            case DAYS:
             {
-               double unitsPerDay = file.getProjectHeader().getMinutesPerDay().doubleValue() * 10d;
+               double unitsPerDay = properties.getMinutesPerDay().doubleValue() * 10d;
                double totalDays = 0;
                if (unitsPerDay != 0)
                {
@@ -847,7 +754,7 @@ final class MPPUtility
                break;
             }
 
-            case ELAPSED_DAYS :
+            case ELAPSED_DAYS:
             {
                double unitsPerDay = 24d * 600d;
                double totalDays = duration / unitsPerDay;
@@ -855,9 +762,9 @@ final class MPPUtility
                break;
             }
 
-            case WEEKS :
+            case WEEKS:
             {
-               double unitsPerWeek = file.getProjectHeader().getMinutesPerWeek().doubleValue() * 10d;
+               double unitsPerWeek = properties.getMinutesPerWeek().doubleValue() * 10d;
                double totalWeeks = 0;
                if (unitsPerWeek != 0)
                {
@@ -867,7 +774,7 @@ final class MPPUtility
                break;
             }
 
-            case ELAPSED_WEEKS :
+            case ELAPSED_WEEKS:
             {
                double unitsPerWeek = (60 * 24 * 7 * 10);
                double totalWeeks = duration / unitsPerWeek;
@@ -875,9 +782,9 @@ final class MPPUtility
                break;
             }
 
-            case MONTHS :
+            case MONTHS:
             {
-               double unitsPerMonth = file.getProjectHeader().getMinutesPerDay().doubleValue() * file.getProjectHeader().getDaysPerMonth().doubleValue() * 10d;
+               double unitsPerMonth = properties.getMinutesPerDay().doubleValue() * properties.getDaysPerMonth().doubleValue() * 10d;
                double totalMonths = 0;
                if (unitsPerMonth != 0)
                {
@@ -887,7 +794,7 @@ final class MPPUtility
                break;
             }
 
-            case ELAPSED_MONTHS :
+            case ELAPSED_MONTHS:
             {
                double unitsPerMonth = (60 * 24 * 30 * 10);
                double totalMonths = duration / unitsPerMonth;
@@ -895,7 +802,7 @@ final class MPPUtility
                break;
             }
 
-            default :
+            default:
             {
                result = getDuration(duration, timeUnit);
                break;
@@ -931,26 +838,26 @@ final class MPPUtility
 
       switch (value)
       {
-         case 1 :
+         case 1:
          {
             result = CurrencySymbolPosition.AFTER;
             break;
          }
 
-         case 2 :
+         case 2:
          {
             result = CurrencySymbolPosition.BEFORE_WITH_SPACE;
             break;
          }
 
-         case 3 :
+         case 3:
          {
             result = CurrencySymbolPosition.AFTER_WITH_SPACE;
             break;
          }
 
-         case 0 :
-         default :
+         case 0:
+         default:
          {
             result = CurrencySymbolPosition.BEFORE;
             break;
@@ -972,7 +879,7 @@ final class MPPUtility
       {
          if (name.indexOf('&') != -1)
          {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             int index = 0;
             char c;
 
@@ -1006,7 +913,7 @@ final class MPPUtility
       Double result = null;
       if (value >= 0 && value <= 100)
       {
-         result = NumberUtility.getDouble(value);
+         result = NumberHelper.getDouble(value);
       }
       return result;
    }
@@ -1039,7 +946,7 @@ final class MPPUtility
     */
    public static final String hexdump(byte[] buffer, int offset, int length, boolean ascii)
    {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
 
       if (buffer != null)
       {
@@ -1109,7 +1016,7 @@ final class MPPUtility
     */
    public static final String hexdump(byte[] buffer, boolean ascii, int columns, String prefix)
    {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       if (buffer != null)
       {
          int index = 0;
@@ -1150,7 +1057,7 @@ final class MPPUtility
     */
    public static final String hexdump(byte[] buffer, int offset, int length, boolean ascii, int columns, String prefix)
    {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       if (buffer != null)
       {
          int index = offset;
@@ -1246,7 +1153,7 @@ final class MPPUtility
    /**
     * Dump out all the possible variables within the given data block.
     *
-    * @param file current project file
+    * @param properties project properties
     * @param data data to dump from
     * @param dumpShort true to dump all the data as shorts
     * @param dumpInt true to dump all the data as ints
@@ -1257,7 +1164,7 @@ final class MPPUtility
     * @param dumpTime true to dump all the data as Dates (time)
     * @param dumpAdjustedDuration true to dump all data as adjusted durations
     */
-   public static final void dataDump(ProjectFile file, byte[] data, boolean dumpShort, boolean dumpInt, boolean dumpDouble, boolean dumpTimeStamp, boolean dumpDuration, boolean dumpDate, boolean dumpTime, boolean dumpAdjustedDuration)
+   public static final void dataDump(ProjectProperties properties, byte[] data, boolean dumpShort, boolean dumpInt, boolean dumpDouble, boolean dumpTimeStamp, boolean dumpDuration, boolean dumpDate, boolean dumpTime, boolean dumpAdjustedDuration)
    {
       System.out.println("DATA");
 
@@ -1350,10 +1257,7 @@ final class MPPUtility
                try
                {
                   Date d = MPPUtility.getTime(data, i);
-                  if (d != null)
-                  {
-                     System.out.println(i + ":" + d.toString());
-                  }
+                  System.out.println(i + ":" + d.toString());
                }
                catch (Exception ex)
                {
@@ -1364,7 +1268,7 @@ final class MPPUtility
             {
                try
                {
-                  System.out.println(i + ":" + MPPUtility.getAdjustedDuration(file, MPPUtility.getInt(data, i), TimeUnit.DAYS));
+                  System.out.println(i + ":" + MPPUtility.getAdjustedDuration(properties, MPPUtility.getInt(data, i), TimeUnit.DAYS));
                }
                catch (Exception ex)
                {
@@ -1519,7 +1423,7 @@ final class MPPUtility
    /**
     * Epoch Date as a Date instance.
     */
-   private static Date EPOCH_DATE = DateUtility.getTimestampFromLong(EPOCH);
+   private static Date EPOCH_DATE = DateHelper.getTimestampFromLong(EPOCH);
 
    /**
     * Number of milliseconds per day.

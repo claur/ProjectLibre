@@ -25,6 +25,7 @@ package net.sf.mpxj.sample;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Properties;
 
 import net.sf.mpxj.ProjectFile;
 import net.sf.mpxj.primavera.PrimaveraDatabaseReader;
@@ -74,20 +75,46 @@ public final class PrimaveraConvert
     *
     * @param driverClass JDBC driver class name
     * @param connectionString JDBC connection string
-    * @param projectID projet ID
+    * @param projectID project ID
     * @param outputFile output file
     * @throws Exception
     */
    public void process(String driverClass, String connectionString, String projectID, String outputFile) throws Exception
    {
       System.out.println("Reading Primavera database started.");
-      long start = System.currentTimeMillis();
 
       Class.forName(driverClass);
-      Connection c = DriverManager.getConnection(connectionString);
+      Properties props = new Properties();
+
+      //
+      // This is not a very robust way to detect that we're working with SQLlite...
+      // If you are trying to grab data from
+      // a standalone P6 using SQLite, the SQLite JDBC driver needs this property
+      // in order to correctly parse timestamps.
+      //
+      if (driverClass.equals("org.sqlite.JDBC"))
+      {
+         props.setProperty("date_string_format", "yyyy-MM-dd HH:mm:ss");
+      }
+
+      Connection c = DriverManager.getConnection(connectionString, props);
       PrimaveraDatabaseReader reader = new PrimaveraDatabaseReader();
       reader.setConnection(c);
-      reader.setProjectID(Integer.valueOf(projectID).intValue());
+
+      processProject(reader, Integer.parseInt(projectID), outputFile);
+   }
+
+   /**
+    * Process a single project.
+    * 
+    * @param reader Primavera reader
+    * @param projectID required project ID
+    * @param outputFile output file name
+    */
+   private void processProject(PrimaveraDatabaseReader reader, int projectID, String outputFile) throws Exception
+   {
+      long start = System.currentTimeMillis();
+      reader.setProjectID(projectID);
       ProjectFile projectFile = reader.read();
       long elapsed = System.currentTimeMillis() - start;
       System.out.println("Reading database completed in " + elapsed + "ms.");

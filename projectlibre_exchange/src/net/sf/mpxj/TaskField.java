@@ -152,7 +152,7 @@ public enum TaskField implements FieldType
    COST1(DataType.CURRENCY),
    COST2(DataType.CURRENCY),
    COST3(DataType.CURRENCY),
-   HIDEBAR(DataType.BOOLEAN),
+   HIDE_BAR(DataType.BOOLEAN),
    CONFIRMED(DataType.BOOLEAN),
    UPDATE_NEEDED(DataType.BOOLEAN),
    CONTACT(DataType.STRING),
@@ -513,12 +513,12 @@ public enum TaskField implements FieldType
    SUMMARY_PROGRESS(DataType.DATE),
    GUID(DataType.GUID),
 
-   ACTIVE(DataType.STRING), // query data type   
-   TASK_MODE(DataType.STRING), // query data type
+   ACTIVE(DataType.BOOLEAN),
+   TASK_MODE(DataType.BOOLEAN),
 
    ASSIGNMENT_OWNER(DataType.STRING),
    BASELINE_BUDGET_COST(DataType.CURRENCY),
-   BASELINE_BUDGET_WORK(DataType.DURATION),
+   BASELINE_BUDGET_WORK(DataType.WORK),
    BASELINE_DELIVERABLE_FINISH(DataType.DATE),
    BASELINE_DELIVERABLE_START(DataType.DATE),
    BASELINE_ESTIMATED_DURATION(DataType.DURATION, BASELINE_DURATION_UNITS),
@@ -636,9 +636,9 @@ public enum TaskField implements FieldType
    DELIVERABLE_TYPE(DataType.STRING), // Check data type
 
    EAC(DataType.STRING), // Check data type
-   EARNED_VALUE_METHOD(DataType.STRING), // Check data type
+   EARNED_VALUE_METHOD(DataType.EARNED_VALUE_METHOD),
    ERROR_MESSAGE(DataType.STRING),
-   HIDE_BAR(DataType.BOOLEAN),
+
    IGNORE_WARNINGS(DataType.BOOLEAN),
    PEAK(DataType.STRING), // Check data type
    PHYSICAL_PERCENT_COMPLETE(DataType.SHORT),
@@ -969,6 +969,64 @@ public enum TaskField implements FieldType
    IS_FINISH_VALID(DataType.BOOLEAN),
    IS_DURATION_VALID(DataType.BOOLEAN),
 
+   PATH_DRIVEN_SUCCESSOR(DataType.BOOLEAN),
+   PATH_DRIVING_PREDECESSOR(DataType.BOOLEAN),
+   PATH_PREDECESSOR(DataType.BOOLEAN),
+   PATH_SUCCESSOR(DataType.BOOLEAN),
+
+   // KEEP THESE TOGETHER AND IN ORDER
+   ENTERPRISE_CUSTOM_FIELD1(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD2(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD3(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD4(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD5(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD6(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD7(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD8(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD9(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD10(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD11(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD12(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD13(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD14(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD15(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD16(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD17(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD18(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD19(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD20(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD21(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD22(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD23(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD24(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD25(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD26(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD27(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD28(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD29(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD30(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD31(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD32(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD33(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD34(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD35(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD36(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD37(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD38(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD39(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD40(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD41(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD42(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD43(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD44(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD45(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD46(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD47(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD48(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD49(DataType.BINARY),
+   ENTERPRISE_CUSTOM_FIELD50(DataType.BINARY),
+   // KEEP THESE TOGETHER AND IN ORDER
+
    FINISH(DataType.DATE); // Must always be last value
 
    /**
@@ -996,7 +1054,15 @@ public enum TaskField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public String getName()
+   @Override public FieldTypeClass getFieldTypeClass()
+   {
+      return FieldTypeClass.TASK;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override public String getName()
    {
       return (getName(Locale.ENGLISH));
    }
@@ -1004,7 +1070,7 @@ public enum TaskField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public String getName(Locale locale)
+   @Override public String getName(Locale locale)
    {
       String[] titles = LocaleData.getStringArray(locale, LocaleData.TASK_COLUMNS);
       String result = null;
@@ -1020,7 +1086,7 @@ public enum TaskField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -1028,7 +1094,7 @@ public enum TaskField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public DataType getDataType()
+   @Override public DataType getDataType()
    {
       return (m_dataType);
    }
@@ -1036,7 +1102,7 @@ public enum TaskField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public FieldType getUnitsType()
+   @Override public FieldType getUnitsType()
    {
       return m_unitsType;
    }

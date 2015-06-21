@@ -23,9 +23,8 @@
 
 package net.sf.mpxj;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.EnumHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This class represents the set of operators used to perform a test
@@ -110,7 +109,7 @@ public enum TestOperator implements MpxjEnum
 
          if (lhs == null)
          {
-            result = (lhs == getSingleOperand(rhs));
+            result = (getSingleOperand(rhs) == null);
          }
          else
          {
@@ -130,7 +129,7 @@ public enum TestOperator implements MpxjEnum
          boolean result;
          if (lhs == null)
          {
-            result = (lhs != getSingleOperand(rhs));
+            result = (getSingleOperand(rhs) != null);
          }
          else
          {
@@ -246,7 +245,7 @@ public enum TestOperator implements MpxjEnum
       }
       else
       {
-         value = NumberUtility.getInt(type);
+         value = NumberHelper.getInt(type);
       }
       return (getInstance(value));
    }
@@ -256,7 +255,7 @@ public enum TestOperator implements MpxjEnum
     *
     * @return int representation of the enum
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -297,7 +296,11 @@ public enum TestOperator implements MpxjEnum
     * @param rhs range operand
     * @return boolean result
     */
-   @SuppressWarnings("unchecked") protected boolean evaluateWithin(Object lhs, Object rhs)
+   @SuppressWarnings(
+   {
+      "unchecked",
+      "rawtypes"
+   }) protected boolean evaluateWithin(Object lhs, Object rhs)
    {
       boolean result = false;
 
@@ -330,7 +333,11 @@ public enum TestOperator implements MpxjEnum
     * @param rhs operand
     * @return boolean result
     */
-   @SuppressWarnings("unchecked") protected int evaluateCompareTo(Object lhs, Object rhs)
+   @SuppressWarnings(
+   {
+      "unchecked",
+      "rawtypes"
+   }) protected int evaluateCompareTo(Object lhs, Object rhs)
    {
       int result;
 
@@ -409,7 +416,7 @@ public enum TestOperator implements MpxjEnum
    /**
     * Array mapping int types to enums.
     */
-   private static final TestOperator[] TYPE_VALUES = EnumUtility.createTypeArray(TestOperator.class);
+   private static final TestOperator[] TYPE_VALUES = EnumHelper.createTypeArray(TestOperator.class);
 
    /**
     * Internal representation of the enum int type.

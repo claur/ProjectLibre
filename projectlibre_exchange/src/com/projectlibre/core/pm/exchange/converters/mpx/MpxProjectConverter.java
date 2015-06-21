@@ -47,7 +47,7 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj"  and ÒProjectLibreÓ logos visible to all users. 
+user interface screen the "OpenProj"  and ï¿½ProjectLibreï¿½ logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
 justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
@@ -68,15 +68,15 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj" and ÒProjectLibreÓ logos visible to all users. 
+user interface screen the "OpenProj" and ï¿½ProjectLibreï¿½ logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
-justified on the top left of the screen adjacent to the File menu. ÊThe logo must be 
+justified on the top left of the screen adjacent to the File menu. ï¿½The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
 package com.projectlibre.core.pm.exchange.converters.mpx;
 
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 
 import com.projectlibre.core.fields.FieldUtil;
 import com.projectlibre.pm.calendar.WorkCalendar;
@@ -96,12 +96,12 @@ public class MpxProjectConverter {
 		"statusDate", "statusDate", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",
 		"scheduleFrom","scheduleFrom", "com.projectlibre.core.pm.exchange.converters.mpx.type.MpxScheduleFromConverter",
 	};
-	public void from(ProjectHeader mpxProjectHeader, Project project, MpxImportState state) {
-		FieldUtil.convertFields(project, net.sf.mpxj.ProjectHeader.class, mpxProjectHeader, fieldsToConvert, true);
+	public void from(ProjectProperties mpxProjectHeader, Project project, MpxImportState state) {
+		FieldUtil.convertFields(project, net.sf.mpxj.ProjectProperties.class, mpxProjectHeader, fieldsToConvert, true);
 
 		WorkCalendar calendar=null;;
-		if (mpxProjectHeader.getCalendarName()!=null)
-			calendar=state.getMappedBaseCalendar(mpxProjectHeader.getCalendarName());
+		if (mpxProjectHeader.getDefaultCalendarName()!=null)
+			calendar=state.getMappedBaseCalendar(mpxProjectHeader.getDefaultCalendarName());
 		if (calendar==null) calendar=state.getCalendarManager().getStandardBaseCalendar();
 		project.setCalendar(calendar);
 	}

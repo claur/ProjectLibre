@@ -23,9 +23,8 @@
 
 package net.sf.mpxj;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.EnumHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This class represents the data type of an attribute.
@@ -57,7 +56,19 @@ public enum DataType implements MpxjEnum
    WORK_UNITS(22),
    WORKGROUP(23),
    GUID(24),
-   RATE_UNITS(25);
+   RATE_UNITS(25),
+   EARNED_VALUE_METHOD(26),
+   RESOURCE_REQUEST_TYPE(27),
+   CURRENCY_SYMBOL_POSITION(28),
+   CHAR(29),
+   DATE_ORDER(30),
+   PROJECT_TIME_FORMAT(31),
+   PROJECT_DATE_FORMAT(32),
+   SCHEDULE_FROM(33),
+   DAY(34),
+   MAP(35),
+   MPX_FILE_VERSION(36),
+   MPX_CODE_PAGE(37);
 
    /**
     * Private constructor.
@@ -99,7 +110,7 @@ public enum DataType implements MpxjEnum
       }
       else
       {
-         value = NumberUtility.getInt(type);
+         value = NumberHelper.getInt(type);
       }
       return (getInstance(value));
    }
@@ -109,7 +120,7 @@ public enum DataType implements MpxjEnum
     *
     * @return int representation of the enum
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -117,7 +128,7 @@ public enum DataType implements MpxjEnum
    /**
     * Array mapping int types to enums.
     */
-   private static final DataType[] TYPE_VALUES = EnumUtility.createTypeArray(DataType.class, 1);
+   private static final DataType[] TYPE_VALUES = EnumHelper.createTypeArray(DataType.class, 1);
 
    /**
     * Internal representation of the enum int type.

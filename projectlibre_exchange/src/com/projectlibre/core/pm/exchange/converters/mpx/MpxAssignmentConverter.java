@@ -83,10 +83,12 @@ import net.sf.mpxj.mspdi.schema.TimephasedDataType;
 import com.projectlibre.core.fields.FieldUtil;
 import com.projectlibre.core.nodes.NodeId;
 import com.projectlibre.core.time.DefaultTimephasedValues;
+import com.projectlibre.core.time.TimephasedType;
 import com.projectlibre.core.time.TimephasedValue;
 import com.projectlibre.core.time.WorkContour;
 import com.projectlibre.pm.resources.Resource;
 import com.projectlibre.pm.tasks.Assignment;
+import com.projectlibre.pm.tasks.SnapshotList;
 
 /**
  * @author Laurent Chretienneau
@@ -101,7 +103,8 @@ public class MpxAssignmentConverter {
 		"work", "work", "com.projectlibre.core.pm.exchange.converters.mpx.type.MpxDurationConverter",		
 	};
 
-	public void from(net.sf.mpxj.ResourceAssignment mpxAssignment, Assignment assignment, MpxImportState state) {
+	public void from(net.sf.mpxj.ResourceAssignment mpxAssignment, Assignment assignment, MpxImportState state, int snapshotId) {
+		System.out.println("MpxAssignmentConverter.from mpx start="+mpxAssignment.getStart()+" baseline1="+mpxAssignment.getBaselineStart());
 		Resource resource;
 		if (mpxAssignment.getResourceUniqueID().intValue() == Resource.UNASSIGNED_ID) 
 			resource=state.getResourcePool().getUnassignedResource();
@@ -111,7 +114,8 @@ public class MpxAssignmentConverter {
 		assignment.setResource(resource);
 		
 		//convert fields
-		FieldUtil.convertFields(assignment, net.sf.mpxj.ResourceAssignment.class, mpxAssignment, fieldsToConvert, true);
+		if (snapshotId<0 || snapshotId>=SnapshotList.BASELINE_COUNT)
+			FieldUtil.convertFields(assignment, net.sf.mpxj.ResourceAssignment.class, mpxAssignment, fieldsToConvert, true);
 
 		// timephased
 		List<TimephasedDataType> mpxRawTimephasedData = state.getMpxTimephasedMap().get(mpxAssignment);
@@ -120,10 +124,13 @@ public class MpxAssignmentConverter {
 			assignment.setTimephased(timephasedValues);
 			MpxTimephasedConverter converter=new MpxTimephasedConverter();
 			for (TimephasedDataType mpxTimephased : mpxRawTimephasedData){
-				TimephasedValue<?> timephased=converter.from(mpxTimephased, state);
-				if (timephased==null)
-					continue;
-				timephasedValues.addInterval(timephased);
+				int s=TimephasedType.getInstance(mpxTimephased.getType().intValue()).getSnapshotId();
+				if (s==snapshotId){
+					TimephasedValue<?> timephased=converter.from(mpxTimephased, state);
+					if (timephased==null)
+						continue;
+					timephasedValues.addInterval(timephased);
+				}
 			}
 		}
 		

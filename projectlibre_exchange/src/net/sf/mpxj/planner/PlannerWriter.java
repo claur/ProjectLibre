@@ -41,11 +41,12 @@ import net.sf.mpxj.ConstraintType;
 import net.sf.mpxj.DateRange;
 import net.sf.mpxj.Day;
 import net.sf.mpxj.Duration;
+import net.sf.mpxj.EventManager;
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectCalendarException;
 import net.sf.mpxj.ProjectCalendarHours;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Relation;
 import net.sf.mpxj.RelationType;
 import net.sf.mpxj.Resource;
@@ -53,6 +54,7 @@ import net.sf.mpxj.ResourceAssignment;
 import net.sf.mpxj.ResourceType;
 import net.sf.mpxj.Task;
 import net.sf.mpxj.TaskType;
+import net.sf.mpxj.common.DateHelper;
 import net.sf.mpxj.planner.schema.Allocation;
 import net.sf.mpxj.planner.schema.Allocations;
 import net.sf.mpxj.planner.schema.Calendars;
@@ -70,8 +72,6 @@ import net.sf.mpxj.planner.schema.Predecessors;
 import net.sf.mpxj.planner.schema.Project;
 import net.sf.mpxj.planner.schema.Resources;
 import net.sf.mpxj.planner.schema.Tasks;
-import net.sf.mpxj.utility.DateUtility;
-import net.sf.mpxj.utility.Sequence;
 import net.sf.mpxj.writer.AbstractProjectWriter;
 
 /**
@@ -83,11 +83,12 @@ public final class PlannerWriter extends AbstractProjectWriter
    /**
     * {@inheritDoc}
     */
-   public void write(ProjectFile projectFile, OutputStream stream) throws IOException
+   @Override public void write(ProjectFile projectFile, OutputStream stream) throws IOException
    {
       try
       {
          m_projectFile = projectFile;
+         m_eventManager = projectFile.getEventManager();
 
          if (CONTEXT == null)
          {
@@ -112,7 +113,7 @@ public final class PlannerWriter extends AbstractProjectWriter
          m_factory = new ObjectFactory();
          m_plannerProject = m_factory.createProject();
 
-         writeProjectHeader();
+         writeProjectProperties();
          writeCalendars();
          writeResources();
          writeTasks();
@@ -135,17 +136,17 @@ public final class PlannerWriter extends AbstractProjectWriter
    }
 
    /**
-    * This method writes project header data to a Planner file.
+    * This method writes project properties to a Planner file.
     */
-   private void writeProjectHeader()
+   private void writeProjectProperties()
    {
-      ProjectHeader mpxjHeader = m_projectFile.getProjectHeader();
+      ProjectProperties properties = m_projectFile.getProjectProperties();
 
-      m_plannerProject.setCompany(mpxjHeader.getCompany());
-      m_plannerProject.setManager(mpxjHeader.getManager());
-      m_plannerProject.setName(getString(mpxjHeader.getName()));
-      m_plannerProject.setProjectStart(getDateTime(mpxjHeader.getStartDate()));
-      m_plannerProject.setCalendar(getIntegerString(m_projectFile.getCalendar().getUniqueID()));
+      m_plannerProject.setCompany(properties.getCompany());
+      m_plannerProject.setManager(properties.getManager());
+      m_plannerProject.setName(getString(properties.getName()));
+      m_plannerProject.setProjectStart(getDateTime(properties.getStartDate()));
+      m_plannerProject.setCalendar(getIntegerString(m_projectFile.getDefaultCalendar().getUniqueID()));
       m_plannerProject.setMrprojectVersion("2");
    }
 
@@ -167,7 +168,7 @@ public final class PlannerWriter extends AbstractProjectWriter
       //
       // Process each calendar in turn
       //    
-      for (ProjectCalendar mpxjCalendar : m_projectFile.getBaseCalendars())
+      for (ProjectCalendar mpxjCalendar : m_projectFile.getCalendars())
       {
          net.sf.mpxj.planner.schema.Calendar plannerCalendar = m_factory.createCalendar();
          calendar.add(plannerCalendar);
@@ -268,7 +269,7 @@ public final class PlannerWriter extends AbstractProjectWriter
       List<net.sf.mpxj.planner.schema.Day> dayList = plannerDays.getDay();
       processExceptionDays(mpxjCalendar, dayList);
 
-      m_projectFile.fireCalendarWrittenEvent(mpxjCalendar);
+      m_eventManager.fireCalendarWrittenEvent(mpxjCalendar);
 
       //
       // Process any derived calendars
@@ -331,7 +332,7 @@ public final class PlannerWriter extends AbstractProjectWriter
       {
          Date rangeStartDay = mpxjCalendarException.getFromDate();
          Date rangeEndDay = mpxjCalendarException.getToDate();
-         if (DateUtility.getDayStartDate(rangeStartDay).getTime() == DateUtility.getDayEndDate(rangeEndDay).getTime())
+         if (DateHelper.getDayStartDate(rangeStartDay).getTime() == DateHelper.getDayEndDate(rangeEndDay).getTime())
          {
             //
             // Exception covers a single day
@@ -406,7 +407,8 @@ public final class PlannerWriter extends AbstractProjectWriter
       //plannerResource.setStdRate();
       //plannerResource.setOvtRate();      
       plannerResource.setUnits("0");
-      //plannerResource.setProperties();      
+      //plannerResource.setProperties();
+      m_eventManager.fireResourceWrittenEvent(mpxjResource);
    }
 
    /**
@@ -442,7 +444,7 @@ public final class PlannerWriter extends AbstractProjectWriter
       plannerTask.setPercentComplete(getIntegerString(mpxjTask.getPercentageWorkComplete()));
       plannerTask.setPriority(mpxjTask.getPriority() == null ? null : getIntegerString(mpxjTask.getPriority().getValue() * 10));
       plannerTask.setScheduling(getScheduling(mpxjTask.getType()));
-      plannerTask.setStart(getDateTimeString(DateUtility.getDayStartDate(mpxjTask.getStart())));
+      plannerTask.setStart(getDateTimeString(DateHelper.getDayStartDate(mpxjTask.getStart())));
       if (mpxjTask.getMilestone())
       {
          plannerTask.setType("milestone");
@@ -478,6 +480,8 @@ public final class PlannerWriter extends AbstractProjectWriter
       // Write predecessors
       //
       writePredecessors(mpxjTask, plannerTask);
+
+      m_eventManager.fireTaskWrittenEvent(mpxjTask);
 
       //
       // Write child tasks
@@ -521,7 +525,7 @@ public final class PlannerWriter extends AbstractProjectWriter
             plannerPredecessor.setLag(getDurationString(rel.getLag()));
             plannerPredecessor.setType(RELATIONSHIP_TYPES.get(rel.getType()));
             predecessorList.add(plannerPredecessor);
-            m_projectFile.fireRelationWrittenEvent(rel);
+            m_eventManager.fireRelationWrittenEvent(rel);
          }
       }
    }
@@ -545,7 +549,7 @@ public final class PlannerWriter extends AbstractProjectWriter
          plannerAllocation.setResourceId(getIntegerString(mpxjAssignment.getResourceUniqueID()));
          plannerAllocation.setUnits(getIntegerString(mpxjAssignment.getUnits()));
 
-         m_projectFile.fireAssignmentWrittenEvent(mpxjAssignment);
+         m_eventManager.fireAssignmentWrittenEvent(mpxjAssignment);
       }
    }
 
@@ -559,7 +563,7 @@ public final class PlannerWriter extends AbstractProjectWriter
     */
    private String getDateTime(Date value)
    {
-      StringBuffer result = new StringBuffer(16);
+      StringBuilder result = new StringBuilder(16);
 
       if (value != null)
       {
@@ -615,19 +619,19 @@ public final class PlannerWriter extends AbstractProjectWriter
 
       switch (mpxjCalendar.getWorkingDay(day))
       {
-         case WORKING :
+         case WORKING:
          {
             result = true;
             break;
          }
 
-         case NON_WORKING :
+         case NON_WORKING:
          {
             result = false;
             break;
          }
 
-         case DEFAULT :
+         case DEFAULT:
          {
             result = isWorkingDay(mpxjCalendar.getParent(), day);
             break;
@@ -651,19 +655,19 @@ public final class PlannerWriter extends AbstractProjectWriter
 
       switch (mpxjCalendar.getWorkingDay(day))
       {
-         case WORKING :
+         case WORKING:
          {
             result = "0";
             break;
          }
 
-         case NON_WORKING :
+         case NON_WORKING:
          {
             result = "1";
             break;
          }
 
-         case DEFAULT :
+         case DEFAULT:
          {
             result = "2";
             break;
@@ -688,7 +692,7 @@ public final class PlannerWriter extends AbstractProjectWriter
       int hours = cal.get(Calendar.HOUR_OF_DAY);
       int minutes = cal.get(Calendar.MINUTE);
 
-      StringBuffer sb = new StringBuffer(4);
+      StringBuilder sb = new StringBuilder(4);
       sb.append(m_twoDigitFormat.format(hours));
       sb.append(m_twoDigitFormat.format(minutes));
 
@@ -712,7 +716,7 @@ public final class PlannerWriter extends AbstractProjectWriter
       int month = cal.get(Calendar.MONTH) + 1;
       int day = cal.get(Calendar.DAY_OF_MONTH);
 
-      StringBuffer sb = new StringBuffer(8);
+      StringBuilder sb = new StringBuilder(8);
       sb.append(m_fourDigitFormat.format(year));
       sb.append(m_twoDigitFormat.format(month));
       sb.append(m_twoDigitFormat.format(day));
@@ -735,7 +739,7 @@ public final class PlannerWriter extends AbstractProjectWriter
       {
          Calendar cal = Calendar.getInstance();
          cal.setTime(value);
-         StringBuffer sb = new StringBuffer(16);
+         StringBuilder sb = new StringBuilder(16);
          sb.append(m_fourDigitFormat.format(cal.get(Calendar.YEAR)));
          sb.append(m_twoDigitFormat.format(cal.get(Calendar.MONTH) + 1));
          sb.append(m_twoDigitFormat.format(cal.get(Calendar.DAY_OF_MONTH)));
@@ -770,75 +774,75 @@ public final class PlannerWriter extends AbstractProjectWriter
 
          switch (value.getUnits())
          {
-            case MINUTES :
-            case ELAPSED_MINUTES :
+            case MINUTES:
+            case ELAPSED_MINUTES:
             {
                seconds = value.getDuration() * 60;
                break;
             }
 
-            case HOURS :
-            case ELAPSED_HOURS :
+            case HOURS:
+            case ELAPSED_HOURS:
             {
                seconds = value.getDuration() * (60 * 60);
                break;
             }
 
-            case DAYS :
+            case DAYS:
             {
-               double minutesPerDay = m_projectFile.getProjectHeader().getMinutesPerDay().doubleValue();
+               double minutesPerDay = m_projectFile.getProjectProperties().getMinutesPerDay().doubleValue();
                seconds = value.getDuration() * (minutesPerDay * 60);
                break;
             }
 
-            case ELAPSED_DAYS :
+            case ELAPSED_DAYS:
             {
                seconds = value.getDuration() * (24 * 60 * 60);
                break;
             }
 
-            case WEEKS :
+            case WEEKS:
             {
-               double minutesPerWeek = m_projectFile.getProjectHeader().getMinutesPerWeek().doubleValue();
+               double minutesPerWeek = m_projectFile.getProjectProperties().getMinutesPerWeek().doubleValue();
                seconds = value.getDuration() * (minutesPerWeek * 60);
                break;
             }
 
-            case ELAPSED_WEEKS :
+            case ELAPSED_WEEKS:
             {
                seconds = value.getDuration() * (7 * 24 * 60 * 60);
                break;
             }
 
-            case MONTHS :
+            case MONTHS:
             {
-               double minutesPerDay = m_projectFile.getProjectHeader().getMinutesPerDay().doubleValue();
-               double daysPerMonth = m_projectFile.getProjectHeader().getDaysPerMonth().doubleValue();
+               double minutesPerDay = m_projectFile.getProjectProperties().getMinutesPerDay().doubleValue();
+               double daysPerMonth = m_projectFile.getProjectProperties().getDaysPerMonth().doubleValue();
                seconds = value.getDuration() * (daysPerMonth * minutesPerDay * 60);
                break;
             }
 
-            case ELAPSED_MONTHS :
+            case ELAPSED_MONTHS:
             {
                seconds = value.getDuration() * (30 * 24 * 60 * 60);
                break;
             }
 
-            case YEARS :
+            case YEARS:
             {
-               double minutesPerDay = m_projectFile.getProjectHeader().getMinutesPerDay().doubleValue();
-               double daysPerMonth = m_projectFile.getProjectHeader().getDaysPerMonth().doubleValue();
+               double minutesPerDay = m_projectFile.getProjectProperties().getMinutesPerDay().doubleValue();
+               double daysPerMonth = m_projectFile.getProjectProperties().getDaysPerMonth().doubleValue();
                seconds = value.getDuration() * (12 * daysPerMonth * minutesPerDay * 60);
                break;
             }
 
-            case ELAPSED_YEARS :
+            case ELAPSED_YEARS:
             {
                seconds = value.getDuration() * (365 * 24 * 60 * 60);
                break;
             }
 
-            default :
+            default:
             {
                break;
             }
@@ -901,6 +905,7 @@ public final class PlannerWriter extends AbstractProjectWriter
 
    private String m_encoding;
    private ProjectFile m_projectFile;
+   private EventManager m_eventManager;
    private ObjectFactory m_factory;
    private Project m_plannerProject;
 

@@ -29,7 +29,7 @@ import net.sf.mpxj.FieldType;
 import net.sf.mpxj.Group;
 import net.sf.mpxj.GroupClause;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.utility.FieldTypeUtility;
+import net.sf.mpxj.common.FieldTypeHelper;
 
 /**
  * This class allows filter definitions to be read from an MPP file.
@@ -82,7 +82,7 @@ public abstract class GroupReader
          boolean showSummaryTasks = (MPPUtility.getShort(groupVarData, 4) != 0);
 
          Group group = new Group(groupID, groupName, showSummaryTasks);
-         file.addGroup(group);
+         file.getGroups().add(group);
 
          int clauseCount = MPPUtility.getShort(groupVarData, 6);
          int offset = 8;
@@ -98,7 +98,7 @@ public abstract class GroupReader
             group.addGroupClause(clause);
 
             int fieldID = MPPUtility.getInt(groupVarData, offset);
-            FieldType type = FieldTypeUtility.getInstance(fieldID);
+            FieldType type = FieldTypeHelper.getInstance(fieldID);
             clause.setField(type);
 
             // from byte 0 2 byte short int - field type
@@ -139,45 +139,43 @@ public abstract class GroupReader
             Object startAt = null;
             Object groupInterval = null;
 
-            if (type != null)
+            switch (type.getDataType())
             {
-               switch (type.getDataType())
+               case DURATION:
+               case NUMERIC:
+               case CURRENCY:
                {
-                  case DURATION :
-                  case NUMERIC :
-                  case CURRENCY :
-                  {
-                     startAt = Double.valueOf(MPPUtility.getDouble(groupVarData, offset + 24));
-                     groupInterval = Double.valueOf(MPPUtility.getDouble(groupVarData, offset + 40));
-                     break;
-                  }
+                  startAt = Double.valueOf(MPPUtility.getDouble(groupVarData, offset + 24));
+                  groupInterval = Double.valueOf(MPPUtility.getDouble(groupVarData, offset + 40));
+                  break;
+               }
 
-                  case PERCENTAGE :
-                  {
-                     startAt = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 24));
-                     groupInterval = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 40));
-                     break;
-                  }
+               case PERCENTAGE:
+               {
+                  startAt = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 24));
+                  groupInterval = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 40));
+                  break;
+               }
 
-                  case BOOLEAN :
-                  {
-                     startAt = (MPPUtility.getShort(groupVarData, offset + 24) == 1 ? Boolean.TRUE : Boolean.FALSE);
-                     break;
-                  }
+               case BOOLEAN:
+               {
+                  startAt = (MPPUtility.getShort(groupVarData, offset + 24) == 1 ? Boolean.TRUE : Boolean.FALSE);
+                  break;
+               }
 
-                  case DATE :
-                  {
-                     startAt = MPPUtility.getTimestamp(groupVarData, offset + 24);
-                     groupInterval = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 40));
-                     break;
-                  }
+               case DATE:
+               {
+                  startAt = MPPUtility.getTimestamp(groupVarData, offset + 24);
+                  groupInterval = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 40));
+                  break;
+               }
 
-                  default :
-                  {
-                     break;
-                  }
+               default:
+               {
+                  break;
                }
             }
+
             clause.setStartAt(startAt);
             clause.setGroupInterval(groupInterval);
 

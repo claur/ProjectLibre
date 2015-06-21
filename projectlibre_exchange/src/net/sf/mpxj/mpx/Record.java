@@ -41,8 +41,7 @@ import net.sf.mpxj.ProjectTimeFormat;
 import net.sf.mpxj.Rate;
 import net.sf.mpxj.ScheduleFrom;
 import net.sf.mpxj.TimeUnit;
-import net.sf.mpxj.utility.MPXJFormats;
-import net.sf.mpxj.utility.Tokenizer;
+import net.sf.mpxj.common.Tokenizer;
 
 /**
  * This class is used to represent a record in an MPX file.
@@ -319,7 +318,7 @@ final class Record
 
       if ((field < m_fields.length) && (m_fields[field].length() != 0))
       {
-         result = Integer.parseInt(m_fields[field]) == 1 ? true : false;
+         result = Integer.parseInt(m_fields[field]) == 1;
       }
 
       return (result);

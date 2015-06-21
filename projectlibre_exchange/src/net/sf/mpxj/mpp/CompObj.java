@@ -23,8 +23,10 @@
 
 package net.sf.mpxj.mpp;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class handles reading the data found in the CompObj block
@@ -48,8 +50,13 @@ final class CompObj extends MPPComponent
 
       length = readInt(is);
       m_applicationName = new String(readByteArray(is, length), 0, length - 1);
+      Matcher matcher = PATTERN.matcher(m_applicationName);
+      if (matcher.matches())
+      {
+         m_applicationVersion = Integer.valueOf(matcher.group(1));
+      }
 
-      if (m_applicationName != null && m_applicationName.equals("Microsoft Project 4.0") == true)
+      if (m_applicationName.equals("Microsoft Project 4.0"))
       {
          m_fileFormat = "MSProject.MPP4";
          m_applicationID = "MSProject.Project.4";
@@ -77,6 +84,16 @@ final class CompObj extends MPPComponent
    }
 
    /**
+    * Accessor method to retrieve the application version.
+    *
+    * @return application version
+    */
+   public Integer getApplicationVersion()
+   {
+      return (m_applicationVersion);
+   }
+
+   /**
     * Accessor method to retrieve the application ID.
     *
     * @return Application ID
@@ -97,9 +114,22 @@ final class CompObj extends MPPComponent
    }
 
    /**
+    * {@inheritDoc}
+    */
+   @Override public String toString()
+   {
+      return ("[CompObj applicationName=" + m_applicationName + " applicationID=" + m_applicationID + " fileFormat=" + m_fileFormat);
+   }
+
+   /**
     * Application name.
     */
    private String m_applicationName;
+
+   /**
+    * Application version.
+    */
+   private Integer m_applicationVersion;
 
    /**
     * Application identifier.
@@ -110,4 +140,6 @@ final class CompObj extends MPPComponent
     * File format.
     */
    private String m_fileFormat;
+
+   private static final Pattern PATTERN = Pattern.compile("Microsoft.Project.(\\d+)\\.0");
 }

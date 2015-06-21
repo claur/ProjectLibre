@@ -82,6 +82,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import net.sf.mpxj.Duration;
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectFile;
 import net.sf.mpxj.Relation;
@@ -100,6 +101,9 @@ import com.projectlibre.core.pm.exchange.converters.mpx.MpxOptionsConverter;
 import com.projectlibre.core.pm.exchange.converters.mpx.MpxProjectConverter;
 import com.projectlibre.core.pm.exchange.converters.mpx.MpxResourceConverter;
 import com.projectlibre.core.pm.exchange.converters.mpx.MpxTaskConverter;
+import com.projectlibre.core.pm.exchange.converters.mpx.type.MpxDurationConverter;
+import com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter;
+import com.projectlibre.core.pm.exchange.converters.type.PercentNumberRatioDoubleConverter;
 import com.projectlibre.pm.calendar.DefaultWorkCalendar;
 import com.projectlibre.pm.calendar.DuplicateCalendarException;
 import com.projectlibre.pm.calendar.WorkCalendar;
@@ -108,7 +112,9 @@ import com.projectlibre.pm.resources.ResourcePool;
 import com.projectlibre.pm.tasks.Assignment;
 import com.projectlibre.pm.tasks.Dependency;
 import com.projectlibre.pm.tasks.Project;
+import com.projectlibre.pm.tasks.SnapshotList;
 import com.projectlibre.pm.tasks.Task;
+import com.projectlibre.pm.tasks.TaskSnapshot;
 
 /**
  * @author Laurent Chretienneau
@@ -192,12 +198,12 @@ public class MspImporter {
 	
 	protected void importOptions(Project project) {
 		MpxOptionsConverter converter=new MpxOptionsConverter();
-		converter.from(mpxProjectFile.getProjectHeader(),project.getCalendarOptions(), state);
+		converter.from(mpxProjectFile.getProjectProperties(),project.getCalendarOptions(), state);
 	}
 	
 	protected void importProjectHeader(Project project) {
 		MpxProjectConverter converter=new MpxProjectConverter();
-		converter.from(mpxProjectFile.getProjectHeader(), project, state);
+		converter.from(mpxProjectFile.getProjectProperties(), project, state);
 		
 		if (earliestTaskStart!=-1L) //fix project start
 			project.setPropertyValue("start", new Date(earliestTaskStart));
@@ -206,10 +212,10 @@ public class MspImporter {
 	
 	protected void importCalendars(Project project) {
 		state.setCalendarManager(project.getCalendarManager());
-		state.setProjectTitle(mpxProjectFile.getProjectHeader().getProjectTitle());
+		state.setProjectTitle(mpxProjectFile.getProjectProperties().getProjectTitle());
 		
 		MpxCalendarConverter converter=new MpxCalendarConverter();
-		for (ProjectCalendar mpxBaseCalendar : mpxProjectFile.getBaseCalendars()) {
+		for (ProjectCalendar mpxBaseCalendar : mpxProjectFile.getCalendars()) {
 			WorkCalendar calendar=new DefaultWorkCalendar();
 			if (ProjectCalendar.DEFAULT_BASE_CALENDAR_NAME.equals(mpxBaseCalendar.getName())){
 				state.setMpxStandardBaseCalendar(mpxBaseCalendar);
@@ -279,6 +285,27 @@ public class MspImporter {
 			project.addTask(task,parentTask);			
 			
 			state.mapTask(mpxTask, task);
+			
+			MpxDurationConverter durationConverter=new MpxDurationConverter();
+			DateUTCConverter dateConverter=new DateUTCConverter();
+			SnapshotList snapshotList=task.getSnapshotList();
+			for (int snapshotId=0;snapshotId<SnapshotList.BASELINE_COUNT;snapshotId++){
+				Date start;
+				if (snapshotId==0)
+					start=mpxTask.getBaselineStart();
+				else start=mpxTask.getBaselineStart(snapshotId);
+				if(start!=null){
+					TaskSnapshot snapshot=snapshotList.getSnapshot(snapshotId, true);
+					snapshot.setStart((Date)dateConverter.from(start));
+					
+					Date finish=snapshotId==0? mpxTask.getBaselineFinish():  mpxTask.getBaselineFinish(snapshotId);
+					snapshot.setFinish((Date)dateConverter.from(finish));
+					
+					Duration duration=snapshotId==0? mpxTask.getBaselineDuration():  mpxTask.getBaselineDuration(snapshotId);
+					snapshot.setDuration((com.projectlibre.core.time.Duration)durationConverter.from(duration));
+				}
+			}			
+			
 			importAssignments(mpxTask, task);
 		}
 		
@@ -292,8 +319,43 @@ public class MspImporter {
 			MpxAssignmentConverter converter=new MpxAssignmentConverter();
 			Assignment assignment=new Assignment();
 			assignment.setTask(task);
-			converter.from(mpxAssignment, assignment, state);
+			converter.from(mpxAssignment, assignment, state, SnapshotList.DEFAULT_SNAPSHOT);
 			task.addAssignment(assignment);
+			MpxDurationConverter durationConverter=new MpxDurationConverter();
+			DateUTCConverter dateConverter=new DateUTCConverter();
+			PercentNumberRatioDoubleConverter percentConverter=new PercentNumberRatioDoubleConverter();
+			for (int snapshotId=0;snapshotId<SnapshotList.BASELINE_COUNT;snapshotId++){
+				Date start;
+				if (snapshotId==0)
+					start=mpxAssignment.getBaselineStart();
+				else start=mpxAssignment.getBaselineStart(snapshotId);
+//				System.out.println("importAssigment task="+task.getFieldValue("Field.name")+" snapshotId="+snapshotId+" start="+start);
+				if(start!=null){
+					Assignment a=new Assignment();
+					a.setTask(task);
+//					protected String[] fieldsToConvert=new String[]{
+//							//ProjectLibre, mpx, converter (mpx-> ProjectLibre
+//						"units", "units", "com.projectlibre.core.pm.exchange.converters.type.PercentNumberRatioDoubleConverter",
+//						"start", "start", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",
+//						"finish", "finish", "com.projectlibre.core.pm.exchange.converters.type.DateUTCConverter",		
+//						"work", "work", "com.projectlibre.core.pm.exchange.converters.mpx.type.MpxDurationConverter",		
+//					};
+					converter.from(mpxAssignment, a, state, snapshotId);
+					
+					a.setFieldValue("Field.start", dateConverter.from(start));
+					
+					Date finish=snapshotId==0? mpxAssignment.getBaselineFinish():  mpxAssignment.getBaselineFinish(snapshotId);
+					a.setFieldValue("Field.finish", dateConverter.from(finish));
+					
+					Duration work=snapshotId==0? mpxAssignment.getBaselineWork():  mpxAssignment.getBaselineWork(snapshotId);
+					a.setFieldValue("Field.work", durationConverter.from(work));
+
+					a.setFieldValue("Field.units", percentConverter.from(mpxAssignment.getUnits()));
+
+					
+					task.addAssignment(a, snapshotId);
+				}
+			}
 		}
 	}
 	

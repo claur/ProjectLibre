@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
 /**
  * Locale data for MPXJ.
  */
-public class LocaleData extends ListResourceBundle
+public final class LocaleData extends ListResourceBundle
 {
    /**
     * {@inheritDoc}
@@ -56,10 +56,14 @@ public class LocaleData extends ListResourceBundle
    public static final String TASK_COLUMNS = "TASK_COLUMNS";
    public static final String RESOURCE_COLUMNS = "RESOURCE_COLUMNS";
    public static final String ASSIGNMENT_COLUMNS = "ASSIGNMENT_COLUMNS";
+   public static final String CONSTRAINT_COLUMNS = "CONSTRAINT_COLUMNS";
+   public static final String PROJECT_COLUMNS = "PROJECT_COLUMNS";
 
    private static final String[] RESOURCE_COLUMNS_ARRAY = new String[ResourceField.MAX_VALUE];
    private static final String[] TASK_COLUMNS_ARRAY = new String[TaskField.MAX_VALUE];
    private static final String[] ASSIGNMENT_COLUMNS_ARRAY = new String[AssignmentField.MAX_VALUE];
+   private static final String[] CONSTRAINT_COLUMNS_ARRAY = new String[ConstraintField.MAX_VALUE];
+   private static final String[] PROJECT_COLUMNS_ARRAY = new String[ProjectField.MAX_VALUE];
 
    static
    {
@@ -169,7 +173,7 @@ public class LocaleData extends ListResourceBundle
       TASK_COLUMNS_ARRAY[TaskField.COST1.getValue()] = "Cost1";
       TASK_COLUMNS_ARRAY[TaskField.COST2.getValue()] = "Cost2";
       TASK_COLUMNS_ARRAY[TaskField.COST3.getValue()] = "Cost3";
-      TASK_COLUMNS_ARRAY[TaskField.HIDEBAR.getValue()] = "Hide Bar";
+      TASK_COLUMNS_ARRAY[TaskField.HIDE_BAR.getValue()] = "Hide Bar";
       TASK_COLUMNS_ARRAY[TaskField.CONFIRMED.getValue()] = "Confirmed";
       TASK_COLUMNS_ARRAY[TaskField.UPDATE_NEEDED.getValue()] = "Update Needed";
       TASK_COLUMNS_ARRAY[TaskField.CONTACT.getValue()] = "Contact";
@@ -623,7 +627,6 @@ public class LocaleData extends ListResourceBundle
       TASK_COLUMNS_ARRAY[TaskField.EAC.getValue()] = "EAC";
       TASK_COLUMNS_ARRAY[TaskField.EARNED_VALUE_METHOD.getValue()] = "Earned Value Method";
       TASK_COLUMNS_ARRAY[TaskField.ERROR_MESSAGE.getValue()] = "Error Message";
-      TASK_COLUMNS_ARRAY[TaskField.HIDE_BAR.getValue()] = "Hide Bar";
       TASK_COLUMNS_ARRAY[TaskField.IGNORE_WARNINGS.getValue()] = "Ignore Warnings";
       TASK_COLUMNS_ARRAY[TaskField.PEAK.getValue()] = "Peak";
       TASK_COLUMNS_ARRAY[TaskField.PHYSICAL_PERCENT_COMPLETE.getValue()] = "Physical % Complete";
@@ -987,6 +990,62 @@ public class LocaleData extends ListResourceBundle
 
       TASK_COLUMNS_ARRAY[TaskField.MANUAL_DURATION.getValue()] = "Manual Duration";
       TASK_COLUMNS_ARRAY[TaskField.MANUAL_DURATION_UNITS.getValue()] = "Manual Duration Units";
+
+      TASK_COLUMNS_ARRAY[TaskField.PATH_DRIVEN_SUCCESSOR.getValue()] = "Path Driven Successor";
+      TASK_COLUMNS_ARRAY[TaskField.PATH_DRIVING_PREDECESSOR.getValue()] = "Path Driving Predecessor";
+      TASK_COLUMNS_ARRAY[TaskField.PATH_PREDECESSOR.getValue()] = "Path Predecessor";
+      TASK_COLUMNS_ARRAY[TaskField.PATH_SUCCESSOR.getValue()] = "Path Successor";
+
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD1.getValue()] = "Enterprise Custom Field 1";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD2.getValue()] = "Enterprise Custom Field 2";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD3.getValue()] = "Enterprise Custom Field 3";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD4.getValue()] = "Enterprise Custom Field 4";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD5.getValue()] = "Enterprise Custom Field 5";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD6.getValue()] = "Enterprise Custom Field 6";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD7.getValue()] = "Enterprise Custom Field 7";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD8.getValue()] = "Enterprise Custom Field 8";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD9.getValue()] = "Enterprise Custom Field 9";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD10.getValue()] = "Enterprise Custom Field 10";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD11.getValue()] = "Enterprise Custom Field 11";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD12.getValue()] = "Enterprise Custom Field 12";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD13.getValue()] = "Enterprise Custom Field 13";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD14.getValue()] = "Enterprise Custom Field 14";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD15.getValue()] = "Enterprise Custom Field 15";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD16.getValue()] = "Enterprise Custom Field 16";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD17.getValue()] = "Enterprise Custom Field 17";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD18.getValue()] = "Enterprise Custom Field 18";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD19.getValue()] = "Enterprise Custom Field 19";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD20.getValue()] = "Enterprise Custom Field 20";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD21.getValue()] = "Enterprise Custom Field 21";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD22.getValue()] = "Enterprise Custom Field 22";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD23.getValue()] = "Enterprise Custom Field 23";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD24.getValue()] = "Enterprise Custom Field 24";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD25.getValue()] = "Enterprise Custom Field 25";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD26.getValue()] = "Enterprise Custom Field 26";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD27.getValue()] = "Enterprise Custom Field 27";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD28.getValue()] = "Enterprise Custom Field 28";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD29.getValue()] = "Enterprise Custom Field 29";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD30.getValue()] = "Enterprise Custom Field 30";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD31.getValue()] = "Enterprise Custom Field 31";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD32.getValue()] = "Enterprise Custom Field 32";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD33.getValue()] = "Enterprise Custom Field 33";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD34.getValue()] = "Enterprise Custom Field 34";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD35.getValue()] = "Enterprise Custom Field 35";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD36.getValue()] = "Enterprise Custom Field 36";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD37.getValue()] = "Enterprise Custom Field 37";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD38.getValue()] = "Enterprise Custom Field 38";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD39.getValue()] = "Enterprise Custom Field 39";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD40.getValue()] = "Enterprise Custom Field 40";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD41.getValue()] = "Enterprise Custom Field 41";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD42.getValue()] = "Enterprise Custom Field 42";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD43.getValue()] = "Enterprise Custom Field 43";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD44.getValue()] = "Enterprise Custom Field 44";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD45.getValue()] = "Enterprise Custom Field 45";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD46.getValue()] = "Enterprise Custom Field 46";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD47.getValue()] = "Enterprise Custom Field 47";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD48.getValue()] = "Enterprise Custom Field 48";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD49.getValue()] = "Enterprise Custom Field 49";
+      TASK_COLUMNS_ARRAY[TaskField.ENTERPRISE_CUSTOM_FIELD50.getValue()] = "Enterprise Custom Field 50";
 
       RESOURCE_COLUMNS_ARRAY[ResourceField.ID.getValue()] = "ID";
       RESOURCE_COLUMNS_ARRAY[ResourceField.NAME.getValue()] = "Name";
@@ -1520,6 +1579,57 @@ public class LocaleData extends ListResourceBundle
       RESOURCE_COLUMNS_ARRAY[ResourceField.ACTUAL_WORK_PROTECTED.getValue()] = "Actual Work Protected";
       RESOURCE_COLUMNS_ARRAY[ResourceField.ACTUAL_OVERTIME_WORK_PROTECTED.getValue()] = "Actual Overtime Work Protected";
 
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD1.getValue()] = "Enterprise Custom Field 1";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD2.getValue()] = "Enterprise Custom Field 2";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD3.getValue()] = "Enterprise Custom Field 3";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD4.getValue()] = "Enterprise Custom Field 4";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD5.getValue()] = "Enterprise Custom Field 5";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD6.getValue()] = "Enterprise Custom Field 6";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD7.getValue()] = "Enterprise Custom Field 7";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD8.getValue()] = "Enterprise Custom Field 8";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD9.getValue()] = "Enterprise Custom Field 9";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD10.getValue()] = "Enterprise Custom Field 10";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD11.getValue()] = "Enterprise Custom Field 11";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD12.getValue()] = "Enterprise Custom Field 12";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD13.getValue()] = "Enterprise Custom Field 13";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD14.getValue()] = "Enterprise Custom Field 14";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD15.getValue()] = "Enterprise Custom Field 15";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD16.getValue()] = "Enterprise Custom Field 16";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD17.getValue()] = "Enterprise Custom Field 17";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD18.getValue()] = "Enterprise Custom Field 18";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD19.getValue()] = "Enterprise Custom Field 19";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD20.getValue()] = "Enterprise Custom Field 20";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD21.getValue()] = "Enterprise Custom Field 21";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD22.getValue()] = "Enterprise Custom Field 22";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD23.getValue()] = "Enterprise Custom Field 23";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD24.getValue()] = "Enterprise Custom Field 24";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD25.getValue()] = "Enterprise Custom Field 25";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD26.getValue()] = "Enterprise Custom Field 26";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD27.getValue()] = "Enterprise Custom Field 27";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD28.getValue()] = "Enterprise Custom Field 28";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD29.getValue()] = "Enterprise Custom Field 29";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD30.getValue()] = "Enterprise Custom Field 30";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD31.getValue()] = "Enterprise Custom Field 31";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD32.getValue()] = "Enterprise Custom Field 32";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD33.getValue()] = "Enterprise Custom Field 33";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD34.getValue()] = "Enterprise Custom Field 34";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD35.getValue()] = "Enterprise Custom Field 35";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD36.getValue()] = "Enterprise Custom Field 36";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD37.getValue()] = "Enterprise Custom Field 37";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD38.getValue()] = "Enterprise Custom Field 38";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD39.getValue()] = "Enterprise Custom Field 39";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD40.getValue()] = "Enterprise Custom Field 40";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD41.getValue()] = "Enterprise Custom Field 41";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD42.getValue()] = "Enterprise Custom Field 42";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD43.getValue()] = "Enterprise Custom Field 43";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD44.getValue()] = "Enterprise Custom Field 44";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD45.getValue()] = "Enterprise Custom Field 45";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD46.getValue()] = "Enterprise Custom Field 46";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD47.getValue()] = "Enterprise Custom Field 47";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD48.getValue()] = "Enterprise Custom Field 48";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD49.getValue()] = "Enterprise Custom Field 49";
+      RESOURCE_COLUMNS_ARRAY[ResourceField.ENTERPRISE_CUSTOM_FIELD50.getValue()] = "Enterprise Custom Field 50";
+
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.START.getValue()] = "Start";
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ASSIGNMENT_UNITS.getValue()] = "Assignment Units";
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.WORK.getValue()] = "Work";
@@ -1565,7 +1675,7 @@ public class LocaleData extends ListResourceBundle
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.TIMEPHASED_BASELINE7_COST.getValue()] = "Timephased Baseline7 Cost";
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.TIMEPHASED_BASELINE8_COST.getValue()] = "Timephased Baseline8 Cost";
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.TIMEPHASED_BASELINE9_COST.getValue()] = "Timephased Baseline9 Cost";
-      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.TIMEPHASED_BASELINE10_COST.getValue()] = "Timephased Baseline10 Cost";      
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.TIMEPHASED_BASELINE10_COST.getValue()] = "Timephased Baseline10 Cost";
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.VARIABLE_RATE_UNITS.getValue()] = "Variable Rate Units";
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.LEVELING_DELAY_UNITS.getValue()] = "Leveling Delay Units";
 
@@ -2008,6 +2118,61 @@ public class LocaleData extends ListResourceBundle
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.DURATION8_UNITS.getValue()] = "Duration8 Units";
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.DURATION9_UNITS.getValue()] = "Duration9 Units";
       ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.DURATION10_UNITS.getValue()] = "Duration10 Units";
+
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD1.getValue()] = "Enterprise Custom Field 1";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD2.getValue()] = "Enterprise Custom Field 2";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD3.getValue()] = "Enterprise Custom Field 3";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD4.getValue()] = "Enterprise Custom Field 4";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD5.getValue()] = "Enterprise Custom Field 5";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD6.getValue()] = "Enterprise Custom Field 6";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD7.getValue()] = "Enterprise Custom Field 7";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD8.getValue()] = "Enterprise Custom Field 8";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD9.getValue()] = "Enterprise Custom Field 9";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD10.getValue()] = "Enterprise Custom Field 10";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD11.getValue()] = "Enterprise Custom Field 11";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD12.getValue()] = "Enterprise Custom Field 12";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD13.getValue()] = "Enterprise Custom Field 13";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD14.getValue()] = "Enterprise Custom Field 14";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD15.getValue()] = "Enterprise Custom Field 15";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD16.getValue()] = "Enterprise Custom Field 16";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD17.getValue()] = "Enterprise Custom Field 17";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD18.getValue()] = "Enterprise Custom Field 18";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD19.getValue()] = "Enterprise Custom Field 19";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD20.getValue()] = "Enterprise Custom Field 20";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD21.getValue()] = "Enterprise Custom Field 21";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD22.getValue()] = "Enterprise Custom Field 22";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD23.getValue()] = "Enterprise Custom Field 23";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD24.getValue()] = "Enterprise Custom Field 24";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD25.getValue()] = "Enterprise Custom Field 25";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD26.getValue()] = "Enterprise Custom Field 26";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD27.getValue()] = "Enterprise Custom Field 27";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD28.getValue()] = "Enterprise Custom Field 28";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD29.getValue()] = "Enterprise Custom Field 29";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD30.getValue()] = "Enterprise Custom Field 30";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD31.getValue()] = "Enterprise Custom Field 31";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD32.getValue()] = "Enterprise Custom Field 32";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD33.getValue()] = "Enterprise Custom Field 33";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD34.getValue()] = "Enterprise Custom Field 34";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD35.getValue()] = "Enterprise Custom Field 35";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD36.getValue()] = "Enterprise Custom Field 36";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD37.getValue()] = "Enterprise Custom Field 37";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD38.getValue()] = "Enterprise Custom Field 38";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD39.getValue()] = "Enterprise Custom Field 39";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD40.getValue()] = "Enterprise Custom Field 40";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD41.getValue()] = "Enterprise Custom Field 41";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD42.getValue()] = "Enterprise Custom Field 42";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD43.getValue()] = "Enterprise Custom Field 43";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD44.getValue()] = "Enterprise Custom Field 44";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD45.getValue()] = "Enterprise Custom Field 45";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD46.getValue()] = "Enterprise Custom Field 46";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD47.getValue()] = "Enterprise Custom Field 47";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD48.getValue()] = "Enterprise Custom Field 48";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD49.getValue()] = "Enterprise Custom Field 49";
+      ASSIGNMENT_COLUMNS_ARRAY[AssignmentField.ENTERPRISE_CUSTOM_FIELD50.getValue()] = "Enterprise Custom Field 50";
+
+      CONSTRAINT_COLUMNS_ARRAY[ConstraintField.UNIQUE_ID.getValue()] = "Unique ID";
+      CONSTRAINT_COLUMNS_ARRAY[ConstraintField.TASK1.getValue()] = "Task 1";
+      CONSTRAINT_COLUMNS_ARRAY[ConstraintField.TASK2.getValue()] = "Task 2";
    }
 
    private static final Object[][] RESOURCES =
@@ -2023,6 +2188,15 @@ public class LocaleData extends ListResourceBundle
       {
          "ASSIGNMENT_COLUMNS",
          ASSIGNMENT_COLUMNS_ARRAY
+      },
+      {
+         "CONSTRAINT_COLUMNS",
+         CONSTRAINT_COLUMNS_ARRAY
+      },
+      {
+         "PROJECT_COLUMNS",
+         PROJECT_COLUMNS_ARRAY
       }
+
    };
 }

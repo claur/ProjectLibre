@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.mpxj.MPXJException;
+import net.sf.mpxj.asta.AstaFileReader;
 import net.sf.mpxj.mpd.MPDDatabaseReader;
 import net.sf.mpxj.mpp.MPPReader;
 import net.sf.mpxj.mpx.MPXReader;
@@ -55,7 +57,7 @@ public final class ProjectReaderUtility
     * @param name file name
     * @return ProjectReader instance
     */
-   public static ProjectReader getProjectReader(String name) throws InstantiationException, IllegalAccessException
+   public static ProjectReader getProjectReader(String name) throws MPXJException
    {
       int index = name.lastIndexOf('.');
       if (index == -1)
@@ -71,9 +73,16 @@ public final class ProjectReaderUtility
          throw new IllegalArgumentException("Cannot read files of type: " + name);
       }
 
-      ProjectReader file = fileClass.newInstance();
+      try
+      {
+         ProjectReader file = fileClass.newInstance();
+         return (file);
+      }
 
-      return (file);
+      catch (Exception ex)
+      {
+         throw new MPXJException("Failed to load project reader", ex);
+      }
    }
 
    /**
@@ -98,5 +107,6 @@ public final class ProjectReaderUtility
       READER_MAP.put("PLANNER", PlannerReader.class);
       READER_MAP.put("XER", PrimaveraXERFileReader.class);
       READER_MAP.put("PMXML", PrimaveraPMFileReader.class);
+      READER_MAP.put("PP", AstaFileReader.class);
    }
 }

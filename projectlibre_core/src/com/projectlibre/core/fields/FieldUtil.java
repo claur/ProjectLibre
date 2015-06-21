@@ -79,6 +79,7 @@ package com.projectlibre.core.fields;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -92,6 +93,8 @@ import org.projectlibre.core.configuration.Configuration;
 import org.projectlibre.core.dictionary.DictionaryCategory;
 import org.projectlibre.core.dictionary.HasStringId;
 
+import com.projectlibre.pm.tasks.Task;
+
 /**
  * @author Laurent Chretienneau
  *
@@ -99,58 +102,78 @@ import org.projectlibre.core.dictionary.HasStringId;
 public class FieldUtil {
 	protected static Logger log = Logger.getLogger("FieldUtil");
 	public static void convertFields(HasFields hasFields, Class<?> inClass, Object inObject, String[] fieldNames, boolean from){
-		//log.info("convertFields hasFields="+hasFields);
 		for (int i=0;i<fieldNames.length;){
-			convertFieldSeries(hasFields, inClass, inObject, fieldNames[i++], -1, fieldNames[i++], -1, fieldNames[i++], from);
+			convertFieldSeries(hasFields, inClass, inObject, fieldNames[i++], -1, -1, fieldNames[i++], -1, -1, -1, fieldNames[i++], from);
 		}
 	}
 	
-	protected static void convertFieldSeries(HasFields hasFields, Class<?> inClass, Object inObject, String fieldName1, int index1, String fieldName2, int index2, String converterName, boolean from){
+	protected static void convertFieldSeries(HasFields hasFields, Class<?> inClass, Object inObject, String fieldName1, int startIndex1, int endIndex1, String fieldName2, int startIndex2, int endIndex2, int index, String converterName, boolean from){
+//		if (fieldName2.startsWith("customCost")){
+//			log.info("convertFieldSeries("+hasFields+", "+fieldName1+", "+startIndex1+", "+endIndex1+", "+fieldName2+", "+startIndex2+", "+endIndex2+", "+index+")");
+//		}
 		String[] elements1=fieldName1.split(":");
 		if (elements1.length==3){
-			String fieldNameS=elements1[0];
-			int startIndex=Integer.parseInt(elements1[1]);
-			int endIndex=Integer.parseInt(elements1[2]);
-			for (int i=startIndex;i<endIndex;i++)
-				convertFieldSeries(hasFields, inClass, inObject, fieldNameS+1, -1, fieldName2, index2, converterName, from);
+			fieldName1=elements1[0];
+			startIndex1=Integer.parseInt(elements1[1]);
+			endIndex1=Integer.parseInt(elements1[2]);
+			int len=endIndex1-startIndex1+1;
+			if (index==-1){
+				for (int i=0;i<len;i++)
+					convertFieldSeries(hasFields, inClass, inObject, fieldName1, startIndex1, endIndex1, fieldName2, startIndex2, endIndex2, i, converterName, from);
+			}else convertFieldSeries(hasFields, inClass, inObject, fieldName1, startIndex1, endIndex1, fieldName2, startIndex2, endIndex2, index, converterName, from);
 			return;
 		}
 		String[] elements2=fieldName2.split(":");
 		if (elements2.length==3){
-			String fieldNameS=elements2[0];
-			int startIndex=Integer.parseInt(elements2[1]);
-			int endIndex=Integer.parseInt(elements2[2]);
-			for (int i=startIndex;i<endIndex;i++)
-				convertFieldSeries(hasFields, inClass, inObject, fieldName1, index1, fieldNameS+i, -1, converterName, from);
+			fieldName2=elements2[0];
+			startIndex2=Integer.parseInt(elements2[1]);
+			endIndex2=Integer.parseInt(elements2[2]);
+			int len=endIndex2-startIndex2+1;
+			if (index==-1){
+				for (int i=0;i<len;i++)
+					convertFieldSeries(hasFields, inClass, inObject, fieldName1, startIndex1, endIndex1, fieldName2, startIndex2, endIndex2, i, converterName, from);
+			}else convertFieldSeries(hasFields, inClass, inObject, fieldName1, startIndex1, endIndex1, fieldName2, startIndex2, endIndex2, index, converterName, from);
 			return;
 		}
 
 		elements1=fieldName1.split(",");
 		if (elements1.length==3){
-			String fieldNameS=elements1[0];
-			int startIndex=Integer.parseInt(elements1[1]);
-			int endIndex=Integer.parseInt(elements1[2]);
-			for (int i=startIndex;i<endIndex;i++)
-				convertFieldSeries(hasFields, inClass, inObject, fieldNameS, i, fieldName2, index2, converterName, from);
+			fieldName1=elements1[0];
+			startIndex1=Integer.parseInt(elements1[1]);
+			endIndex1=Integer.parseInt(elements1[2]);
+			int len=endIndex1-startIndex1+1;
+			if (index==-1){
+				for (int i=0;i<len;i++)
+					convertFieldSeries(hasFields, inClass, inObject, fieldName1, startIndex1, endIndex1, fieldName2, startIndex2, endIndex2, i, converterName, from);
+			}else convertFieldSeries(hasFields, inClass, inObject, fieldName1, startIndex1, endIndex1, fieldName2, startIndex2, endIndex2, index, converterName, from);
 			return;
 		}
 		elements2=fieldName2.split(",");
 		if (elements2.length==3){
-			String fieldNameS=elements2[0];
-			int startIndex=Integer.parseInt(elements2[1]);
-			int endIndex=Integer.parseInt(elements2[2]);
-			for (int i=startIndex;i<endIndex;i++)
-				convertFieldSeries(hasFields, inClass, inObject, fieldName1, index1, fieldNameS, i, converterName, from);
+			fieldName2=elements2[0];
+			startIndex2=Integer.parseInt(elements2[1]);
+			endIndex2=Integer.parseInt(elements2[2]);
+			int len=endIndex2-startIndex2+1;
+			if (index==-1){
+				for (int i=0;i<len;i++)
+					convertFieldSeries(hasFields, inClass, inObject, fieldName1, startIndex1, endIndex1, fieldName2, startIndex2, endIndex2, i, converterName, from);
+			}else convertFieldSeries(hasFields, inClass, inObject, fieldName1, startIndex1, endIndex1, fieldName2, startIndex2, endIndex2, index, converterName, from);
 			return;
 		}
 		
-		convertField(hasFields, inClass, inObject, fieldName1, index1, fieldName2, index2, converterName, from);
+		convertField(hasFields, inClass, inObject, fieldName1, index==-1? -1: index+startIndex1, fieldName2, index==-1? -1: index+startIndex2, converterName, from);
 	}
 	
 	protected static void convertField(HasFields hasFields, Class<?> inClass, Object inObject, String fieldName1, int index1, String fieldName2, int index2, String converterName, boolean from){ 
+		if (index1!=-1)
+		 fieldName1+=index1;
+		
 		//index1 is ignored
 		try {
 			if (from) {
+//				if (index2!=-1)
+//					fieldName2+=index1;
+
 				//get value
 				Object value;
 				if (index2==-1){
@@ -176,7 +199,9 @@ public class FieldUtil {
 				//get value
 				Object value=hasFields.getPropertyValue(fieldName1);
 				
-				if (value==null) return; //skip null values, it will be considered as not set
+				if (value==null || 
+						((value instanceof Boolean) && ((Boolean)value)==false) )
+					return; //skip null values, it will be considered as not set
 
 				//convert
 				if (converterName!=null){
@@ -206,7 +231,9 @@ public class FieldUtil {
 				}
 				if (index2==-1)
 					value=method.invoke(inObject, new Object[]{value});
-				else value=method.invoke(inObject, new Object[]{index2, value});
+				else {
+					value=method.invoke(inObject, new Object[]{index2, value});
+				}
 				
 
 				

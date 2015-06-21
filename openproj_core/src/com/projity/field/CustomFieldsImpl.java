@@ -59,14 +59,14 @@ import java.io.Serializable;
  * Custom fields and their bounds.  The bounds are set from config file by corresponding fields
  */
 public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
-	public static int NUM_COST = 0;
-	public static int NUM_DATE = 0;
-	public static int NUM_DURATION = 0;
-	public static int NUM_FINISH = 0;
-	public static int NUM_FLAG = 0;
-	public static int NUM_NUMBER = 0;
-	public static int NUM_START = 0;	
-	public static int NUM_TEXT = 0;
+	public static int NUM_COST = 10;
+	public static int NUM_DATE = 10;
+	public static int NUM_DURATION = 10;
+	public static int NUM_FINISH = 10;
+	public static int NUM_FLAG = 20;
+	public static int NUM_NUMBER = 20;
+	public static int NUM_START = 10;	
+	public static int NUM_TEXT = 30;
 	
 	
 	protected double cost[];

@@ -81,7 +81,7 @@ class Props extends MPPComponent
       byte[] item = m_map.get(type);
       if (item != null)
       {
-         result = MPPUtility.getShort(item);
+         result = MPPUtility.getShort(item, 0);
       }
 
       return (result);
@@ -100,7 +100,7 @@ class Props extends MPPComponent
       byte[] item = m_map.get(type);
       if (item != null)
       {
-         result = MPPUtility.getInt(item);
+         result = MPPUtility.getInt(item, 0);
       }
 
       return (result);
@@ -119,7 +119,7 @@ class Props extends MPPComponent
       byte[] item = m_map.get(type);
       if (item != null)
       {
-         result = MPPUtility.getDouble(item);
+         result = MPPUtility.getDouble(item, 0);
       }
 
       return (result);
@@ -138,7 +138,7 @@ class Props extends MPPComponent
       byte[] item = m_map.get(type);
       if (item != null)
       {
-         result = MPPUtility.getTime(item);
+         result = MPPUtility.getTime(item, 0);
       }
 
       return (result);
@@ -157,7 +157,7 @@ class Props extends MPPComponent
       byte[] item = m_map.get(type);
       if (item != null)
       {
-         result = MPPUtility.getTimestamp(item);
+         result = MPPUtility.getTimestamp(item, 0);
       }
 
       return (result);
@@ -176,7 +176,7 @@ class Props extends MPPComponent
       byte[] item = m_map.get(type);
       if (item != null)
       {
-         result = !(MPPUtility.getShort(item) == 0);
+         result = !(MPPUtility.getShort(item, 0) == 0);
       }
 
       return (result);
@@ -195,7 +195,7 @@ class Props extends MPPComponent
       byte[] item = m_map.get(type);
       if (item != null)
       {
-         result = MPPUtility.getUnicodeString(item);
+         result = MPPUtility.getUnicodeString(item, 0);
       }
 
       return (result);
@@ -325,9 +325,12 @@ class Props extends MPPComponent
 
    public static final Integer TASK_FIELD_MAP = Integer.valueOf(131092);
    public static final Integer TASK_FIELD_MAP2 = Integer.valueOf(50331668);
+   public static final Integer ENTERPRISE_CUSTOM_FIELD_MAP = Integer.valueOf(37753797); // MPP14 37753768?      
 
    public static final Integer RESOURCE_FIELD_MAP = Integer.valueOf(131093);
    public static final Integer RESOURCE_FIELD_MAP2 = Integer.valueOf(50331669);
+
+   public static final Integer RELATION_FIELD_MAP = Integer.valueOf(131094);
 
    public static final Integer ASSIGNMENT_FIELD_MAP = Integer.valueOf(131095);
    public static final Integer ASSIGNMENT_FIELD_MAP2 = Integer.valueOf(50331671);
@@ -343,6 +346,8 @@ class Props extends MPPComponent
    public static final Integer BASELINE8_DATE = Integer.valueOf(37753757);
    public static final Integer BASELINE9_DATE = Integer.valueOf(37753758);
    public static final Integer BASELINE10_DATE = Integer.valueOf(37753759);
+
+   public static final Integer CUSTOM_FIELDS = Integer.valueOf(71303169);
 
    protected TreeMap<Integer, byte[]> m_map = new TreeMap<Integer, byte[]>();
 }

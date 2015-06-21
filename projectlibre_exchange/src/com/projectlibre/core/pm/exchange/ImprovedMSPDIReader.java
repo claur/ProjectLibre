@@ -82,8 +82,8 @@ import java.util.Map;
 
 import net.sf.mpxj.Resource;
 import net.sf.mpxj.ResourceAssignment;
-import net.sf.mpxj.SplitTaskFactory;
-import net.sf.mpxj.TimephasedWorkNormaliser;
+import net.sf.mpxj.common.SplitTaskFactory;
+import net.sf.mpxj.common.TimephasedWorkNormaliser;
 import net.sf.mpxj.mspdi.MSPDIReader;
 import net.sf.mpxj.mspdi.schema.Project;
 import net.sf.mpxj.mspdi.schema.TimephasedDataType;

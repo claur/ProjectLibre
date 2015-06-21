@@ -31,7 +31,7 @@ import net.sf.mpxj.CostRateTableEntry;
 import net.sf.mpxj.Rate;
 import net.sf.mpxj.Resource;
 import net.sf.mpxj.TimeUnit;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * Common code to read resource cost rate tables from MPP files.
@@ -57,7 +57,7 @@ final class CostRateTableFactory
             TimeUnit standardRateFormat = getFormat(MPPUtility.getShort(data, i + 8));
             Rate overtimeRate = new Rate(MPPUtility.getDouble(data, i + 16), TimeUnit.HOURS);
             TimeUnit overtimeRateFormat = getFormat(MPPUtility.getShort(data, i + 24));
-            Double costPerUse = NumberUtility.getDouble(MPPUtility.getDouble(data, i + 32) / 100.0);
+            Double costPerUse = NumberHelper.getDouble(MPPUtility.getDouble(data, i + 32) / 100.0);
             Date endDate = MPPUtility.getTimestampFromTenths(data, i + 40);
             CostRateTableEntry entry = new CostRateTableEntry(standardRate, standardRateFormat, overtimeRate, overtimeRateFormat, costPerUse, endDate);
             result.add(entry);
@@ -72,11 +72,11 @@ final class CostRateTableFactory
          //         
          if (index == 0)
          {
-           Rate standardRate = resource.getStandardRate();
-           Rate overtimeRate = resource.getOvertimeRate();
-           Number costPerUse = resource.getCostPerUse();
-           CostRateTableEntry entry = new CostRateTableEntry(standardRate, standardRate.getUnits(), overtimeRate, overtimeRate.getUnits(), costPerUse, CostRateTableEntry.DEFAULT_ENTRY.getEndDate());
-           result.add(entry);
+            Rate standardRate = resource.getStandardRate();
+            Rate overtimeRate = resource.getOvertimeRate();
+            Number costPerUse = resource.getCostPerUse();
+            CostRateTableEntry entry = new CostRateTableEntry(standardRate, standardRate.getUnits(), overtimeRate, overtimeRate.getUnits(), costPerUse, CostRateTableEntry.DEFAULT_ENTRY.getEndDate());
+            result.add(entry);
          }
          else
          {

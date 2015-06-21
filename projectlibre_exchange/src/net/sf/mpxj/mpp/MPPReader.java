@@ -33,6 +33,7 @@ import java.util.Map;
 
 import net.sf.mpxj.DateRange;
 import net.sf.mpxj.MPXJException;
+import net.sf.mpxj.ProjectConfig;
 import net.sf.mpxj.ProjectFile;
 import net.sf.mpxj.Relation;
 import net.sf.mpxj.Task;
@@ -52,7 +53,7 @@ public final class MPPReader extends AbstractProjectReader
    /**
     * {@inheritDoc}
     */
-   public void addProjectListener(ProjectListener listener)
+   @Override public void addProjectListener(ProjectListener listener)
    {
       if (m_projectListeners == null)
       {
@@ -100,17 +101,19 @@ public final class MPPReader extends AbstractProjectReader
       try
       {
          ProjectFile projectFile = new ProjectFile();
+         ProjectConfig config = projectFile.getProjectConfig();
 
-         projectFile.addProjectListeners(m_projectListeners);
-         projectFile.setAutoTaskID(false);
-         projectFile.setAutoTaskUniqueID(false);
-         projectFile.setAutoResourceID(false);
-         projectFile.setAutoResourceUniqueID(false);
-         projectFile.setAutoOutlineLevel(false);
-         projectFile.setAutoOutlineNumber(false);
-         projectFile.setAutoWBS(false);
-         projectFile.setAutoCalendarUniqueID(false);
-         projectFile.setAutoAssignmentUniqueID(false);
+         config.setAutoTaskID(false);
+         config.setAutoTaskUniqueID(false);
+         config.setAutoResourceID(false);
+         config.setAutoResourceUniqueID(false);
+         config.setAutoOutlineLevel(false);
+         config.setAutoOutlineNumber(false);
+         config.setAutoWBS(false);
+         config.setAutoCalendarUniqueID(false);
+         config.setAutoAssignmentUniqueID(false);
+
+         projectFile.getEventManager().addProjectListeners(m_projectListeners);
 
          //
          // Open the file system and retrieve the root directory
@@ -121,6 +124,8 @@ public final class MPPReader extends AbstractProjectReader
          // Retrieve the CompObj data, validate the file format and process
          //
          CompObj compObj = new CompObj(new DocumentInputStream((DocumentEntry) root.getEntry("\1CompObj")));
+         projectFile.getProjectProperties().setFullApplicationName(compObj.getApplicationName());
+         projectFile.getProjectProperties().setApplicationVersion(compObj.getApplicationVersion());
          String format = compObj.getFileFormat();
          Class<? extends MPPVariantReader> readerClass = FILE_CLASS_MAP.get(format);
          if (readerClass == null)
@@ -135,9 +140,9 @@ public final class MPPReader extends AbstractProjectReader
          // generate outline numbers for the tasks as they don't appear to
          // be present in the MPP file.
          //
-         projectFile.setAutoOutlineNumber(true);
+         config.setAutoOutlineNumber(true);
          projectFile.updateStructure();
-         projectFile.setAutoOutlineNumber(false);
+         config.setAutoOutlineNumber(false);
 
          //
          // Perform post-processing to set the summary flag and clean
@@ -157,7 +162,7 @@ public final class MPPReader extends AbstractProjectReader
          //
          // Ensure that the unique ID counters are correct
          //
-         projectFile.updateUniqueCounters();
+         config.updateUniqueCounters();
 
          return (projectFile);
       }
@@ -198,7 +203,7 @@ public final class MPPReader extends AbstractProjectReader
 
             String sourceOutlineNumber = sourceTask.getOutlineNumber();
             String targetOutlineNumber = targetTask.getOutlineNumber();
-            
+
             if (sourceOutlineNumber != null && targetOutlineNumber != null && sourceOutlineNumber.startsWith(targetOutlineNumber + '.'))
             {
                invalid.add(relation);
@@ -279,6 +284,30 @@ public final class MPPReader extends AbstractProjectReader
    }
 
    /**
+    * Flag to determine if the reader should only read the project properties.
+    * This allows for rapid access to the document properties, without the
+    * cost of reading the entire contents of the project file.
+    *    
+    * @return true if the reader should only read the project properties 
+    */
+   public boolean getReadPropertiesOnly()
+   {
+      return m_readPropertiesOnly;
+   }
+
+   /**
+    * Flag to determine if the reader should only read the project properties.
+    * This allows for rapid access to the document properties, without the
+    * cost of reading the entire contents of the project file.
+    * 
+    * @param readPropertiesOnly true if the reader should only read the project properties
+    */
+   public void setReadPropertiesOnly(boolean readPropertiesOnly)
+   {
+      m_readPropertiesOnly = readPropertiesOnly;
+   }
+
+   /**
     * Set the read password for this Project file. This is needed in order to
     * be allowed to read a read-protected Project file.
     * 
@@ -341,6 +370,7 @@ public final class MPPReader extends AbstractProjectReader
     * presentation data from the MPP file.
     */
    private boolean m_readPresentationData = true;
+   private boolean m_readPropertiesOnly;
 
    private String m_readPassword;
    private String m_writePassword;

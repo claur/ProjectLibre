@@ -28,15 +28,15 @@ import java.text.SimpleDateFormat;
 import net.sf.mpxj.Duration;
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.RelationType;
 import net.sf.mpxj.Resource;
 import net.sf.mpxj.ResourceAssignment;
 import net.sf.mpxj.Task;
 import net.sf.mpxj.TimeUnit;
+import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.mpx.MPXWriter;
 import net.sf.mpxj.mspdi.MSPDIWriter;
-import net.sf.mpxj.utility.NumberUtility;
 import net.sf.mpxj.writer.ProjectWriter;
 
 /**
@@ -123,9 +123,7 @@ public class MpxjCreate
       SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
       //
-      // Create an empty MPX or MSPDI file. The filename is passed to
-      // this method purely to allow it to determine the type of
-      // file to create.
+      // Create a ProjectFile instance
       //
       ProjectFile file = new ProjectFile();
 
@@ -148,14 +146,14 @@ public class MpxjCreate
       calendar.addCalendarException(df.parse("13/03/2006"), df.parse("13/03/2006"));
 
       //
-      // Retrieve the project header and set the start date. Note Microsoft
+      // Retrieve the project properties and set the start date. Note Microsoft
       // Project appears to reset all task dates relative to this date, so this
       // date must match the start date of the earliest task for you to see
       // the expected results. If this value is not set, it will default to
       // today's date.
       //
-      ProjectHeader header = file.getProjectHeader();
-      header.setStartDate(df.parse("01/01/2003"));
+      ProjectProperties properties = file.getProjectProperties();
+      properties.setStartDate(df.parse("01/01/2003"));
 
       //
       // Add resources
@@ -195,7 +193,7 @@ public class MpxjCreate
       // correct values in order for MS project to mark the task as complete
       // or partially complete.
       //
-      task2.setPercentageComplete(NumberUtility.getDouble(50.0));
+      task2.setPercentageComplete(NumberHelper.getDouble(50.0));
       task2.setActualStart(df.parse("01/01/2003"));
 
       //
@@ -229,7 +227,7 @@ public class MpxjCreate
       task4.setName("Next Task");
       task4.setDuration(Duration.getInstance(8, TimeUnit.DAYS));
       task4.setStart(df.parse("01/01/2003"));
-      task4.setPercentageComplete(NumberUtility.getDouble(70.0));
+      task4.setPercentageComplete(NumberHelper.getDouble(70.0));
       task4.setActualStart(df.parse("01/01/2003"));
 
       //
@@ -266,7 +264,7 @@ public class MpxjCreate
       task5.setName("Last Task");
       task5.setDuration(Duration.getInstance(3, TimeUnit.DAYS));
       task5.setStart(df.parse("01/01/2003"));
-      task5.setPercentageComplete(NumberUtility.getDouble(100.0));
+      task5.setPercentageComplete(NumberHelper.getDouble(100.0));
       task5.setActualStart(df.parse("01/01/2003"));
 
       //

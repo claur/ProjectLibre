@@ -28,7 +28,7 @@ import java.util.Date;
 /** 
  * This class represents a row from a resource's availability table.
  */
-public class Availability implements Comparable<Availability>
+public final class Availability implements Comparable<Availability>
 {
    /**
     * Constructor.
@@ -66,7 +66,7 @@ public class Availability implements Comparable<Availability>
    /**
     * {@inheritDoc}
     */
-   public int compareTo(Availability o)
+   @Override public int compareTo(Availability o)
    {
       return m_range.compareTo(o.m_range);
    }

@@ -26,8 +26,12 @@ package net.sf.mpxj;
 /**
  * Instances of this class represent enumerated file version values.
  */
-public final class FileVersion
+public enum FileVersion implements MpxjEnum
 {
+   VERSION_1_0(1),
+   VERSION_3_0(3),
+   VERSION_4_0(4);
+
    /**
     * Private constructor.
     *
@@ -43,7 +47,7 @@ public final class FileVersion
     *
     * @return file version value
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -90,20 +94,20 @@ public final class FileVersion
 
       switch (m_value)
       {
-         case 1 :
+         case 1:
          {
             result = "1.0";
             break;
          }
 
-         case 3 :
+         case 3:
          {
             result = "3.0";
             break;
          }
 
-         default :
-         case 4 :
+         default:
+         case 4:
          {
             result = "4.0";
             break;
@@ -114,19 +118,4 @@ public final class FileVersion
    }
 
    private int m_value;
-
-   /**
-    * Constant representing file version.
-    */
-   public static final FileVersion VERSION_1_0 = new FileVersion(1);
-
-   /**
-    * Constant representing file version.
-    */
-   public static final FileVersion VERSION_3_0 = new FileVersion(3);
-
-   /**
-    * Constant representing file version.
-    */
-   public static final FileVersion VERSION_4_0 = new FileVersion(4);
 }

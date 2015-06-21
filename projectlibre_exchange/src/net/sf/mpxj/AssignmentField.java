@@ -61,7 +61,6 @@ public enum AssignmentField implements FieldType
    REMAINING_WORK(DataType.WORK),
    LEVELING_DELAY_UNITS(DataType.TIME_UNITS),
    LEVELING_DELAY(DataType.DURATION, LEVELING_DELAY_UNITS),
-   DELAY(DataType.DURATION),
    UNIQUE_ID(DataType.INTEGER),
    TASK_UNIQUE_ID(DataType.INTEGER),
    RESOURCE_UNIQUE_ID(DataType.INTEGER),
@@ -473,7 +472,7 @@ public enum AssignmentField implements FieldType
    ENTERPRISE_RESOURCE_OUTLINE_CODE28(DataType.STRING),
    ENTERPRISE_RESOURCE_OUTLINE_CODE29(DataType.STRING),
    ENTERPRISE_RESOURCE_RBS(DataType.STRING),
-   RESOURCE_REQUEST_TYPE(DataType.STRING),
+   RESOURCE_REQUEST_TYPE(DataType.RESOURCE_REQUEST_TYPE),
    ENTERPRISE_TEAM_MEMBER(DataType.STRING),
    ENTERPRISE_RESOURCE_MULTI_VALUE20(DataType.STRING),
    ENTERPRISE_RESOURCE_MULTI_VALUE21(DataType.STRING),
@@ -520,6 +519,59 @@ public enum AssignmentField implements FieldType
    UNAVAILABLE(DataType.STRING), // Dummy entry
    HYPERLINK_DATA(DataType.BINARY),
 
+   // KEEP THESE TOGETHER AND IN ORDER
+   ENTERPRISE_CUSTOM_FIELD1(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD2(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD3(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD4(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD5(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD6(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD7(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD8(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD9(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD10(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD11(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD12(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD13(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD14(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD15(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD16(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD17(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD18(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD19(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD20(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD21(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD22(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD23(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD24(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD25(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD26(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD27(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD28(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD29(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD30(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD31(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD32(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD33(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD34(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD35(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD36(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD37(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD38(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD39(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD40(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD41(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD42(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD43(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD44(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD45(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD46(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD47(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD48(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD49(DataType.STRING),
+   ENTERPRISE_CUSTOM_FIELD50(DataType.STRING),
+   // KEEP THESE TOGETHER AND IN ORDER
+
    FINISH(DataType.DATE); // Must always be last value
 
    /**
@@ -547,7 +599,15 @@ public enum AssignmentField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public String getName()
+   @Override public FieldTypeClass getFieldTypeClass()
+   {
+      return FieldTypeClass.ASSIGNMENT;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override public String getName()
    {
       return (getName(Locale.ENGLISH));
    }
@@ -555,7 +615,7 @@ public enum AssignmentField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public String getName(Locale locale)
+   @Override public String getName(Locale locale)
    {
       String[] titles = LocaleData.getStringArray(locale, LocaleData.ASSIGNMENT_COLUMNS);
       String result = null;
@@ -571,7 +631,7 @@ public enum AssignmentField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -579,7 +639,7 @@ public enum AssignmentField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public DataType getDataType()
+   @Override public DataType getDataType()
    {
       return (m_dataType);
    }
@@ -587,7 +647,7 @@ public enum AssignmentField implements FieldType
    /**
     * {@inheritDoc}
     */
-   public FieldType getUnitsType()
+   @Override public FieldType getUnitsType()
    {
       return m_unitsType;
    }

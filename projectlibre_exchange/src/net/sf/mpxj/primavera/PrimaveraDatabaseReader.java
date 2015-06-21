@@ -38,12 +38,13 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import net.sf.mpxj.Day;
+import net.sf.mpxj.FieldType;
 import net.sf.mpxj.MPXJException;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
+import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.listener.ProjectListener;
 import net.sf.mpxj.reader.ProjectReader;
-import net.sf.mpxj.utility.NumberUtility;
 
 /**
  * This class provides a generic front end to read project data from
@@ -54,7 +55,7 @@ public final class PrimaveraDatabaseReader implements ProjectReader
    /**
     * {@inheritDoc}
     */
-   public void addProjectListener(ProjectListener listener)
+   @Override public void addProjectListener(ProjectListener listener)
    {
       if (m_projectListeners == null)
       {
@@ -103,11 +104,11 @@ public final class PrimaveraDatabaseReader implements ProjectReader
    {
       try
       {
-         m_reader = new PrimaveraReader();
+         m_reader = new PrimaveraReader(m_udfCounters, m_resourceFields, m_wbsFields, m_taskFields, m_assignmentFields, m_aliases, m_matchPrimaveraWBS);
          ProjectFile project = m_reader.getProject();
-         project.addProjectListeners(m_projectListeners);
+         project.getEventManager().addProjectListeners(m_projectListeners);
 
-         processProjectHeader();
+         processProjectProperties();
          processCalendars();
          processResources();
          processTasks();
@@ -164,32 +165,47 @@ public final class PrimaveraDatabaseReader implements ProjectReader
    }
 
    /**
-    * Select the project header row from the database.
+    * Select the project properties from the database.
     * 
     * @throws SQLException
     */
-   private void processProjectHeader() throws SQLException
+   private void processProjectProperties() throws SQLException
    {
       //
       // Process common attributes
       //
       List<Row> rows = getRows("select * from " + m_schema + "project where proj_id=?", m_projectID);
-      m_reader.processProjectHeader(rows);
+      m_reader.processProjectProperties(rows);
 
       //
       // Process PMDB-specific attributes
       //
-      rows = getRows("select * from " + m_schema + "prefer join " + m_schema + "currtype on currtype.curr_id =prefer.curr_id where prefer.delete_date is null");
+      rows = getRows("select * from " + m_schema + "prefer where prefer.delete_date is null");
       if (!rows.isEmpty())
       {
          Row row = rows.get(0);
-         ProjectHeader ph = m_reader.getProject().getProjectHeader();
+         ProjectProperties ph = m_reader.getProject().getProjectProperties();
          ph.setCreationDate(row.getDate("create_date"));
          ph.setLastSaved(row.getDate("update_date"));
-         ph.setMinutesPerDay(Integer.valueOf(row.getInt("day_hr_cnt") * 60));
-         ph.setMinutesPerWeek(Integer.valueOf(row.getInt("week_hr_cnt") * 60));
+         ph.setMinutesPerDay(Double.valueOf(row.getDouble("day_hr_cnt").doubleValue() * 60));
+         ph.setMinutesPerWeek(Double.valueOf(row.getDouble("week_hr_cnt").doubleValue() * 60));
          ph.setWeekStartDay(Day.getInstance(row.getInt("week_start_day_num")));
 
+         processDefaultCurrency(row.getInteger("curr_id"));
+      }
+   }
+
+   /**
+    * Select the default currency properties from the database.
+    * 
+    * @param currencyID default currency ID
+    */
+   private void processDefaultCurrency(Integer currencyID) throws SQLException
+   {
+      List<Row> rows = getRows("select * from " + m_schema + "currtype where curr_id=?", currencyID);
+      if (!rows.isEmpty())
+      {
+         Row row = rows.get(0);
          m_reader.processDefaultCurrency(row);
       }
    }
@@ -214,7 +230,8 @@ public final class PrimaveraDatabaseReader implements ProjectReader
    {
       List<Row> wbs = getRows("select * from " + m_schema + "projwbs where proj_id=? and delete_date is null order by parent_wbs_id,seq_num", m_projectID);
       List<Row> tasks = getRows("select * from " + m_schema + "task where proj_id=? and delete_date is null", m_projectID);
-      m_reader.processTasks(wbs, tasks);
+      List<Row> costs = getRows("select * from " + m_schema + "projcost where proj_id=? and delete_date is null", m_projectID);
+      m_reader.processTasks(wbs, tasks, costs);
    }
 
    /**
@@ -285,7 +302,7 @@ public final class PrimaveraDatabaseReader implements ProjectReader
    /**
     * {@inheritDoc}
     */
-   public ProjectFile read(String fileName)
+   @Override public ProjectFile read(String fileName)
    {
       throw new UnsupportedOperationException();
    }
@@ -293,7 +310,7 @@ public final class PrimaveraDatabaseReader implements ProjectReader
    /**
     * {@inheritDoc}
     */
-   public ProjectFile read(File file)
+   @Override public ProjectFile read(File file)
    {
       throw new UnsupportedOperationException();
    }
@@ -301,7 +318,7 @@ public final class PrimaveraDatabaseReader implements ProjectReader
    /**
     * {@inheritDoc}
     */
-   public ProjectFile read(InputStream inputStream)
+   @Override public ProjectFile read(InputStream inputStream)
    {
       throw new UnsupportedOperationException();
    }
@@ -356,7 +373,7 @@ public final class PrimaveraDatabaseReader implements ProjectReader
          List<Row> result = new LinkedList<Row>();
 
          m_ps = m_connection.prepareStatement(sql);
-         m_ps.setInt(1, NumberUtility.getInt(var));
+         m_ps.setInt(1, NumberHelper.getInt(var));
          m_rs = m_ps.executeQuery();
          populateMetaData();
          while (m_rs.next())
@@ -450,9 +467,16 @@ public final class PrimaveraDatabaseReader implements ProjectReader
     */
    public void setSchema(String schema)
    {
-      if (schema.charAt(schema.length() - 1) != '.')
+      if (schema == null)
       {
-         schema = schema + '.';
+         schema = "";
+      }
+      else
+      {
+         if (!schema.isEmpty() && !schema.endsWith("."))
+         {
+            schema = schema + '.';
+         }
       }
       m_schema = schema;
    }
@@ -467,6 +491,91 @@ public final class PrimaveraDatabaseReader implements ProjectReader
       return m_schema;
    }
 
+   /**
+    * Override the default field name mapping for user defined types.
+    * 
+    * @param type target user defined data type
+    * @param fieldName field name
+    */
+   public void setFieldNameForUdfType(UserFieldDataType type, String fieldName)
+   {
+      m_udfCounters.setFieldNameForType(type, fieldName);
+   }
+
+   /**
+    * Customise the data retrieved by this reader by modifying the contents of this map.
+    * 
+    * @return Primavera field name to MPXJ field type map
+    */
+   public Map<FieldType, String> getResourceFieldMap()
+   {
+      return m_resourceFields;
+   }
+
+   /**
+    * Customise the data retrieved by this reader by modifying the contents of this map.
+    * 
+    * @return Primavera field name to MPXJ field type map
+    */
+   public Map<FieldType, String> getWbsFieldMap()
+   {
+      return m_wbsFields;
+   }
+
+   /**
+    * Customise the data retrieved by this reader by modifying the contents of this map.
+    * 
+    * @return Primavera field name to MPXJ field type map
+    */
+   public Map<FieldType, String> getTaskFieldMap()
+   {
+      return m_taskFields;
+   }
+
+   /**
+    * Customise the data retrieved by this reader by modifying the contents of this map.
+    * 
+    * @return Primavera field name to MPXJ field type map
+    */
+   public Map<FieldType, String> getAssignmentFields()
+   {
+      return m_assignmentFields;
+   }
+
+   /**
+    * Customise the MPXJ field name aliases applied by this reader by modifying the contents of this map.
+    * 
+    * @return Primavera field name to MPXJ field type map
+    */
+   public Map<FieldType, String> getAliases()
+   {
+      return m_aliases;
+   }
+
+   /**
+    * If set to true, the WBS for each task read from Primavera will exactly match the WBS value shown in Primavera.
+    * If set to false, each task will be given a unique WBS based on the WBS present in Primavera.
+    * Defaults to true.
+    * 
+    * @return flag value
+    */
+   public boolean getMatchPrimaveraWBS()
+   {
+      return m_matchPrimaveraWBS;
+   }
+
+   /**
+    * If set to true, the WBS for each task read from Primavera will exactly match the WBS value shown in Primavera.
+    * If set to false, each task will be given a unique WBS based on the WBS present in Primavera.
+    * Defaults to true. 
+    * 
+    * @param matchPrimaveraWBS flag value
+    */
+   public void setMatchPrimaveraWBS(boolean matchPrimaveraWBS)
+   {
+      m_matchPrimaveraWBS = matchPrimaveraWBS;
+   }
+
    private PrimaveraReader m_reader;
    private Integer m_projectID;
    private String m_schema = "";
@@ -477,4 +586,12 @@ public final class PrimaveraDatabaseReader implements ProjectReader
    private ResultSet m_rs;
    private Map<String, Integer> m_meta = new HashMap<String, Integer>();
    private List<ProjectListener> m_projectListeners;
+   private UserFieldCounters m_udfCounters = new UserFieldCounters();
+   private boolean m_matchPrimaveraWBS = true;
+
+   private Map<FieldType, String> m_resourceFields = PrimaveraReader.getDefaultResourceFieldMap();
+   private Map<FieldType, String> m_wbsFields = PrimaveraReader.getDefaultWbsFieldMap();
+   private Map<FieldType, String> m_taskFields = PrimaveraReader.getDefaultTaskFieldMap();
+   private Map<FieldType, String> m_assignmentFields = PrimaveraReader.getDefaultAssignmentFieldMap();
+   private Map<FieldType, String> m_aliases = PrimaveraReader.getDefaultAliases();
 }

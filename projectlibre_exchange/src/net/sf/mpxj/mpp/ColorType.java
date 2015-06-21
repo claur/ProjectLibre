@@ -25,9 +25,9 @@ package net.sf.mpxj.mpp;
 
 import java.awt.Color;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.MpxjEnum;
+import net.sf.mpxj.common.EnumHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This enum represents the colors used by Microsoft Project.
@@ -96,7 +96,7 @@ public enum ColorType implements MpxjEnum
       }
       else
       {
-         value = NumberUtility.getInt(type);
+         value = NumberHelper.getInt(type);
       }
       return (getInstance(value));
    }
@@ -127,7 +127,7 @@ public enum ColorType implements MpxjEnum
     *
     * @return int representation of the enum
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -135,7 +135,7 @@ public enum ColorType implements MpxjEnum
    /**
     * Array mapping int types to enums.
     */
-   private static final ColorType[] TYPE_VALUES = EnumUtility.createTypeArray(ColorType.class);
+   private static final ColorType[] TYPE_VALUES = EnumHelper.createTypeArray(ColorType.class);
 
    /**
     * Internal representation of the enum int type.

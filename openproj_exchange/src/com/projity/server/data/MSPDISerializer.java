@@ -58,7 +58,7 @@ import java.util.Map;
 
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Relation;
 import net.sf.mpxj.RelationType;
 import net.sf.mpxj.ResourceAssignment;
@@ -250,10 +250,10 @@ public class MSPDISerializer implements ProjectSerializer {
         
         projectData.setProjityProject(project);
 //this doesn't appear in 2007 version of mpxj        projectData.setMicrosoftProjectCompatibleOutput(true);
-        projectFile.setAutoTaskUniqueID(true);
-        projectFile.setAutoResourceUniqueID(true);
+        projectFile.getProjectConfig().setAutoTaskUniqueID(true);
+        projectFile.getProjectConfig().setAutoResourceUniqueID(true);
         //project
-        ProjectHeader projectHeader=projectFile.getProjectHeader();
+        ProjectProperties projectHeader=projectFile.getProjectProperties();
         
 		MPXConverter.toMPXOptions(projectHeader);
 
@@ -266,13 +266,13 @@ public class MSPDISerializer implements ProjectSerializer {
 //            ProjectCalendar calendarData=projectData.addDefaultBaseCalendar();
 //            calendarData.setName(calendar.getName());
 //        }
-        projectFile.setAutoCalendarUniqueID(true);
+        projectFile.getProjectConfig().setAutoCalendarUniqueID(true);
 		CalendarService service = CalendarService.getInstance();
 		Object[] calendars=CalendarService.allBaseCalendars();
 		if (calendars!=null)
 		for (int i=0;i<calendars.length;i++){
 			WorkingCalendar workCalendar=(WorkingCalendar)calendars[i];
-			ProjectCalendar cal = projectFile.addBaseCalendar();
+			ProjectCalendar cal = projectFile.addCalendar();
 			MPXConverter.toMpxCalendar(workCalendar,cal);
 			ImportedCalendarService.getInstance().addExportedCalendar(cal,workCalendar);
 		}

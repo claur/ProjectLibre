@@ -29,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,17 +38,22 @@ import java.util.Set;
 import net.sf.mpxj.AssignmentField;
 import net.sf.mpxj.ConstraintType;
 import net.sf.mpxj.CurrencySymbolPosition;
+import net.sf.mpxj.CustomFieldContainer;
+import net.sf.mpxj.DataType;
 import net.sf.mpxj.DateRange;
 import net.sf.mpxj.Day;
 import net.sf.mpxj.DayType;
 import net.sf.mpxj.Duration;
+import net.sf.mpxj.EventManager;
 import net.sf.mpxj.FieldContainer;
 import net.sf.mpxj.FieldType;
+import net.sf.mpxj.FieldTypeClass;
 import net.sf.mpxj.Priority;
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectCalendarHours;
+import net.sf.mpxj.ProjectConfig;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Relation;
 import net.sf.mpxj.RelationType;
 import net.sf.mpxj.Resource;
@@ -56,7 +63,9 @@ import net.sf.mpxj.ResourceType;
 import net.sf.mpxj.Task;
 import net.sf.mpxj.TaskField;
 import net.sf.mpxj.TaskType;
-import net.sf.mpxj.utility.BooleanUtility;
+import net.sf.mpxj.common.BooleanHelper;
+import net.sf.mpxj.common.DateHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * This class provides a generic front end to read project data from
@@ -66,22 +75,38 @@ final class PrimaveraReader
 {
    /**
     * Constructor.
+    * 
+    * @param udfCounters user defined field data types
+    * @param resourceFields resource field mapping
+    * @param wbsFields wbs field mapping
+    * @param taskFields task field mapping
+    * @param assignmentFields assignment field mapping
+    * @param aliases alias mapping
+    * @param matchPrimaveraWBS determine WBS behaviour
     */
-   public PrimaveraReader()
+   public PrimaveraReader(UserFieldCounters udfCounters, Map<FieldType, String> resourceFields, Map<FieldType, String> wbsFields, Map<FieldType, String> taskFields, Map<FieldType, String> assignmentFields, Map<FieldType, String> aliases, boolean matchPrimaveraWBS)
    {
       m_project = new ProjectFile();
+      m_eventManager = m_project.getEventManager();
 
-      m_project.setAutoTaskUniqueID(false);
-      m_project.setAutoResourceUniqueID(false);
-      m_project.setAutoCalendarUniqueID(true);
-      m_project.setAutoAssignmentUniqueID(false);
-      m_project.setAutoWBS(false);
+      ProjectConfig config = m_project.getProjectConfig();
+      config.setAutoTaskUniqueID(false);
+      config.setAutoResourceUniqueID(false);
+      config.setAutoCalendarUniqueID(true);
+      config.setAutoAssignmentUniqueID(false);
+      config.setAutoWBS(false);
 
-      m_project.setTaskFieldAlias(TaskField.DATE1, "Suspend Date");
-      m_project.setTaskFieldAlias(TaskField.DATE2, "Resume Date");
-      m_project.setTaskFieldAlias(TaskField.TEXT1, "Code");
+      m_resourceFields = resourceFields;
+      m_wbsFields = wbsFields;
+      m_taskFields = taskFields;
+      m_assignmentFields = assignmentFields;
 
-      m_project.setResourceFieldAlias(ResourceField.NUMBER1, "Parent Resource Unique ID");
+      applyAliases(aliases);
+
+      m_udfCounters = udfCounters;
+      m_udfCounters.reset();
+
+      m_matchPrimaveraWBS = matchPrimaveraWBS;
    }
 
    /**
@@ -95,22 +120,39 @@ final class PrimaveraReader
    }
 
    /**
-    * Process project header.
+    * Process project properties.
     * 
-    * @param rows project header data.
+    * @param rows project properties data.
     */
-   public void processProjectHeader(List<Row> rows)
+   public void processProjectProperties(List<Row> rows)
    {
       if (rows.isEmpty() == false)
       {
          Row row = rows.get(0);
-         ProjectHeader header = m_project.getProjectHeader();
-         header.setCreationDate(row.getDate("create_date"));
-         header.setFinishDate(row.getDate("plan_end_date"));
-         header.setName(row.getString("proj_short_name"));
-         header.setStartDate(row.getDate("plan_start_date")); // data_date?
-         header.setProjectTitle(row.getString("proj_short_name"));
-         header.setDefaultTaskType(TASK_TYPE_MAP.get(row.getString("def_duration_type")));
+         ProjectProperties properties = m_project.getProjectProperties();
+         properties.setCreationDate(row.getDate("create_date"));
+         properties.setFinishDate(row.getDate("plan_end_date"));
+         properties.setName(row.getString("proj_short_name"));
+         properties.setStartDate(row.getDate("plan_start_date")); // data_date?
+         properties.setProjectTitle(row.getString("proj_short_name"));
+         properties.setDefaultTaskType(TASK_TYPE_MAP.get(row.getString("def_duration_type")));
+         properties.setStatusDate(row.getDate("last_recalc_date"));
+      }
+   }
+
+   /**
+    * Process User Defined Fields (UDF).
+    * 
+    * @param userDefinedFields UDFs rows
+    */
+   public void processUserDefinedFields(List<Row> userDefinedFields)
+   {
+      for (Row row : userDefinedFields)
+      {
+         if ("TASK".equals(row.getString("table_name")))
+         {
+            parseTaskUDF(row);
+         }
       }
    }
 
@@ -123,87 +165,149 @@ final class PrimaveraReader
    {
       for (Row row : rows)
       {
-         ProjectCalendar calendar;
-         String calendarType = row.getString("clndr_type");
-         if (calendarType != null && calendarType.toUpperCase().equals("CA_RSRC"))
-         {
-            calendar = m_project.addResourceCalendar();
-         }
-         else
-         {
-            calendar = m_project.addBaseCalendar();
-         }
+         processCalendar(row);
+      }
+   }
 
-         Integer id = row.getInteger("clndr_id");
-         m_calMap.put(id, calendar);
-         calendar.setName(row.getString("clndr_name"));
+   /**
+    * Process data for an individual calendar.
+    * 
+    * @param row calendar data
+    */
+   public void processCalendar(Row row)
+   {
+      ProjectCalendar calendar = m_project.addCalendar();
 
-         // Process data
-         String calendarData = row.getString("clndr_data");
-         if (calendarData != null && !calendarData.isEmpty())
+      Integer id = row.getInteger("clndr_id");
+      m_calMap.put(id, calendar);
+      calendar.setName(row.getString("clndr_name"));
+
+      // Process data
+      String calendarData = row.getString("clndr_data");
+      if (calendarData != null && !calendarData.isEmpty())
+      {
+         Record root = getCalendarDataRecord(calendarData);
+         if (root != null)
          {
-            Record root = new Record(calendarData);
-            // Retrieve working hours ...
-            Record daysOfWeek = root.getChild("DaysOfWeek");
-            if (daysOfWeek != null)
+            processCalendarDays(calendar, root);
+            processCalendarExceptions(calendar, root);
+         }
+      }
+
+      m_eventManager.fireCalendarReadEvent(calendar);
+   }
+
+   /**
+    * Create a structured calendar Record instance from the flat calendar data.
+    * 
+    * @param calendarData flat calendar data
+    * @return calendar Record instance
+    */
+   private Record getCalendarDataRecord(String calendarData)
+   {
+      Record root;
+
+      try
+      {
+         root = new Record(calendarData);
+      }
+
+      //
+      // I've come across invalid calendar data in an otherwise fine Primavera
+      // database belonging to a customer. We deal with this gracefully here
+      // rather than propagating an exception.
+      //
+      catch (Exception ex)
+      {
+         root = null;
+      }
+
+      return root;
+   }
+
+   /**
+    * Process calendar days of the week.
+    * 
+    * @param calendar project calendar
+    * @param root calendar data
+    */
+   private void processCalendarDays(ProjectCalendar calendar, Record root)
+   {
+      // Retrieve working hours ...
+      Record daysOfWeek = root.getChild("DaysOfWeek");
+      if (daysOfWeek != null)
+      {
+         for (Record dayRecord : daysOfWeek.getChildren())
+         {
+            processCalendarHours(calendar, dayRecord);
+         }
+      }
+   }
+
+   /**
+    * Process hours in a working day.
+    * 
+    * @param calendar project calendar
+    * @param dayRecord working day data
+    */
+   private void processCalendarHours(ProjectCalendar calendar, Record dayRecord)
+   {
+      // ... for each day of the week
+      Day day = Day.getInstance(Integer.parseInt(dayRecord.getField()));
+      // Get hours
+      List<Record> recHours = dayRecord.getChildren();
+      if (recHours.size() == 0)
+      {
+         // No data -> not working
+         calendar.setWorkingDay(day, false);
+      }
+      else
+      {
+         calendar.setWorkingDay(day, true);
+         // Read hours
+         ProjectCalendarHours hours = calendar.addCalendarHours(day);
+         for (Record recWorkingHours : recHours)
+         {
+            if (recWorkingHours.getValue() != null)
             {
-               for (Record recDay : daysOfWeek.getChildren())
+               String[] wh = recWorkingHours.getValue().split("\\|");
+               try
                {
-                  // ... for each day of the week
-                  Day day = Day.getInstance(Integer.parseInt(recDay.getField()));
-                  // Get hours
-                  List<Record> recHours = recDay.getChildren();
-                  if (recHours.size() == 0)
-                  {
-                     // No data -> not working
-                     calendar.setWorkingDay(day, false);
-                  }
-                  else
-                  {
-                     calendar.setWorkingDay(day, true);
-                     // Read hours
-                     ProjectCalendarHours hours = calendar.addCalendarHours(day);
-                     for (Record recWorkingHours : recHours)
-                     {
-                        if (recWorkingHours.getValue() != null)
-                        {
-                           String[] wh = recWorkingHours.getValue().split("\\|");
-                           try
-                           {
-                              Date start = m_calendarTimeFormat.parse(wh[1]);
-                              Date end = m_calendarTimeFormat.parse(wh[3]);
-                              hours.addRange(new DateRange(start, end));
-                           }
-                           catch (ParseException e)
-                           {
-                              // silently ignore date parse exceptions
-                           }
-                        }
-                     }
-                  }
+                  Date start = m_calendarTimeFormat.parse(wh[1]);
+                  Date end = m_calendarTimeFormat.parse(wh[3]);
+                  hours.addRange(new DateRange(start, end));
+               }
+               catch (ParseException e)
+               {
+                  // silently ignore date parse exceptions
                }
             }
-
-            // Retrieve exceptions
-            Record exceptions = root.getChild("Exceptions");
-            if (exceptions == null)
-            {
-               continue;
-            }
-
-            for (Record exception : exceptions.getChildren())
-            {
-               int daysFrom1900 = Integer.parseInt(exception.getValue().split("\\|")[1]);
-               int daysFrom1970 = daysFrom1900 - 25567 - 2;
-               // 25567 -> Number of days between 1900 and 1970.
-               // During tests a 2 days offset was necessary to obtain good dates
-               // However I didn't figured out why there is such a difference.
-               Date startEx = new Date(daysFrom1970 * 24l * 60l * 60l * 1000);
-               calendar.addCalendarException(startEx, startEx);
-            }
          }
+      }
+   }
 
-         m_project.fireCalendarReadEvent(calendar);
+   /**
+    * Process calendar exceptions.
+    * 
+    * @param calendar project calendar
+    * @param root calendar data
+    */
+   private void processCalendarExceptions(ProjectCalendar calendar, Record root)
+   {
+      // Retrieve exceptions
+      Record exceptions = root.getChild("Exceptions");
+      if (exceptions != null)
+      {
+         for (Record exception : exceptions.getChildren())
+         {
+            int daysFrom1900 = Integer.parseInt(exception.getValue().split("\\|")[1]);
+            int daysFrom1970 = daysFrom1900 - 25567 - 2;
+            // 25567 -> Number of days between 1900 and 1970.
+            // During tests a 2 days offset was necessary to obtain good dates
+            // However I didn't figured out why there is such a difference.
+            Date startEx = new Date(daysFrom1970 * 24l * 60l * 60l * 1000);
+            calendar.addCalendarException(startEx, startEx);
+         }
       }
    }
 
@@ -216,73 +320,66 @@ final class PrimaveraReader
    {
       for (Row row : rows)
       {
-         //
-         // Retrieve the core resource data
-         //
          Resource resource = m_project.addResource();
-         resource.setUniqueID(row.getInteger("rsrc_id"));
-         resource.setName(row.getString("rsrc_name"));
-         resource.setCode(row.getString("employee_code"));
-         resource.setEmailAddress(row.getString("email_addr"));
-         resource.setNotes(row.getString("rsrc_notes"));
-         resource.setCreationDate(row.getDate("create_date"));
-         resource.setType(RESOURCE_TYPE_MAP.get(row.getString("rsrc_type")));
-         resource.setInitials(row.getString("rsrc_short_name"));
-         //resource.setMaxUnits(maxUnits); // RSRCRATE.max_qty_per_hr?
-         //resource.setStandardRate(val); // RSRCRATE.cost_per_qty?
-         //resource.setOvertimeRate(overtimeRate); // RSRCRATE.cost_per_qty * RSRC.ot_factor?
-         //resource.setGroup(val); parent resource name?
-         resource.setNumber1(row.getInteger("parent_rsrc_id"));
+         processFields(m_resourceFields, row, resource);
+         resource.setResourceCalendar(getResourceCalendar(row.getInteger("clndr_id")));
+         m_eventManager.fireResourceReadEvent(resource);
+      }
+   }
 
-         //
-         // Attempt to locate a calendar for this resource
-         //
-         Integer calendarID = row.getInteger("clndr_id");
-         if (calendarID != null)
+   /**
+    * Retrieve the correct calendar for a resource.
+    * 
+    * @param calendarID calendar ID
+    * @return calendar for resource
+    */
+   private ProjectCalendar getResourceCalendar(Integer calendarID)
+   {
+      ProjectCalendar result = null;
+      if (calendarID != null)
+      {
+         ProjectCalendar calendar = m_calMap.get(calendarID);
+         if (calendar != null)
          {
-            ProjectCalendar calendar = m_calMap.get(calendarID);
-            if (calendar != null)
+            //
+            // If the resource is linked to a base calendar, derive
+            // a default calendar from the base calendar.
+            //
+            if (!calendar.isDerived())
+            {
+               ProjectCalendar resourceCalendar = m_project.addCalendar();
+               resourceCalendar.setParent(calendar);
+               resourceCalendar.setWorkingDay(Day.MONDAY, DayType.DEFAULT);
+               resourceCalendar.setWorkingDay(Day.TUESDAY, DayType.DEFAULT);
+               resourceCalendar.setWorkingDay(Day.WEDNESDAY, DayType.DEFAULT);
+               resourceCalendar.setWorkingDay(Day.THURSDAY, DayType.DEFAULT);
+               resourceCalendar.setWorkingDay(Day.FRIDAY, DayType.DEFAULT);
+               resourceCalendar.setWorkingDay(Day.SATURDAY, DayType.DEFAULT);
+               resourceCalendar.setWorkingDay(Day.SUNDAY, DayType.DEFAULT);
+               result = resourceCalendar;
+            }
+            else
             {
                //
-               // If the resource is linked to a base calendar, derive
-               // a default calendar from the base calendar.
+               // Primavera seems to allow a calendar to be shared between resources
+               // whereas in the MS Project model there is a one-to-one
+               // relationship. If we find a shared calendar, take a copy of it
                //
-               if (!calendar.isDerived())
+               if (calendar.getResource() == null)
                {
-                  ProjectCalendar resourceCalendar = m_project.addResourceCalendar();
-                  resourceCalendar.setParent(calendar);
-                  resourceCalendar.setWorkingDay(Day.MONDAY, DayType.DEFAULT);
-                  resourceCalendar.setWorkingDay(Day.TUESDAY, DayType.DEFAULT);
-                  resourceCalendar.setWorkingDay(Day.WEDNESDAY, DayType.DEFAULT);
-                  resourceCalendar.setWorkingDay(Day.THURSDAY, DayType.DEFAULT);
-                  resourceCalendar.setWorkingDay(Day.FRIDAY, DayType.DEFAULT);
-                  resourceCalendar.setWorkingDay(Day.SATURDAY, DayType.DEFAULT);
-                  resourceCalendar.setWorkingDay(Day.SUNDAY, DayType.DEFAULT);
-                  resource.setResourceCalendar(resourceCalendar);
+                  result = calendar;
                }
                else
                {
-                  //
-                  // Primavera seems to allow a calendar to be shared between resources
-                  // whereas in the MS Project model there is a one-to-one
-                  // relationship. If we find a shared calendar, take a copy of it
-                  //
-                  if (calendar.getResource() == null)
-                  {
-                     resource.setResourceCalendar(calendar);
-                  }
-                  else
-                  {
-                     ProjectCalendar copy = m_project.addResourceCalendar();
-                     copy.copy(calendar);
-                     resource.setResourceCalendar(copy);
-                  }
+                  ProjectCalendar copy = m_project.addCalendar();
+                  copy.copy(calendar);
+                  result = copy;
                }
             }
          }
-
-         m_project.fireResourceReadEvent(resource);
       }
+
+      return result;
    }
 
    /**
@@ -290,59 +387,41 @@ final class PrimaveraReader
     * 
     * @param wbs WBS task data
     * @param tasks task data
+    * @param costs task costs
     */
-   public void processTasks(List<Row> wbs, List<Row> tasks/*, List<Row> wbsmemos, List<Row> taskmemos*/)
+   public void processTasks(List<Row> wbs, List<Row> tasks, List<Row> costs)
+   {
+      processTasks(wbs, tasks, costs, null);
+   }
+
+   /**
+    * Process tasks.
+    * 
+    * @param wbs WBS task data
+    * @param tasks task data
+    * @param costs task costs
+    * @param udfVals User Defined Fields values data
+    */
+   public void processTasks(List<Row> wbs, List<Row> tasks, List<Row> costs, List<Row> udfVals)
    {
       Set<Integer> uniqueIDs = new HashSet<Integer>();
+      Map<Integer, TaskCosts> taskCostsMap = processCosts(costs);
 
       //
       // Read WBS entries and create tasks
       //
-
       for (Row row : wbs)
       {
          Task task = m_project.addTask();
-         Integer uniqueID = row.getInteger("wbs_id");
-         uniqueIDs.add(uniqueID);
-
-         task.setUniqueID(uniqueID);
-         task.setName(row.getString("wbs_name"));
-         task.setBaselineCost(row.getDouble("orig_cost"));
-         task.setRemainingCost(row.getDouble("indep_remain_total_cost"));
-         task.setRemainingWork(row.getDuration("indep_remain_work_qty"));
-         task.setStart(row.getDate("anticip_start_date"));
-         task.setFinish(row.getDate("anticip_end_date"));
-         task.setDate1(row.getDate("suspend_date"));
-         task.setDate2(row.getDate("resume_date"));
-         task.setText1(row.getString("task_code"));
-         task.setWBS(row.getString("wbs_short_name"));
-         //task.setNotes(getNotes(wbsmemos, "wbs_id", uniqueID.intValue(), "wbs_memo"));
-
-         //
-         // When reading from the database it appears that we could join
-         // the PROJWBS table to the TASKSUM table to retrieve the 
-         // additional summarise values noted below. Before adding this 
-         // functionality it would be helpful to understand from a real
-         // Primavera user if this is a valid thing to do?
-         //
-         //task.setActualDuration(val); // act_drtn_hr_cnt
-         //task.setActualWork(val); // act_work_qty
-         //task.setDuration(val); // total_drtn_hr_cnt
-         //task.setBaselineDuration(val); // base_drtn_hr_cnt
-         //task.setBaselineWork(val); // base_work_qty
-         //task.setRemainingDuration(val); // remain_drtn_hr_cnt
-         //task.setRemainingWork(val); // remain_work_qty
-         //task.setTotalSlack(val); // total_float_hr_cnt
-         //task.setBCWP(val); // bcwp
-         //task.setBCWS(val); // bcws
-         //task.setActualCost(val); // act_expense_cost+act_work_cost+ act_equip_cost+act_mat_cost
-         //task.setBaselineCost(val); // base_expense_cost+base_work_cost+base_equip_cost+base_mat_cost
-         //task.setRemainingCost(val); // remain_expense_cost+remain_work_cost+remain_equip_cost+remain_mat_cost          
+         processFields(m_wbsFields, row, task);
+         uniqueIDs.add(task.getUniqueID());
+         m_eventManager.fireTaskReadEvent(task);
       }
 
       //
       // Create hierarchical structure
       //
+      FieldType activityIDField = getActivityIDField(m_wbsFields);
       m_project.getChildTasks().clear();
       for (Row row : wbs)
       {
@@ -357,6 +436,10 @@ final class PrimaveraReader
             m_project.getChildTasks().remove(task);
             parentTask.getChildTasks().add(task);
             task.setWBS(parentTask.getWBS() + "." + task.getWBS());
+            if (activityIDField != null)
+            {
+               task.set(activityIDField, task.getWBS() + " " + task.getName());
+            }
          }
       }
 
@@ -367,19 +450,6 @@ final class PrimaveraReader
       m_clashMap.clear();
       for (Row row : tasks)
       {
-         Integer uniqueID = row.getInteger("task_id");
-         if (uniqueIDs.contains(uniqueID))
-         {
-            while (uniqueIDs.contains(Integer.valueOf(nextID)))
-            {
-               ++nextID;
-            }
-            Integer newUniqueID = Integer.valueOf(nextID);
-            m_clashMap.put(uniqueID, newUniqueID);
-            uniqueID = newUniqueID;
-         }
-         uniqueIDs.add(uniqueID);
-
          Task task;
          Integer parentTaskID = row.getInteger("wbs_id");
          Task parentTask = m_project.getTaskByUniqueID(parentTaskID);
@@ -392,62 +462,235 @@ final class PrimaveraReader
             task = parentTask.addTask();
          }
 
-         task.setUniqueID(uniqueID);
-         task.setPercentageComplete(row.getDouble("phys_complete_pct"));
-         task.setName(row.getString("task_name"));
-         task.setRemainingDuration(row.getDuration("remain_drtn_hr_cnt"));
-         task.setActualWork(row.getDuration("act_work_qty"));
-         task.setRemainingWork(row.getDuration("remain_work_qty"));
-         task.setBaselineWork(row.getDuration("target_work_qty"));
-         task.setBaselineDuration(row.getDuration("target_drtn_hr_cnt"));
-         task.setConstraintDate(row.getDate("cstr_date"));
-         task.setActualStart(row.getDate("act_start_date"));
-         task.setActualFinish(row.getDate("act_end_date"));
-         task.setLateStart(row.getDate("late_start_date"));
-         task.setLateFinish(row.getDate("late_end_date"));
-         task.setFinish(row.getDate("expect_end_date"));
-         task.setEarlyStart(row.getDate("early_start_date"));
-         task.setEarlyFinish(row.getDate("early_end_date"));
-         task.setBaselineStart(row.getDate("target_start_date"));
-         task.setBaselineFinish(row.getDate("target_end_date"));
-         task.setConstraintType(CONSTRAINT_TYPE_MAP.get(row.getString("cstr_type")));
-         task.setPriority(PRIORITY_MAP.get(row.getString("priority_type")));
-         task.setCreateDate(row.getDate("create_date"));
-         task.setType(TASK_TYPE_MAP.get(row.getString("duration_type")));
-         //task.setNotes(getNotes(taskmemos, "task_id", uniqueID.intValue(), "task_memo"));
-         task.setMilestone(BooleanUtility.getBoolean(MILESTONE_MAP.get(row.getString("task_type"))));
-         task.setFreeSlack(row.getDuration("free_float_hr_cnt"));
-         task.setTotalSlack(row.getDuration("total_float_hr_cnt"));
+         processFields(m_taskFields, row, task);
+
+         task.setMilestone(BooleanHelper.getBoolean(MILESTONE_MAP.get(row.getString("task_type"))));
+         task.setPercentageComplete(calculatePercentComplete(row));
+
+         if (m_matchPrimaveraWBS && parentTask != null)
+         {
+            task.setWBS(parentTask.getWBS());
+         }
+
+         Integer uniqueID = task.getUniqueID();
+         if (uniqueIDs.contains(uniqueID))
+         {
+            while (uniqueIDs.contains(Integer.valueOf(nextID)))
+            {
+               ++nextID;
+            }
+            Integer newUniqueID = Integer.valueOf(nextID);
+            m_clashMap.put(uniqueID, newUniqueID);
+            uniqueID = newUniqueID;
+            task.setUniqueID(uniqueID);
+         }
+         uniqueIDs.add(uniqueID);
 
          //
-         // The Primavera field names listed below come from Oracle 
-         // documentation, but do not appear in the XER file or
-         // in the TASK table.
-         // 
-         //task.setDuration(val); total_drtn_hr_cnt ?
-         //task.setActualDuration(val); act_drtn_hr_cnt ?                   
-         //task.setStart(val); start_date ?         
-         //task.setFinish(date); finish_date ?
-         //task.setPercentageComplete(val); // drtn_complete_pct ?
-         //task.setWork(val); // total_work_qty ?
-         //task.setCost(); // EAC ?
-         //task.setFixedCost(val); // total_expense_cost ?
-         //task.setBaselineCost(val); // bac ?
-         //task.setActualCost(val); // acwp ?
-         //task.setRemainingCost(val); // etc ?
+         // Apply costs if we have any
+         //
+         TaskCosts taskCosts = taskCostsMap.get(row.getInteger("task_id"));
+         if (taskCosts != null)
+         {
+            task.setActualCost(taskCosts.getActual());
+            task.setCost(taskCosts.getPlanned());
+            task.setRemainingCost(taskCosts.getRemaining());
+         }
 
          Integer calId = row.getInteger("clndr_id");
          ProjectCalendar cal = m_calMap.get(calId);
          task.setCalendar(cal);
 
-         populateField(task, TaskField.START, TaskField.BASELINE_START, TaskField.ACTUAL_START);
-         populateField(task, TaskField.FINISH, TaskField.BASELINE_FINISH, TaskField.ACTUAL_FINISH);
+         Date startDate = row.getDate("act_start_date") == null ? row.getDate("restart_date") : row.getDate("act_start_date");
+         task.setStart(startDate);
+         Date endDate = row.getDate("act_end_date") == null ? row.getDate("reend_date") : row.getDate("act_end_date");
+         task.setFinish(endDate);
+
          populateField(task, TaskField.WORK, TaskField.BASELINE_WORK, TaskField.ACTUAL_WORK);
 
-         m_project.fireTaskReadEvent(task);
+         // Add User Defined Fields
+         List<Row> taskUDF = getTaskUDF(uniqueID, udfVals);
+         for (Row r : taskUDF)
+         {
+            addTaskUDFValue(task, r);
+         }
+
+         m_eventManager.fireTaskReadEvent(task);
       }
 
       updateStructure();
+      updateDates();
+   }
+
+   /**
+    * Determine which field the Activity ID has been mapped to.
+    * 
+    * @param map field map
+    * @return field
+    */
+   private FieldType getActivityIDField(Map<FieldType, String> map)
+   {
+      FieldType result = null;
+      for (Map.Entry<FieldType, String> entry : map.entrySet())
+      {
+         if (entry.getValue().equals("task_code"))
+         {
+            result = entry.getKey();
+            break;
+         }
+      }
+      return result;
+   }
+
+   /**
+    * Summarise cost values for each task.
+    * 
+    * @param costs list of cost rows
+    * @return map of task IDs to costs
+    */
+   private Map<Integer, TaskCosts> processCosts(List<Row> costs)
+   {
+      Map<Integer, TaskCosts> map = new HashMap<Integer, TaskCosts>();
+      for (Row cost : costs)
+      {
+         Integer taskID = cost.getInteger("task_id");
+         TaskCosts taskCosts = map.get(taskID);
+         if (taskCosts == null)
+         {
+            taskCosts = new TaskCosts();
+            map.put(taskID, taskCosts);
+         }
+
+         taskCosts.addActual(cost.getDouble("act_cost"));
+         taskCosts.addPlanned(cost.getDouble("target_cost"));
+         taskCosts.addRemaining(cost.getDouble("remain_cost"));
+      }
+
+      return map;
+   }
+
+   /**
+    * Configure a new user defined field.
+    *
+    * @param type field type
+    * @param name field name
+    */
+   private void addUserDefinedField(UserFieldDataType type, String name)
+   {
+      try
+      {
+         TaskField taskField;
+
+         do
+         {
+            String fieldName = m_udfCounters.nextName(type);
+            taskField = TaskField.valueOf(fieldName);
+         }
+         while (m_taskFields.containsKey(taskField) || m_wbsFields.containsKey(taskField));
+
+         m_project.getCustomFields().getCustomField(taskField).setAlias(name);
+      }
+
+      catch (Exception ex)
+      {
+         //
+         // SF#227: If we get an exception thrown here... it's likely that
+         // we've run out of user defined fields, for example
+         // there are only 30 TEXT fields. We'll ignore this: the user
+         // defined field won't be mapped to an alias, so we'll
+         // ignore it when we read in the values.
+         //
+      }
+   }
+
+   /**
+    * Parse a user defined field for a task.
+    * 
+    * @param row UDF data
+    */
+   private void parseTaskUDF(Row row)
+   {
+      Integer fieldId = Integer.valueOf(row.getString("udf_type_id"));
+      String fieldType = row.getString("logical_data_type");
+      String fieldName = row.getString("udf_type_label");
+
+      m_udfMap.put(fieldId, fieldName);
+      addUserDefinedField(UserFieldDataType.valueOf(fieldType), fieldName);
+   }
+
+   /**
+    * Adds a user defined field value to a task.
+    * 
+    * @param task Task instance
+    * @param row UDF data
+    */
+   private void addTaskUDFValue(Task task, Row row)
+   {
+      Integer fieldId = Integer.valueOf(row.getString("udf_type_id"));
+      String fieldName = m_udfMap.get(fieldId);
+      Object value = null;
+
+      FieldType field = m_project.getCustomFields().getFieldByAlias(FieldTypeClass.TASK, fieldName);
+      if (field != null)
+      {
+         DataType fieldType = field.getDataType();
+
+         switch (fieldType)
+         {
+            case DATE:
+            {
+               value = row.getDate("udf_date");
+               break;
+            }
+
+            case CURRENCY:
+            case NUMERIC:
+            {
+               value = row.getDouble("udf_number");
+               break;
+            }
+
+            case GUID:
+            case INTEGER:
+            {
+               value = row.getInteger("udf_code_id");
+               break;
+            }
+
+            default:
+            {
+               value = row.getString("udf_text");
+               break;
+            }
+         }
+
+         task.set(field, value);
+      }
+   }
+
+   /**
+    * Retrieve the user defined values for a given task.
+    * 
+    * @param taskID target task ID
+    * @param udfs user defined fields
+    * @return user defined fields for the target task
+    */
+   private List<Row> getTaskUDF(Integer taskID, List<Row> udfs)
+   {
+      List<Row> udf = new LinkedList<Row>();
+
+      if (udfs != null)
+      {
+         for (Row row : udfs)
+         {
+            if (taskID.equals(row.getInteger("fk_id")))
+            {
+               udf.add(row);
+            }
+         }
+      }
+
+      return udf;
    }
 
    /*   
@@ -520,6 +763,78 @@ final class PrimaveraReader
    }
 
    /**
+    * The Primavera WBS entries we read in as tasks have user-entered start and end dates
+    * which aren't calculated or adjusted based on the child task dates. We try
+    * to compensate for this by using these user-entered dates as baseline dates, and
+    * deriving the planned start, actual start, planned finish and actual finish from
+    * the child tasks. This method recursively descends through the tasks to do this.
+    */
+   private void updateDates()
+   {
+      for (Task task : m_project.getChildTasks())
+      {
+         updateDates(task);
+      }
+   }
+
+   /**
+    * See the notes above.
+    * 
+    * @param parentTask parent task.
+    */
+   private void updateDates(Task parentTask)
+   {
+      int finished = 0;
+      Date plannedStartDate = parentTask.getStart();
+      Date plannedFinishDate = parentTask.getFinish();
+      Date actualStartDate = parentTask.getActualStart();
+      Date actualFinishDate = parentTask.getActualFinish();
+
+      for (Task task : parentTask.getChildTasks())
+      {
+         updateDates(task);
+
+         if (plannedStartDate == null || DateHelper.compare(plannedStartDate, task.getStart()) > 0)
+         {
+            plannedStartDate = task.getStart();
+         }
+
+         if (actualStartDate == null || DateHelper.compare(actualStartDate, task.getActualStart()) > 0)
+         {
+            actualStartDate = task.getActualStart();
+         }
+
+         if (plannedFinishDate == null || DateHelper.compare(plannedFinishDate, task.getFinish()) < 0)
+         {
+            plannedFinishDate = task.getFinish();
+         }
+
+         if (actualFinishDate == null || DateHelper.compare(actualFinishDate, task.getActualFinish()) < 0)
+         {
+            actualFinishDate = task.getFinish();
+         }
+
+         if (task.getActualFinish() != null)
+         {
+            ++finished;
+         }
+      }
+
+      parentTask.setStart(plannedStartDate);
+      parentTask.setFinish(plannedFinishDate);
+      parentTask.setActualStart(actualStartDate);
+
+      //
+      // Only if all child tasks have actual finish dates do we
+      // set the actual finish date on the parent task.
+      //
+      if (finished == parentTask.getChildTasks().size())
+      {
+         parentTask.setActualFinish(actualFinishDate);
+      }
+   }
+
+   /**
     * Processes predecessor data.
     * 
     * @param rows predecessor data
@@ -535,7 +850,7 @@ final class PrimaveraReader
             RelationType type = RELATION_TYPE_MAP.get(row.getString("pred_type"));
             Duration lag = row.getDuration("lag_hr_cnt");
             Relation relation = currentTask.addPredecessor(predecessorTask, type, lag);
-            m_project.fireRelationReadEvent(relation);
+            m_eventManager.fireRelationReadEvent(relation);
          }
       }
    }
@@ -554,42 +869,14 @@ final class PrimaveraReader
          if (task != null && resource != null)
          {
             ResourceAssignment assignment = task.addResourceAssignment(resource);
-            assignment.setUniqueID(row.getInteger("taskrsrc_id"));
-            assignment.setRemainingWork(row.getDuration("remain_qty"));
-            assignment.setBaselineWork(row.getDuration("target_qty"));
-            assignment.setActualWork(row.getDuration("act_reg_qty"));
-            assignment.setBaselineCost(row.getDouble("target_cost"));
-            assignment.setActualCost(row.getDouble("act_reg_cost")); // act_cost?
-            assignment.setActualStart(row.getDate("act_start_date"));
-            assignment.setActualFinish(row.getDate("act_end_date"));
-            assignment.setBaselineStart(row.getDate("target_start_date"));
-            assignment.setBaselineFinish(row.getDate("target_end_date"));
-            assignment.setDelay(row.getDuration("target_lag_drtn_hr_cnt"));
-            
-            // Calculation below only relevant for RT_Labor?
-            //assignment.setUnits(Double.valueOf(row.getDouble("target_qty_per_hr").doubleValue()*100));
-
-            //assignment.setWork(dur); // total_qty ?
-            
-            // Calculation below only relevant for RT_Labor?
-            //assignment.setRemainingWork(row.getDuration("target_qty")); // target_qty
-            
-            // Calculation below only relevant for RT_Labor?
-            //assignment.setActualWork(row.getDuration("act_reg_qty")); // act_reg_qty
-            
-            // Calculation below only relevant for RT_Labor?
-            //assignment.setOvertimeWork(row.getDuration("act_ot_qty")); // act_ot_qty
-            
-            //assignment.setCost(cost); // total_cost ?
-            //assignment.setStart(val); // start_date ?
-            //assignment.setFinish(val); // end_date ?            
+            processFields(m_assignmentFields, row, assignment);
 
             populateField(assignment, AssignmentField.WORK, AssignmentField.BASELINE_WORK, AssignmentField.ACTUAL_WORK);
             populateField(assignment, AssignmentField.COST, AssignmentField.BASELINE_COST, AssignmentField.ACTUAL_COST);
             populateField(assignment, AssignmentField.START, AssignmentField.BASELINE_START, AssignmentField.ACTUAL_START);
             populateField(assignment, AssignmentField.FINISH, AssignmentField.BASELINE_FINISH, AssignmentField.ACTUAL_FINISH);
 
-            m_project.fireAssignmentReadEvent(assignment);
+            m_eventManager.fireAssignmentReadEvent(assignment);
          }
       }
    }
@@ -602,12 +889,98 @@ final class PrimaveraReader
     */
    public void processDefaultCurrency(Row row)
    {
-      ProjectHeader header = m_project.getProjectHeader();
-      header.setCurrencySymbol(row.getString("curr_symbol"));
-      header.setSymbolPosition(CURRENCY_SYMBOL_POSITION_MAP.get(row.getString("pos_curr_fmt_type")));
-      header.setCurrencyDigits(row.getInteger("decimal_digit_cnt"));
-      header.setThousandsSeparator(row.getString("digit_group_symbol").charAt(0));
-      header.setDecimalSeparator(row.getString("decimal_symbol").charAt(0));
+      ProjectProperties properties = m_project.getProjectProperties();
+      properties.setCurrencySymbol(row.getString("curr_symbol"));
+      properties.setSymbolPosition(CURRENCY_SYMBOL_POSITION_MAP.get(row.getString("pos_curr_fmt_type")));
+      properties.setCurrencyDigits(row.getInteger("decimal_digit_cnt"));
+      properties.setThousandsSeparator(row.getString("digit_group_symbol").charAt(0));
+      properties.setDecimalSeparator(row.getString("decimal_symbol").charAt(0));
+   }
+
+   /**
+    * Generic method to extract Primavera fields and assign to MPXJ fields.
+    * 
+    * @param map map of MPXJ field types and Primavera field names
+    * @param row Primavera data container
+    * @param container MPXJ data contain
+    */
+   private void processFields(Map<FieldType, String> map, Row row, FieldContainer container)
+   {
+      for (Map.Entry<FieldType, String> entry : map.entrySet())
+      {
+         FieldType field = entry.getKey();
+         String name = entry.getValue();
+
+         Object value;
+         switch (field.getDataType())
+         {
+            case INTEGER:
+            {
+               value = row.getInteger(name);
+               break;
+            }
+
+            case BOOLEAN:
+            {
+               value = Boolean.valueOf(row.getBoolean(name));
+               break;
+            }
+
+            case DATE:
+            {
+               value = row.getDate(name);
+               break;
+            }
+
+            case CURRENCY:
+            case NUMERIC:
+            case PERCENTAGE:
+            {
+               value = row.getDouble(name);
+               break;
+            }
+
+            case DELAY:
+            case WORK:
+            case DURATION:
+            {
+               value = row.getDuration(name);
+               break;
+            }
+
+            case RESOURCE_TYPE:
+            {
+               value = RESOURCE_TYPE_MAP.get(row.getString(name));
+               break;
+            }
+
+            case TASK_TYPE:
+            {
+               value = TASK_TYPE_MAP.get(row.getString(name));
+               break;
+            }
+
+            case CONSTRAINT:
+            {
+               value = CONSTRAINT_TYPE_MAP.get(row.getString(name));
+               break;
+            }
+
+            case PRIORITY:
+            {
+               value = PRIORITY_MAP.get(row.getString(name));
+               break;
+            }
+
+            default:
+            {
+               value = row.getString(name);
+               break;
+            }
+         }
+
+         container.set(field, value);
+      }
    }
 
    /**
@@ -626,10 +999,262 @@ final class PrimaveraReader
       return (mappedID);
    }
 
+   /**
+    * Apply aliases to task and resource fields.
+    * 
+    * @param aliases map of aliases
+    */
+   private void applyAliases(Map<FieldType, String> aliases)
+   {
+      CustomFieldContainer fields = m_project.getCustomFields();
+      for (Map.Entry<FieldType, String> entry : aliases.entrySet())
+      {
+         fields.getCustomField(entry.getKey()).setAlias(entry.getValue());
+      }
+   }
+
+   /**
+    * Determine which type of percent complete is used on on this task,
+    * and calculate the required value.
+    * 
+    * @param row task data
+    * @return percent complete value
+    */
+   private Number calculatePercentComplete(Row row)
+   {
+      Number result;
+      switch (PercentCompleteType.getInstance(row.getString("complete_pct_type")))
+      {
+         case UNITS:
+         {
+            result = calculateUnitsPercentComplete(row);
+            break;
+         }
+
+         case DURATION:
+         {
+            result = calculateDurationPercentComplete(row);
+            break;
+         }
+
+         default:
+         {
+            result = calculatePhysicalPercentComplete(row);
+            break;
+         }
+      }
+
+      return result;
+   }
+
+   /**
+    * Calculate the physical percent complete.
+    * 
+    * @param row task data
+    * @return percent complete
+    */
+   private Number calculatePhysicalPercentComplete(Row row)
+   {
+      return row.getDouble("phys_complete_pct");
+   }
+
+   /**
+    * Calculate the units percent complete.
+    * 
+    * @param row task data
+    * @return percent complete
+    */
+   private Number calculateUnitsPercentComplete(Row row)
+   {
+      double result = 0;
+
+      double actualWorkQuantity = NumberHelper.getDouble(row.getDouble("act_work_qty"));
+      double actualEquipmentQuantity = NumberHelper.getDouble(row.getDouble("act_equip_qty"));
+      double numerator = actualWorkQuantity + actualEquipmentQuantity;
+
+      if (numerator != 0)
+      {
+         double remainingWorkQuantity = NumberHelper.getDouble(row.getDouble("remain_work_qty"));
+         double remainingEquipmentQuantity = NumberHelper.getDouble(row.getDouble("remain_equip_qty"));
+         double denominator = remainingWorkQuantity + actualWorkQuantity + remainingEquipmentQuantity + actualEquipmentQuantity;
+         result = denominator == 0 ? 0 : ((numerator * 100) / denominator);
+      }
+
+      return NumberHelper.getDouble(result);
+   }
+
+   /**
+    * Calculate the duration percent complete.
+    * 
+    * @param row task data
+    * @return percent complete
+    */
+   private Number calculateDurationPercentComplete(Row row)
+   {
+      double result = 0;
+      double targetDuration = row.getDuration("target_drtn_hr_cnt").getDuration();
+      double remainingDuration = row.getDuration("remain_drtn_hr_cnt").getDuration();
+
+      if (targetDuration == 0)
+      {
+         if (remainingDuration == 0)
+         {
+            if (row.getString("status_code").equals("TK_Complete"))
+            {
+               result = 100;
+            }
+         }
+      }
+      else
+      {
+         if (remainingDuration < targetDuration)
+         {
+            result = ((targetDuration - remainingDuration) * 100) / targetDuration;
+         }
+      }
+
+      return NumberHelper.getDouble(result);
+   }
+
+   /**
+    * Retrieve the default mapping between MPXJ resource fields and Primavera resource field names.
+    * 
+    * @return mapping
+    */
+   public static Map<FieldType, String> getDefaultResourceFieldMap()
+   {
+      Map<FieldType, String> map = new LinkedHashMap<FieldType, String>();
+
+      map.put(ResourceField.UNIQUE_ID, "rsrc_id");
+      map.put(ResourceField.NAME, "rsrc_name");
+      map.put(ResourceField.CODE, "employee_code");
+      map.put(ResourceField.EMAIL_ADDRESS, "email_addr");
+      map.put(ResourceField.NOTES, "rsrc_notes");
+      map.put(ResourceField.CREATED, "create_date");
+      map.put(ResourceField.TYPE, "rsrc_type");
+      map.put(ResourceField.INITIALS, "rsrc_short_name");
+      map.put(ResourceField.NUMBER1, "parent_rsrc_id");
+
+      return map;
+   }
+
+   /**
+    * Retrieve the default mapping between MPXJ task fields and Primavera wbs field names.
+    * 
+    * @return mapping
+    */
+   public static Map<FieldType, String> getDefaultWbsFieldMap()
+   {
+      Map<FieldType, String> map = new LinkedHashMap<FieldType, String>();
+
+      map.put(TaskField.UNIQUE_ID, "wbs_id");
+      map.put(TaskField.NAME, "wbs_name");
+      map.put(TaskField.BASELINE_COST, "orig_cost");
+      map.put(TaskField.REMAINING_COST, "indep_remain_total_cost");
+      map.put(TaskField.REMAINING_WORK, "indep_remain_work_qty");
+      map.put(TaskField.BASELINE_START, "anticip_start_date");
+      map.put(TaskField.BASELINE_FINISH, "anticip_end_date");
+      map.put(TaskField.DATE1, "suspend_date");
+      map.put(TaskField.DATE2, "resume_date");
+      map.put(TaskField.TEXT1, "task_code");
+      map.put(TaskField.WBS, "wbs_short_name");
+
+      return map;
+   }
+
+   /**
+    * Retrieve the default mapping between MPXJ task fields and Primavera task field names.
+    * 
+    * @return mapping
+    */
+   public static Map<FieldType, String> getDefaultTaskFieldMap()
+   {
+      Map<FieldType, String> map = new LinkedHashMap<FieldType, String>();
+
+      map.put(TaskField.UNIQUE_ID, "task_id");
+      map.put(TaskField.NAME, "task_name");
+      map.put(TaskField.REMAINING_DURATION, "remain_drtn_hr_cnt");
+      map.put(TaskField.ACTUAL_WORK, "act_work_qty");
+      map.put(TaskField.REMAINING_WORK, "remain_work_qty");
+      map.put(TaskField.BASELINE_WORK, "target_work_qty");
+      map.put(TaskField.BASELINE_DURATION, "target_drtn_hr_cnt");
+      map.put(TaskField.CONSTRAINT_DATE, "cstr_date");
+      map.put(TaskField.ACTUAL_START, "act_start_date");
+      map.put(TaskField.ACTUAL_FINISH, "act_end_date");
+      map.put(TaskField.LATE_START, "late_start_date");
+      map.put(TaskField.LATE_FINISH, "late_end_date");
+      map.put(TaskField.EARLY_START, "early_start_date");
+      map.put(TaskField.EARLY_FINISH, "early_end_date");
+      map.put(TaskField.BASELINE_START, "target_start_date");
+      map.put(TaskField.BASELINE_FINISH, "target_end_date");
+      map.put(TaskField.CONSTRAINT_TYPE, "cstr_type");
+      map.put(TaskField.PRIORITY, "priority_type");
+      map.put(TaskField.CREATED, "create_date");
+      map.put(TaskField.TYPE, "duration_type");
+      map.put(TaskField.FREE_SLACK, "free_float_hr_cnt");
+      map.put(TaskField.TOTAL_SLACK, "total_float_hr_cnt");
+      map.put(TaskField.TEXT1, "task_code");
+      map.put(TaskField.TEXT2, "task_type");
+      map.put(TaskField.TEXT3, "status_code");
+
+      return map;
+   }
+
+   /**
+    * Retrieve the default mapping between MPXJ assignment fields and Primavera assignment field names.
+    * 
+    * @return mapping
+    */
+   public static Map<FieldType, String> getDefaultAssignmentFieldMap()
+   {
+      Map<FieldType, String> map = new LinkedHashMap<FieldType, String>();
+
+      map.put(AssignmentField.UNIQUE_ID, "taskrsrc_id");
+      map.put(AssignmentField.REMAINING_WORK, "remain_qty");
+      map.put(AssignmentField.BASELINE_WORK, "target_qty");
+      map.put(AssignmentField.ACTUAL_WORK, "act_reg_qty");
+      map.put(AssignmentField.BASELINE_COST, "target_cost");
+      map.put(AssignmentField.ACTUAL_COST, "act_reg_cost");
+      map.put(AssignmentField.ACTUAL_START, "act_start_date");
+      map.put(AssignmentField.ACTUAL_FINISH, "act_end_date");
+      map.put(AssignmentField.BASELINE_START, "target_start_date");
+      map.put(AssignmentField.BASELINE_FINISH, "target_end_date");
+      map.put(AssignmentField.ASSIGNMENT_DELAY, "target_lag_drtn_hr_cnt");
+
+      return map;
+   }
+
+   /**
+    * Retrieve the default aliases to be applied to MPXJ task and resource fields.
+    * 
+    * @return map of aliases
+    */
+   public static Map<FieldType, String> getDefaultAliases()
+   {
+      Map<FieldType, String> map = new HashMap<FieldType, String>();
+
+      map.put(ResourceField.NUMBER1, "Parent Resource Unique ID");
+      map.put(TaskField.DATE1, "Suspend Date");
+      map.put(TaskField.DATE2, "Resume Date");
+      map.put(TaskField.TEXT1, "Code");
+      map.put(TaskField.TEXT2, "Activity Type");
+      map.put(TaskField.TEXT3, "Status");
+
+      return map;
+   }
+
    private ProjectFile m_project;
+   private EventManager m_eventManager;
    private Map<Integer, Integer> m_clashMap = new HashMap<Integer, Integer>();
    private Map<Integer, ProjectCalendar> m_calMap = new HashMap<Integer, ProjectCalendar>();
    private DateFormat m_calendarTimeFormat = new SimpleDateFormat("HH:mm");
+   private Map<Integer, String> m_udfMap = new HashMap<Integer, String>();
+   private final UserFieldCounters m_udfCounters;
+   private Map<FieldType, String> m_resourceFields;
+   private Map<FieldType, String> m_wbsFields;
+   private Map<FieldType, String> m_taskFields;
+   private Map<FieldType, String> m_assignmentFields;
+   private final boolean m_matchPrimaveraWBS;
 
    private static final Map<String, ResourceType> RESOURCE_TYPE_MAP = new HashMap<String, ResourceType>();
    static

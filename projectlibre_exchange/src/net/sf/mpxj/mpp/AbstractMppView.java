@@ -23,7 +23,6 @@
 
 package net.sf.mpxj.mpp;
 
-import net.sf.mpxj.AbstractView;
 import net.sf.mpxj.ProjectFile;
 
 /**
@@ -53,7 +52,7 @@ public abstract class AbstractMppView extends AbstractView
       {
          if (name.indexOf('&') != -1)
          {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             int index = 0;
             char c;
 

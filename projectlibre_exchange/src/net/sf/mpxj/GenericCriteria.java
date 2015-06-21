@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.mpxj.utility.DateUtility;
+import net.sf.mpxj.common.DateHelper;
 
 /**
  * This class represents the criteria used as part of an evaluation.
@@ -38,11 +38,11 @@ public class GenericCriteria
    /**
     * Constructor.
     * 
-    * @param projectFile parent project file
+    * @param properties project properties
     */
-   public GenericCriteria(ProjectFile projectFile)
+   public GenericCriteria(ProjectProperties properties)
    {
-      m_projectFile = projectFile;
+      m_properties = properties;
    }
 
    /**
@@ -106,7 +106,7 @@ public class GenericCriteria
          {
             if (((Duration) value).getUnits() != TimeUnit.HOURS)
             {
-               value = ((Duration) value).convertUnits(TimeUnit.HOURS, m_projectFile.getProjectHeader());
+               value = ((Duration) value).convertUnits(TimeUnit.HOURS, m_properties);
             }
          }
       }
@@ -149,21 +149,21 @@ public class GenericCriteria
          lhs = container.getCurrentValue(field);
          switch (field.getDataType())
          {
-            case DATE :
+            case DATE:
             {
                if (lhs != null)
                {
-                  lhs = DateUtility.getDayStartDate((Date) lhs);
+                  lhs = DateHelper.getDayStartDate((Date) lhs);
                }
                break;
             }
 
-            case DURATION :
+            case DURATION:
             {
                if (lhs != null)
                {
                   Duration dur = (Duration) lhs;
-                  lhs = dur.convertUnits(TimeUnit.HOURS, m_projectFile.getProjectHeader());
+                  lhs = dur.convertUnits(TimeUnit.HOURS, m_properties);
                }
                else
                {
@@ -172,13 +172,13 @@ public class GenericCriteria
                break;
             }
 
-            case STRING :
+            case STRING:
             {
                lhs = lhs == null ? "" : lhs;
                break;
             }
 
-            default :
+            default:
             {
                break;
             }
@@ -204,14 +204,14 @@ public class GenericCriteria
       boolean result;
       switch (m_operator)
       {
-         case AND :
-         case OR :
+         case AND:
+         case OR:
          {
             result = evaluateLogicalOperator(container, promptValues);
             break;
          }
 
-         default :
+         default:
          {
             result = m_operator.evaluate(lhs, rhs);
             break;
@@ -280,20 +280,20 @@ public class GenericCriteria
 
             switch (type.getDataType())
             {
-               case DATE :
+               case DATE:
                {
                   if (value != null)
                   {
-                     value = DateUtility.getDayStartDate((Date) value);
+                     value = DateHelper.getDayStartDate((Date) value);
                   }
                   break;
                }
 
-               case DURATION :
+               case DURATION:
                {
                   if (value != null && ((Duration) value).getUnits() != TimeUnit.HOURS)
                   {
-                     value = ((Duration) value).convertUnits(TimeUnit.HOURS, m_projectFile.getProjectHeader());
+                     value = ((Duration) value).convertUnits(TimeUnit.HOURS, m_properties);
                   }
                   else
                   {
@@ -302,13 +302,13 @@ public class GenericCriteria
                   break;
                }
 
-               case STRING :
+               case STRING:
                {
                   value = value == null ? "" : value;
                   break;
                }
 
-               default :
+               default:
                {
                   break;
                }
@@ -352,13 +352,13 @@ public class GenericCriteria
     */
    @Override public String toString()
    {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append("(");
 
       switch (m_operator)
       {
-         case AND :
-         case OR :
+         case AND:
+         case OR:
          {
             int index = 0;
             for (GenericCriteria c : m_criteriaList)
@@ -375,7 +375,7 @@ public class GenericCriteria
             break;
          }
 
-         default :
+         default:
          {
             sb.append(m_leftValue);
             sb.append(" ");
@@ -394,7 +394,7 @@ public class GenericCriteria
       return (sb.toString());
    }
 
-   private ProjectFile m_projectFile;
+   private ProjectProperties m_properties;
    private FieldType m_leftValue;
    private TestOperator m_operator;
    private Object[] m_definedRightValues = new Object[2];

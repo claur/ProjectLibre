@@ -32,9 +32,9 @@ import net.sf.mpxj.Day;
 import net.sf.mpxj.FieldType;
 import net.sf.mpxj.Filter;
 import net.sf.mpxj.GenericCriteria;
-import net.sf.mpxj.MPPTaskField14;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.utility.FieldTypeUtility;
+import net.sf.mpxj.common.FieldTypeHelper;
+import net.sf.mpxj.common.MPPTaskField14;
 
 /**
  * This class represents the set of properties used to define the appearance
@@ -102,7 +102,7 @@ public final class GanttChartView14 extends GanttChartView
          //System.out.println(MPPUtility.hexdump(data, offset, 32, false));
 
          // may need to sort this out
-         GenericCriteria c = criteria.process(m_parent, data, offset + 12, -1, null, null, null);
+         GenericCriteria c = criteria.process(m_properties, data, offset + 12, -1, null, null, null);
          //System.out.println(c);
 
          Filter filter = new Filter();
@@ -127,7 +127,7 @@ public final class GanttChartView14 extends GanttChartView
    private FieldType getFieldType(byte[] data, int offset)
    {
       int fieldIndex = MPPUtility.getInt(data, offset);
-      return FieldTypeUtility.getInstance14(fieldIndex);
+      return FieldTypeHelper.mapTextFields(FieldTypeHelper.getInstance14(fieldIndex));
    }
 
    /**

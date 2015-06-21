@@ -104,18 +104,13 @@ public final class Column
       }
       else
       {
-         if (m_fieldType instanceof TaskField)
+         if (m_fieldType != null)
          {
-            result = m_project.getTaskFieldAlias((TaskField) m_fieldType);
-         }
-         else
-         {
-            result = m_project.getResourceFieldAlias((ResourceField) m_fieldType);
-         }
-
-         if (result == null && m_fieldType != null)
-         {
-            result = m_fieldType.getName(locale);
+            result = m_project.getCustomFields().getCustomField(m_fieldType).getAlias();
+            if (result == null)
+            {
+               result = m_fieldType.getName(locale);
+            }
          }
       }
 

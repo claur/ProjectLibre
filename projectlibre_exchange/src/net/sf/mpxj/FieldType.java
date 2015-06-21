@@ -25,14 +25,26 @@ package net.sf.mpxj;
 
 import java.util.Locale;
 
-import net.sf.mpxj.utility.MpxjEnum;
-
 /**
  * This interface is implemented by classes which represent a field
- * in either the Task or Resource entity.
+ * in a Task, Resource or Assignment entity.
  */
 public interface FieldType extends MpxjEnum
 {
+   /**
+    * Retrieve an enum representing the type of entity to which this field belongs.
+    *  
+    * @return field type class
+    */
+   public FieldTypeClass getFieldTypeClass();
+
+   /**
+    * Retrieve the enum name.
+    * 
+    * @return enum name
+    */
+   public String name();
+
    /**
     * Retrieve the name of this field using the default locale.
     *

@@ -23,8 +23,8 @@
 
 package net.sf.mpxj.mpp;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -99,7 +99,7 @@ final class FixedData extends MPPComponent
       byte[] buffer = new byte[is.available()];
       is.read(buffer);
 
-      int itemCount = meta.getItemCount();
+      int itemCount = meta.getAdjustedItemCount();
       m_array = new Object[itemCount];
       m_offset = new int[itemCount];
 
@@ -109,6 +109,11 @@ final class FixedData extends MPPComponent
       {
          byte[] metaData = meta.getByteArrayValue(loop);
          int itemOffset = MPPUtility.getInt(metaData, 4);
+
+         if (itemOffset < 0 || itemOffset > buffer.length)
+         {
+            continue;
+         }
 
          int itemSize;
          if (loop + 1 == itemCount)
@@ -125,11 +130,6 @@ final class FixedData extends MPPComponent
          if (itemSize == 0)
          {
             itemSize = minSize;
-         }
-
-         if (itemOffset > buffer.length)
-         {
-            continue;
          }
 
          available = buffer.length - itemOffset;
@@ -182,7 +182,7 @@ final class FixedData extends MPPComponent
       byte[] buffer = new byte[is.available()];
       is.read(buffer);
 
-      int itemCount = meta.getItemCount();
+      int itemCount = meta.getAdjustedItemCount();
       m_array = new Object[itemCount];
       m_offset = new int[itemCount];
 

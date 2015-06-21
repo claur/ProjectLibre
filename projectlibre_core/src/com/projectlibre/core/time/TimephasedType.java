@@ -47,7 +47,7 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj"  and ÒProjectLibreÓ logos visible to all users. 
+user interface screen the "OpenProj"  and ï¿½ProjectLibreï¿½ logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
 justified on the top left of the screen adjacent to the File menu. The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
@@ -68,9 +68,9 @@ the CPAL as a work which combines Covered Code or portions thereof with code not
 governed by the terms of the CPAL. However, in addition to the other notice 
 obligations, all copies of the Covered Code in Executable and Source Code form 
 distributed must, as a form of attribution of the original author, include on each 
-user interface screen the "OpenProj" and ÒProjectLibreÓ logos visible to all users. 
+user interface screen the "OpenProj" and ï¿½ProjectLibreï¿½ logos visible to all users. 
 The OpenProj logo should be located horizontally aligned with the menu bar and left 
-justified on the top left of the screen adjacent to the File menu. ÊThe logo must be 
+justified on the top left of the screen adjacent to the File menu. ï¿½The logo must be 
 at least 100 x 25 pixels. When users click on the "OpenProj" logo it must direct them 
 back to http://www.projity.com.
 */
@@ -164,43 +164,48 @@ Projity additions
 
 */
 public enum TimephasedType {
-	REMAINING_WORK(1),
-	ACTUAL_WORK(2),
-	ACTUAL_OVERTIME_WORK(3),
-	BASELINE_WORK(4),
-	BASELINE_COST(5),
-	ACTUAL_COST(6),
+	REMAINING_WORK(1, 11),
+	ACTUAL_WORK(2, 11),
+	ACTUAL_OVERTIME_WORK(3, 11),
+	BASELINE_WORK(4, 0),
+	BASELINE_COST(5, 0),
+	ACTUAL_COST(6, 11),
 	
-	BASELINE1_WORK(16),
-	BASELINE1_COST(17),
-	BASELINE2_WORK(22),
-	BASELINE2_COST(23),
-	BASELINE3_WORK(28),
-	BASELINE3_COST(29),
-	BASELINE4_WORK(34),
-	BASELINE4_COST(35),
-	BASELINE5_WORK(40),
-	BASELINE5_COST(41),
-	BASELINE6_WORK(46),
-	BASELINE6_COST(47),
-	BASELINE7_WORK(52),
-	BASELINE7_COST(53),
-	BASELINE8_WORK(58),
-	BASELINE8_COST(59),
-	BASELINE9_WORK(64),
-	BASELINE9_COST(65),
-	BASELINE10_WORK(70),
-	BASELINE10_COST(71);
+	BASELINE1_WORK(16, 1),
+	BASELINE1_COST(17, 1),
+	BASELINE2_WORK(22, 2),
+	BASELINE2_COST(23, 2),
+	BASELINE3_WORK(28, 3),
+	BASELINE3_COST(29, 3),
+	BASELINE4_WORK(34, 4),
+	BASELINE4_COST(35, 4),
+	BASELINE5_WORK(40, 5),
+	BASELINE5_COST(41, 5),
+	BASELINE6_WORK(46, 6),
+	BASELINE6_COST(47, 6),
+	BASELINE7_WORK(52, 7),
+	BASELINE7_COST(53, 7),
+	BASELINE8_WORK(58, 8),
+	BASELINE8_COST(59, 8),
+	BASELINE9_WORK(64, 9),
+	BASELINE9_COST(65, 9),
+	BASELINE10_WORK(70, 10),
+	BASELINE10_COST(71, 10);
 
 
 	protected int id;
+	protected int snapshotId;
 	protected static Map<Integer,TimephasedType> reverseMap;
 
-	private TimephasedType(int id){
+	private TimephasedType(int id, int snapshotId){
 		this.id=id;
+		this.snapshotId=snapshotId;
 	}
 	public int getId() {
 		return id;
+	}
+	public int getSnapshotId() {
+		return snapshotId;
 	}
 	public static TimephasedType getInstance(int id){
 		if (reverseMap==null){

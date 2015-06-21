@@ -23,9 +23,9 @@
 
 package net.sf.mpxj.mpp;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
-import net.sf.mpxj.utility.NumberUtility;
+import net.sf.mpxj.MpxjEnum;
+import net.sf.mpxj.common.EnumHelper;
+import net.sf.mpxj.common.NumberHelper;
 
 /**
  * Class representing the label alignment on a Gantt chart timescale.
@@ -78,7 +78,7 @@ public enum TimescaleAlignment implements MpxjEnum
       }
       else
       {
-         value = NumberUtility.getInt(type);
+         value = NumberHelper.getInt(type);
       }
       return (getInstance(value));
    }
@@ -88,7 +88,7 @@ public enum TimescaleAlignment implements MpxjEnum
     *
     * @return int representation of the enum
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -117,7 +117,7 @@ public enum TimescaleAlignment implements MpxjEnum
    /**
     * Array mapping int types to enums.
     */
-   private static final TimescaleAlignment[] TYPE_VALUES = EnumUtility.createTypeArray(TimescaleAlignment.class);
+   private static final TimescaleAlignment[] TYPE_VALUES = EnumHelper.createTypeArray(TimescaleAlignment.class);
 
    /**
     * Internal representation of the enum int type.

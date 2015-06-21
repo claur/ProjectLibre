@@ -51,10 +51,10 @@ final class VarMeta9 extends AbstractVarMeta
          throw new IOException("Bad magic number");
       }
 
-      m_unknown1 = readInt(is);
+      /*m_unknown1 =*/readInt(is);
       m_itemCount = readInt(is);
-      m_unknown2 = readInt(is);
-      m_unknown3 = readInt(is);
+      /*m_unknown2 =*/readInt(is);
+      /*m_unknown3 =*/readInt(is);
       m_dataSize = readInt(is);
 
       Integer uniqueID;
@@ -74,7 +74,7 @@ final class VarMeta9 extends AbstractVarMeta
       for (int loop = 0; loop < m_itemCount; loop++)
       {
          is.read(uniqueIDArray, 0, 3);
-         uniqueID = Integer.valueOf(MPPUtility.getInt(uniqueIDArray));
+         uniqueID = Integer.valueOf(MPPUtility.getInt(uniqueIDArray, 0));
 
          type = Integer.valueOf(readByte(is));
          offset = Integer.valueOf(readInt(is));

@@ -30,7 +30,7 @@ import net.sf.mpxj.FieldType;
 import net.sf.mpxj.Group;
 import net.sf.mpxj.GroupClause;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.utility.FieldTypeUtility;
+import net.sf.mpxj.common.FieldTypeHelper;
 
 /**
  * This class allows filter definitions to be read from an MPP file.
@@ -76,7 +76,7 @@ public final class GroupReader14
          boolean showSummaryTasks = (MPPUtility.getShort(groupVarData, 4) != 0);
 
          Group group = new Group(groupID, groupName, showSummaryTasks);
-         file.addGroup(group);
+         file.getGroups().add(group);
 
          int clauseCount = MPPUtility.getShort(groupVarData, 10);
          int offset = 12;
@@ -95,7 +95,7 @@ public final class GroupReader14
             group.addGroupClause(clause);
 
             int fieldID = MPPUtility.getInt(groupVarData, offset);
-            FieldType type = FieldTypeUtility.getInstance14(fieldID);
+            FieldType type = FieldTypeHelper.getInstance14(fieldID);
             clause.setField(type);
 
             // from byte 0 2 byte short int - field type
@@ -130,40 +130,40 @@ public final class GroupReader14
 
             Object startAt = null;
             Object groupInterval = null;
-            if (type != null)
+            if (type.getDataType() != null)
             {
                switch (type.getDataType())
                {
-                  case DURATION :
-                  case NUMERIC :
-                  case CURRENCY :
+                  case DURATION:
+                  case NUMERIC:
+                  case CURRENCY:
                   {
                      startAt = Double.valueOf(MPPUtility.getDouble(groupVarData, offset + 47));
                      groupInterval = Double.valueOf(MPPUtility.getDouble(groupVarData, offset + 63));
                      break;
                   }
 
-                  case PERCENTAGE :
+                  case PERCENTAGE:
                   {
                      startAt = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 47));
                      groupInterval = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 63));
                      break;
                   }
 
-                  case BOOLEAN :
+                  case BOOLEAN:
                   {
                      startAt = (MPPUtility.getShort(groupVarData, offset + 47) == 1 ? Boolean.TRUE : Boolean.FALSE);
                      break;
                   }
 
-                  case DATE :
+                  case DATE:
                   {
                      startAt = MPPUtility.getTimestamp(groupVarData, offset + 47);
                      groupInterval = Integer.valueOf(MPPUtility.getInt(groupVarData, offset + 63));
                      break;
                   }
 
-                  default :
+                  default:
                   {
                      break;
                   }

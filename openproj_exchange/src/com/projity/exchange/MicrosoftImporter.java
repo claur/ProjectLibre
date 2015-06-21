@@ -72,7 +72,9 @@ import com.projectlibre.core.pm.exchange.converters.openproj.OpenprojTaskConvert
 import com.projectlibre.pm.calendar.CalendarOptions;
 import com.projectlibre.pm.calendar.WorkCalendar;
 import com.projectlibre.pm.scheduling.ScheduleFrom;
+import com.projectlibre.pm.tasks.SnapshotList;
 import com.projectlibre.pm.tasks.Task;
+import com.projectlibre.pm.tasks.TaskSnapshot;
 import com.projity.configuration.CircularDependencyException;
 import com.projity.contrib.util.Log;
 import com.projity.contrib.util.LogFactory;
@@ -82,8 +84,10 @@ import com.projity.job.Job;
 import com.projity.job.JobRunnable;
 import com.projity.options.CalendarOption;
 import com.projity.pm.assignment.Assignment;
+import com.projity.pm.assignment.AssignmentService;
 import com.projity.pm.calendar.CalendarService;
 import com.projity.pm.calendar.WorkingCalendar;
+import com.projity.pm.criticalpath.TaskSchedule;
 import com.projity.pm.resource.Resource;
 import com.projity.pm.resource.ResourceImpl;
 import com.projity.pm.resource.ResourcePool;
@@ -544,6 +548,22 @@ public class MicrosoftImporter extends ServerFileImporter{
 				NormalTask openprojParentTask=parentTask==null? null : state.getOpenprojTask(parentTask);
 				Node openprojParentTaskNode=openprojParentTask==null? null : state.getOpenprojTaskNode(openprojParentTask);
 				project.addToDefaultOutline(openprojParentTaskNode,openprojTaskNode);
+				
+				
+				SnapshotList snapshots=task.getSnapshotList();
+				for (int snapshotId=0;snapshotId<SnapshotList.BASELINE_COUNT;snapshotId++){
+					TaskSnapshot s=snapshots.getSnapshot(snapshotId);
+					if (s!=null && s.getStart()!=null && s.getFinish()!=null){
+						com.projity.pm.task.TaskSnapshot openprojSnapshot=new com.projity.pm.task.TaskSnapshot();
+						openprojSnapshot.getHasAssignments(); //init hasAssignments
+						TaskSchedule schedule=new TaskSchedule();//(TaskSchedule)openprojTask.getCurrentSchedule().clone();
+						schedule.setStart(s.getStart().getTime());
+						schedule.setFinish(s.getFinish().getTime());
+						openprojSnapshot.setCurrentSchedule(schedule);
+						openprojTask.setSnapshot(snapshotId, openprojSnapshot);
+					}
+				}
+
 
 				
 				state.mapOpenprojTask(task, openprojTask);
@@ -585,7 +605,18 @@ public class MicrosoftImporter extends ServerFileImporter{
 			NormalTask openprojTask=state.getOpenprojTask(task);
 			for (com.projectlibre.pm.tasks.Assignment assignment : task.getAssignments()){
 				Assignment openprojAssignment=converter.to(assignment, state);
-				openprojTask.addAssignment(openprojAssignment);
+				AssignmentService.getInstance().connect(openprojAssignment, null);
+			}
+			SnapshotList snapshots=task.getSnapshotList();
+			for (int snapshotId=0;snapshotId<SnapshotList.BASELINE_COUNT;snapshotId++){
+				TaskSnapshot s=snapshots.getSnapshot(snapshotId);
+				com.projity.pm.task.TaskSnapshot openprojSnapshot=(com.projity.pm.task.TaskSnapshot)openprojTask.getSnapshot(snapshotId);
+				if (s!=null && openprojSnapshot!=null){
+					for (com.projectlibre.pm.tasks.Assignment assignment : s.getAssignments()){
+						Assignment openprojAssignment=converter.to(assignment, state);
+						openprojSnapshot.addAssignment(openprojAssignment);
+					}
+				}
 			}
 		}
 	}

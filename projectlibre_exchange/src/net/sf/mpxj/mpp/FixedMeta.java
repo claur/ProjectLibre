@@ -23,8 +23,8 @@
 
 package net.sf.mpxj.mpp;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -49,9 +49,30 @@ final class FixedMeta extends MPPComponent
     * @param itemSize size of each item in the block
     * @throws IOException on file read failure
     */
-   FixedMeta(InputStream is, int itemSize)
+   FixedMeta(InputStream is, final int itemSize)
       throws IOException
    {
+      this(is, new FixedMetaItemSizeProvider()
+      {
+         @Override public int getItemSize(int fileSize, int itemCount)
+         {
+            return itemSize;
+         }
+      });
+   }
+
+   /**
+    * Constructor. Supply an item size provider to allow different strategies to be
+    * used to determine the correct item size.
+    * 
+    * @param is input stream from which the meta data is read
+    * @param itemSizeProvider item size provider used to calculate the item size
+    * @throws IOException
+    */
+   FixedMeta(InputStream is, FixedMetaItemSizeProvider itemSizeProvider)
+      throws IOException
+   {
+
       //
       // The POI file system guarantees that this is accurate
       //
@@ -69,24 +90,74 @@ final class FixedMeta extends MPPComponent
       m_itemCount = readInt(is);
       readInt(is);
 
-      m_itemCount = (fileSize - 16) / itemSize;
+      int itemSize = itemSizeProvider.getItemSize(fileSize, m_itemCount);
+      m_adjustedItemCount = (fileSize - HEADER_SIZE) / itemSize;
 
-      m_array = new Object[m_itemCount];
+      m_array = new Object[m_adjustedItemCount];
 
-      for (int loop = 0; loop < m_itemCount; loop++)
+      for (int loop = 0; loop < m_adjustedItemCount; loop++)
       {
          m_array[loop] = readByteArray(is, itemSize);
       }
    }
 
    /**
-    * This method retrieves the number of items in the FixedData block.
+    * Constructor, allowing a selection of possible block sizes to be supplied.
+    * 
+    * @param is input stream
+    * @param itemSizes list of potential block sizes
+    */
+   FixedMeta(InputStream is, final int... itemSizes)
+      throws IOException
+   {
+      this(is, new FixedMetaItemSizeProvider()
+      {
+         @Override public int getItemSize(int fileSize, int itemCount)
+         {
+            int itemSize = itemSizes[0];
+            int available = fileSize - HEADER_SIZE;
+            int distance = Integer.MIN_VALUE;
+
+            for (int index = 0; index < itemSizes.length; index++)
+            {
+               int testItemSize = itemSizes[index];
+               if (available % testItemSize == 0)
+               {
+                  int testDistance = (itemCount * testItemSize) - available;
+                  if (testDistance <= 0 && testDistance > distance)
+                  {
+                     itemSize = testItemSize;
+                     distance = testDistance;
+                  }
+               }
+            }
+
+            return itemSize;
+         }
+      });
+   }
+
+   /**
+    * This method retrieves the number of items in the FixedData block, as reported in the block header.
     *
     * @return number of items in the fixed data block
     */
    public int getItemCount()
    {
       return (m_itemCount);
+   }
+
+   /**
+    * This method retrieves the number of items in the FixedData block.
+    * Where we don't trust the number of items reported by the block header
+    * this value is adjusted based on what we know about the block size
+    * and the size of the individual items.
+    *
+    * @return number of items in the fixed data block
+    */
+   public int getAdjustedItemCount()
+   {
+      return (m_adjustedItemCount);
    }
 
    /**
@@ -121,9 +192,9 @@ final class FixedMeta extends MPPComponent
       PrintWriter pw = new PrintWriter(sw);
 
       pw.println("BEGIN: FixedMeta");
-      pw.println("   Item count: " + m_itemCount);
+      pw.println("   Adjusted Item count: " + m_adjustedItemCount);
 
-      for (int loop = 0; loop < m_itemCount; loop++)
+      for (int loop = 0; loop < m_adjustedItemCount; loop++)
       {
          pw.println("   Data at index: " + loop);
          pw.println("  " + MPPUtility.hexdump((byte[]) m_array[loop], true));
@@ -137,9 +208,14 @@ final class FixedMeta extends MPPComponent
    }
 
    /**
-    * Number of items in the data block.
+    * Number of items in the data block, as reported in the block header.
     */
    private int m_itemCount;
+
+   /**
+    * Number of items in the data block, adjusted based on block size and item size.
+    */
+   private int m_adjustedItemCount;
 
    /**
     * Unknown data items relating to each entry in the fixed data block.
@@ -151,4 +227,9 @@ final class FixedMeta extends MPPComponent
     * at the start of the block.
     */
    private static final int MAGIC = 0xFADFADBA;
+
+   /**
+    * Header size.
+    */
+   private static final int HEADER_SIZE = 16;
 }

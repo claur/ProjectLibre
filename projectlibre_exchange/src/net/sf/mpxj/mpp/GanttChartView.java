@@ -34,11 +34,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.mpxj.Day;
 import net.sf.mpxj.FieldType;
 import net.sf.mpxj.Filter;
-import net.sf.mpxj.MPPTaskField;
+import net.sf.mpxj.FilterContainer;
 import net.sf.mpxj.ProjectFile;
+import net.sf.mpxj.common.MPPTaskField;
 
 /**
  * This class represents the set of properties used to define the appearance
@@ -109,6 +109,7 @@ public abstract class GanttChartView extends GenericView
       //System.out.println(varData.getVarMeta());
       //MPPUtility.fileDump("c:\\temp\\vardata.txt", varData.toString().getBytes());
 
+      m_filters = parent.getFilters();
       m_showInMenu = (fixedMeta[8] & 0x08) != 0;
 
       byte[] propsData = varData.getByteArray(m_id, getPropertiesID());
@@ -127,13 +128,13 @@ public abstract class GanttChartView extends GenericView
          byte[] filterName = props.getByteArray(FILTER_NAME);
          if (filterName != null)
          {
-            m_defaultFilterName = MPPUtility.getUnicodeString(filterName);
+            m_defaultFilterName = MPPUtility.getUnicodeString(filterName, 0);
          }
 
          byte[] groupName = props.getByteArray(GROUP_NAME);
          if (groupName != null)
          {
-            m_groupName = MPPUtility.getUnicodeString(groupName);
+            m_groupName = MPPUtility.getUnicodeString(groupName, 0);
          }
 
          processViewProperties(fontBases, props);
@@ -538,7 +539,7 @@ public abstract class GanttChartView extends GenericView
     */
    public Filter getDefaultFilter()
    {
-      return (m_parent.getFilterByName(m_defaultFilterName));
+      return (m_filters.getFilterByName(m_defaultFilterName));
    }
 
    /**
@@ -938,7 +939,7 @@ public abstract class GanttChartView extends GenericView
     *
     * @return progress lines monthly day
     */
-   public Day getProgressLinesIntervalMonthlyFirstLastDay()
+   public ProgressLineDay getProgressLinesIntervalMonthlyFirstLastDay()
    {
       return (m_progressLinesIntervalMonthlyFirstLastDay);
    }
@@ -1077,43 +1078,43 @@ public abstract class GanttChartView extends GenericView
    {
       switch (height)
       {
-         case 0 :
+         case 0:
          {
             height = 6;
             break;
          }
 
-         case 1 :
+         case 1:
          {
             height = 8;
             break;
          }
 
-         case 2 :
+         case 2:
          {
             height = 10;
             break;
          }
 
-         case 3 :
+         case 3:
          {
             height = 12;
             break;
          }
 
-         case 4 :
+         case 4:
          {
             height = 14;
             break;
          }
 
-         case 5 :
+         case 5:
          {
             height = 18;
             break;
          }
 
-         case 6 :
+         case 6:
          {
             height = 24;
             break;
@@ -1441,7 +1442,7 @@ public abstract class GanttChartView extends GenericView
    protected boolean m_progressLinesIntervalMonthlyDay;
    protected int m_progressLinesIntervalMonthlyDayDayNumber;
    protected int m_progressLinesIntervalMonthlyDayMonthNumber;
-   protected Day m_progressLinesIntervalMonthlyFirstLastDay;
+   protected ProgressLineDay m_progressLinesIntervalMonthlyFirstLastDay;
    protected boolean m_progressLinesIntervalMonthlyFirstLast;
    protected int m_progressLinesIntervalMonthlyFirstLastMonthNumber;
    protected boolean m_progressLinesBeginAtProjectStart;
@@ -1463,6 +1464,8 @@ public abstract class GanttChartView extends GenericView
    protected int m_progressLinesOtherProgressPointShape;
    protected List<Filter> m_autoFilters = new LinkedList<Filter>();
    protected Map<FieldType, Filter> m_autoFiltersByType = new HashMap<FieldType, Filter>();
+
+   private FilterContainer m_filters;
 
    protected static final Integer VIEW_PROPERTIES = Integer.valueOf(574619656);
    protected static final Integer TIMESCALE_PROPERTIES = Integer.valueOf(574619678);

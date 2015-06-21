@@ -33,16 +33,15 @@ import net.sf.mpxj.ProjectFile;
 import net.sf.mpxj.Resource;
 import net.sf.mpxj.ResourceAssignment;
 import net.sf.mpxj.ResourceType;
-import net.sf.mpxj.SplitTaskFactory;
 import net.sf.mpxj.Task;
 import net.sf.mpxj.TimeUnit;
-import net.sf.mpxj.TimephasedCostNormaliser;
 import net.sf.mpxj.TimephasedWork;
-import net.sf.mpxj.TimephasedWorkData;
-import net.sf.mpxj.TimephasedWorkNormaliser;
 import net.sf.mpxj.WorkContour;
-import net.sf.mpxj.utility.NumberUtility;
-import net.sf.mpxj.utility.RTFUtility;
+import net.sf.mpxj.common.DefaultTimephasedWorkContainer;
+import net.sf.mpxj.common.NumberHelper;
+import net.sf.mpxj.common.SplitTaskFactory;
+import net.sf.mpxj.common.TimephasedCostNormaliser;
+import net.sf.mpxj.common.TimephasedWorkNormaliser;
 
 /**
  * Common implementation detail to extract resource assignment data from 
@@ -55,6 +54,7 @@ public class ResourceAssignmentFactory
     * 
     * @param file parent project file
     * @param fieldMap assignment field map
+    * @param enterpriseCustomFieldMap enterprise custom field map
     * @param useRawTimephasedData use raw timephased data flag
     * @param preserveNoteFormatting preserve note formatting flag
     * @param assnVarMeta var meta
@@ -62,23 +62,32 @@ public class ResourceAssignmentFactory
     * @param assnFixedMeta fixed meta
     * @param assnFixedData fixed data
     * @param assnFixedData2 fixed data
+    * @param count expected number of assignments
     */
-   public void process(ProjectFile file, FieldMap fieldMap, boolean useRawTimephasedData, boolean preserveNoteFormatting, VarMeta assnVarMeta, Var2Data assnVarData, FixedMeta assnFixedMeta, FixedData assnFixedData, FixedData assnFixedData2)
+   public void process(ProjectFile file, FieldMap fieldMap, FieldMap enterpriseCustomFieldMap, boolean useRawTimephasedData, boolean preserveNoteFormatting, VarMeta assnVarMeta, Var2Data assnVarData, FixedMeta assnFixedMeta, FixedData assnFixedData, FixedData assnFixedData2, int count)
    {
       Set<Integer> set = assnVarMeta.getUniqueIdentifierSet();
-      int count = assnFixedMeta.getItemCount();
       TimephasedDataFactory timephasedFactory = new TimephasedDataFactory();
       SplitTaskFactory splitFactory = new SplitTaskFactory();
       TimephasedWorkNormaliser normaliser = new MPPTimephasedWorkNormaliser();
       TimephasedWorkNormaliser baselineWorkNormaliser = new MPPTimephasedBaselineWorkNormaliser();
-      TimephasedCostNormaliser baselineCostNormaliser = new MPPTimephasedBaselineCostNormaliser();  
+      TimephasedCostNormaliser baselineCostNormaliser = new MPPTimephasedBaselineCostNormaliser();
       ProjectCalendar baselineCalendar = file.getBaselineCalendar();
-      RTFUtility rtf = new RTFUtility();
 
       //System.out.println(assnFixedMeta);
       //System.out.println(assnFixedData);
       //System.out.println(assnVarMeta.toString(fieldMap));
       //System.out.println(assnVarData);
+
+      MppBitFlag[] metaDataBitFlags;
+      if (NumberHelper.getInt(file.getProjectProperties().getMppFileType()) == 14)
+      {
+         metaDataBitFlags = MPP14_ASSIGNMENT_META_DATA_BIT_FLAGS;
+      }
+      else
+      {
+         metaDataBitFlags = ASSIGNMENT_META_DATA_BIT_FLAGS;
+      }
 
       for (int loop = 0; loop < count; loop++)
       {
@@ -95,9 +104,9 @@ public class ResourceAssignmentFactory
             continue;
          }
 
-         if (data.length <= fieldMap.getMaxFixedDataOffset(0))
+         if (data.length < fieldMap.getMaxFixedDataSize(0))
          {
-            byte[] newData = new byte[fieldMap.getMaxFixedDataOffset(0) + 8];
+            byte[] newData = new byte[fieldMap.getMaxFixedDataSize(0)];
             System.arraycopy(data, 0, newData, 0, data.length);
             data = newData;
          }
@@ -118,61 +127,35 @@ public class ResourceAssignmentFactory
          ResourceAssignment assignment = new ResourceAssignment(file);
 
          assignment.disableEvents();
-         fieldMap.populateContainer(assignment, varDataId, new byte[][]
+
+         fieldMap.populateContainer(AssignmentField.class, assignment, varDataId, new byte[][]
          {
             data,
             data2
          }, assnVarData);
+
+         if (enterpriseCustomFieldMap != null)
+         {
+            enterpriseCustomFieldMap.populateContainer(AssignmentField.class, assignment, varDataId, null, assnVarData);
+         }
+
          assignment.enableEvents();
 
-         if (fieldMap.getFieldLocation(AssignmentField.FLAG1) != FieldMap.FieldLocation.VAR_DATA)
+         for (MppBitFlag flag : metaDataBitFlags)
          {
-            assignment.setFlag(1, (meta[28] & 0x80) != 0);
-
-            assignment.setFlag(2, (meta[29] & 0x01) != 0);
-            assignment.setFlag(3, (meta[29] & 0x02) != 0);
-            assignment.setFlag(4, (meta[29] & 0x04) != 0);
-            assignment.setFlag(5, (meta[29] & 0x08) != 0);
-            assignment.setFlag(6, (meta[29] & 0x10) != 0);
-            assignment.setFlag(7, (meta[29] & 0x20) != 0);
-            assignment.setFlag(8, (meta[29] & 0x40) != 0);
-            assignment.setFlag(9, (meta[29] & 0x80) != 0);
-
-            assignment.setFlag(10, (meta[30] & 0x01) != 0);
-            assignment.setFlag(11, (meta[30] & 0x02) != 0);
-            assignment.setFlag(12, (meta[30] & 0x04) != 0);
-            assignment.setFlag(13, (meta[30] & 0x08) != 0);
-            assignment.setFlag(14, (meta[30] & 0x10) != 0);
-            assignment.setFlag(15, (meta[30] & 0x20) != 0);
-            assignment.setFlag(16, (meta[30] & 0x40) != 0);
-            assignment.setFlag(17, (meta[30] & 0x80) != 0);
-
-            assignment.setFlag(18, (meta[31] & 0x01) != 0);
-            assignment.setFlag(19, (meta[31] & 0x02) != 0);
-            assignment.setFlag(20, (meta[31] & 0x04) != 0);
+            flag.setValue(assignment, meta);
          }
 
-         if (fieldMap.getFieldLocation(AssignmentField.CONFIRMED) != FieldMap.FieldLocation.VAR_DATA)
-         {
-            assignment.setConfirmed((meta[8] & 0x80) != 0);
-         }
-
-         if (fieldMap.getFieldLocation(AssignmentField.RESPONSE_PENDING) != FieldMap.FieldLocation.VAR_DATA)
-         {
-            assignment.setResponsePending((meta[9] & 0x01) != 0);
-         }
-
-         if (fieldMap.getFieldLocation(AssignmentField.TEAM_STATUS_PENDING) != FieldMap.FieldLocation.VAR_DATA)
-         {
-            assignment.setTeamStatusPending((meta[10] & 0x02) != 0);
-         }
+         assignment.setConfirmed((meta[8] & 0x80) != 0);
+         assignment.setResponsePending((meta[9] & 0x01) != 0);
+         assignment.setTeamStatusPending((meta[10] & 0x02) != 0);
 
          processHyperlinkData(assignment, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.HYPERLINK_DATA)));
 
          //
          // Post processing
          //
-         if (file.getMppFileType() == 9 && assignment.getCreateDate() == null)
+         if (NumberHelper.getInt(file.getProjectProperties().getMppFileType()) == 9 && assignment.getCreateDate() == null)
          {
             byte[] creationData = assnVarData.getByteArray(varDataId, MPP9_CREATION_DATA);
             if (creationData != null && creationData.length >= 28)
@@ -184,10 +167,11 @@ public class ResourceAssignmentFactory
          String notes = assignment.getNotes();
          if (notes != null)
          {
-            if (!preserveNoteFormatting)
-            {
-               notes = rtf.strip(notes);
-            }
+//claur
+//            if (!preserveNoteFormatting)
+//            {
+//               notes = RtfHelper.strip(notes);
+//            }
 
             assignment.setNotes(notes);
          }
@@ -212,7 +196,7 @@ public class ResourceAssignmentFactory
 
             if (calendar == null)
             {
-               calendar = file.getCalendar();
+               calendar = file.getDefaultCalendar();
             }
 
             assignment.setTimephasedBaselineWork(0, timephasedFactory.getBaselineWork(assignment, baselineCalendar, baselineWorkNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE_WORK)), !useRawTimephasedData));
@@ -226,7 +210,7 @@ public class ResourceAssignmentFactory
             assignment.setTimephasedBaselineWork(8, timephasedFactory.getBaselineWork(assignment, baselineCalendar, baselineWorkNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE8_WORK)), !useRawTimephasedData));
             assignment.setTimephasedBaselineWork(9, timephasedFactory.getBaselineWork(assignment, baselineCalendar, baselineWorkNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE9_WORK)), !useRawTimephasedData));
             assignment.setTimephasedBaselineWork(10, timephasedFactory.getBaselineWork(assignment, baselineCalendar, baselineWorkNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE10_WORK)), !useRawTimephasedData));
-                      
+
             assignment.setTimephasedBaselineCost(0, timephasedFactory.getBaselineCost(baselineCalendar, baselineCostNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE_COST)), !useRawTimephasedData));
             assignment.setTimephasedBaselineCost(1, timephasedFactory.getBaselineCost(baselineCalendar, baselineCostNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE1_COST)), !useRawTimephasedData));
             assignment.setTimephasedBaselineCost(2, timephasedFactory.getBaselineCost(baselineCalendar, baselineCostNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE2_COST)), !useRawTimephasedData));
@@ -238,7 +222,7 @@ public class ResourceAssignmentFactory
             assignment.setTimephasedBaselineCost(8, timephasedFactory.getBaselineCost(baselineCalendar, baselineCostNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE8_COST)), !useRawTimephasedData));
             assignment.setTimephasedBaselineCost(9, timephasedFactory.getBaselineCost(baselineCalendar, baselineCostNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE9_COST)), !useRawTimephasedData));
             assignment.setTimephasedBaselineCost(10, timephasedFactory.getBaselineCost(baselineCalendar, baselineCostNormaliser, assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_BASELINE10_COST)), !useRawTimephasedData));
-            
+
             byte[] timephasedActualWorkData = assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_ACTUAL_WORK));
             byte[] timephasedWorkData = assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_WORK));
             byte[] timephasedActualOvertimeWorkData = assnVarData.getByteArray(varDataId, fieldMap.getVarDataKey(AssignmentField.TIMEPHASED_ACTUAL_OVERTIME_WORK));
@@ -246,7 +230,7 @@ public class ResourceAssignmentFactory
             List<TimephasedWork> timephasedActualWork = timephasedFactory.getCompleteWork(calendar, assignment.getStart(), timephasedActualWorkData);
             List<TimephasedWork> timephasedWork = timephasedFactory.getPlannedWork(calendar, assignment.getStart(), assignment.getUnits().doubleValue(), timephasedWorkData, timephasedActualWork);
             List<TimephasedWork> timephasedActualOvertimeWork = timephasedFactory.getCompleteWork(calendar, assignment.getStart(), timephasedActualOvertimeWorkData);
-            
+
             assignment.setActualStart(timephasedActualWork.isEmpty() ? null : assignment.getStart());
             assignment.setActualFinish((assignment.getRemainingWork().getDuration() == 0 && resource != null) ? assignment.getFinish() : null);
 
@@ -257,9 +241,9 @@ public class ResourceAssignmentFactory
 
             createTimephasedData(file, assignment, timephasedWork, timephasedActualWork);
 
-            assignment.setTimephasedWork(new TimephasedWorkData(calendar, normaliser, timephasedWork, !useRawTimephasedData));
-            assignment.setTimephasedActualWork(new TimephasedWorkData(calendar, normaliser, timephasedActualWork, !useRawTimephasedData));
-            assignment.setTimephasedActualOvertimeWork(new TimephasedWorkData(calendar, normaliser, timephasedActualOvertimeWork, !useRawTimephasedData));
+            assignment.setTimephasedWork(new DefaultTimephasedWorkContainer(calendar, normaliser, timephasedWork, !useRawTimephasedData));
+            assignment.setTimephasedActualWork(new DefaultTimephasedWorkContainer(calendar, normaliser, timephasedActualWork, !useRawTimephasedData));
+            assignment.setTimephasedActualOvertimeWork(new DefaultTimephasedWorkContainer(calendar, normaliser, timephasedActualOvertimeWork, !useRawTimephasedData));
 
             if (timephasedWorkData != null)
             {
@@ -280,7 +264,7 @@ public class ResourceAssignmentFactory
                }
             }
 
-            file.fireAssignmentReadEvent(assignment);
+            file.getEventManager().fireAssignmentReadEvent(assignment);
          }
       }
    }
@@ -331,14 +315,14 @@ public class ResourceAssignmentFactory
    {
       if (timephasedPlanned.isEmpty() && timephasedComplete.isEmpty())
       {
-         Duration totalMinutes = assignment.getWork().convertUnits(TimeUnit.MINUTES, file.getProjectHeader());
-         
+         Duration totalMinutes = assignment.getWork().convertUnits(TimeUnit.MINUTES, file.getProjectProperties());
+
          Duration workPerDay;
 
          if (assignment.getResource() == null || assignment.getResource().getType() == ResourceType.WORK)
          {
-            workPerDay = totalMinutes.getDuration()==0?totalMinutes:TimephasedWorkNormaliser.DEFAULT_NORMALIZER_WORK_PER_DAY;
-            int units = NumberUtility.getInt(assignment.getUnits());
+            workPerDay = totalMinutes.getDuration() == 0 ? totalMinutes : ResourceAssignmentFactory.DEFAULT_NORMALIZER_WORK_PER_DAY;
+            int units = NumberHelper.getInt(assignment.getUnits());
             if (units != 100)
             {
                workPerDay = Duration.getInstance((workPerDay.getDuration() * units) / 100.0, workPerDay.getUnits());
@@ -349,30 +333,28 @@ public class ResourceAssignmentFactory
             if (assignment.getVariableRateUnits() == null)
             {
                Duration workingDays = assignment.getCalendar().getWork(assignment.getStart(), assignment.getFinish(), TimeUnit.DAYS);
-               double units = NumberUtility.getDouble(assignment.getUnits());
+               double units = NumberHelper.getDouble(assignment.getUnits());
                double unitsPerDayAsMinutes = (units * 60) / (workingDays.getDuration() * 100);
                workPerDay = Duration.getInstance(unitsPerDayAsMinutes, TimeUnit.MINUTES);
             }
             else
             {
-               double unitsPerHour = NumberUtility.getDouble(assignment.getUnits());
-               workPerDay = TimephasedWorkNormaliser.DEFAULT_NORMALIZER_WORK_PER_DAY;
-               Duration hoursPerDay = workPerDay.convertUnits(TimeUnit.HOURS, file.getProjectHeader());
+               double unitsPerHour = NumberHelper.getDouble(assignment.getUnits());
+               workPerDay = ResourceAssignmentFactory.DEFAULT_NORMALIZER_WORK_PER_DAY;
+               Duration hoursPerDay = workPerDay.convertUnits(TimeUnit.HOURS, file.getProjectProperties());
                double unitsPerDayAsHours = (unitsPerHour * hoursPerDay.getDuration()) / 100;
                double unitsPerDayAsMinutes = unitsPerDayAsHours * 60;
                workPerDay = Duration.getInstance(unitsPerDayAsMinutes, TimeUnit.MINUTES);
             }
          }
 
-         
-         
          Duration overtimeWork = assignment.getOvertimeWork();
          if (overtimeWork != null && overtimeWork.getDuration() != 0)
          {
-            Duration totalOvertimeMinutes = overtimeWork.convertUnits(TimeUnit.MINUTES, file.getProjectHeader());
+            Duration totalOvertimeMinutes = overtimeWork.convertUnits(TimeUnit.MINUTES, file.getProjectProperties());
             totalMinutes = Duration.getInstance(totalMinutes.getDuration() - totalOvertimeMinutes.getDuration(), TimeUnit.MINUTES);
          }
-         
+
          TimephasedWork tra = new TimephasedWork();
          tra.setStart(assignment.getStart());
          tra.setAmountPerDay(workPerDay);
@@ -384,4 +366,54 @@ public class ResourceAssignmentFactory
    }
 
    private static final Integer MPP9_CREATION_DATA = Integer.valueOf(138);
+
+   private static final MppBitFlag[] ASSIGNMENT_META_DATA_BIT_FLAGS =
+   {
+      new MppBitFlag(AssignmentField.FLAG1, 28, 0x0000080, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG2, 28, 0x0000100, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG3, 28, 0x0000200, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG4, 28, 0x0000400, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG5, 28, 0x0000800, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG6, 28, 0x0001000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG7, 28, 0x0002000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG8, 28, 0x0004000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG9, 28, 0x0008000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG10, 28, 0x0010000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG11, 28, 0x0020000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG12, 28, 0x0040000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG13, 28, 0x0080000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG14, 28, 0x0100000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG15, 28, 0x0200000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG16, 28, 0x0400000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG17, 28, 0x0800000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG18, 28, 0x1000000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG19, 28, 0x2000000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG20, 28, 0x4000000, Boolean.FALSE, Boolean.TRUE)
+   };
+
+   private static final MppBitFlag[] MPP14_ASSIGNMENT_META_DATA_BIT_FLAGS =
+   {
+      new MppBitFlag(AssignmentField.FLAG10, 28, 0x000002, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG1, 28, 0x000004, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG2, 28, 0x000008, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG3, 28, 0x000010, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG4, 28, 0x000020, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG5, 28, 0x000040, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG6, 28, 0x000080, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG7, 28, 0x000100, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG8, 28, 0x000200, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG9, 28, 0x000400, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG11, 28, 0x000800, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG12, 28, 0x001000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG13, 28, 0x002000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG14, 28, 0x004000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG15, 28, 0x008000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG16, 28, 0x010000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG17, 28, 0x020000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG18, 28, 0x040000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG19, 28, 0x080000, Boolean.FALSE, Boolean.TRUE),
+      new MppBitFlag(AssignmentField.FLAG20, 28, 0x100000, Boolean.FALSE, Boolean.TRUE)
+   };
+
+   private static final Duration DEFAULT_NORMALIZER_WORK_PER_DAY = Duration.getInstance(480, TimeUnit.MINUTES);
 }

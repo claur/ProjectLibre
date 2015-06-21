@@ -23,8 +23,7 @@
 
 package net.sf.mpxj;
 
-import net.sf.mpxj.utility.EnumUtility;
-import net.sf.mpxj.utility.MpxjEnum;
+import net.sf.mpxj.common.EnumHelper;
 
 /**
  * Instances of this class represent enumerated currency symbol position values.
@@ -51,7 +50,7 @@ public enum CurrencySymbolPosition implements MpxjEnum
     *
     * @return currency symbol position value
     */
-   public int getValue()
+   @Override public int getValue()
    {
       return (m_value);
    }
@@ -82,7 +81,7 @@ public enum CurrencySymbolPosition implements MpxjEnum
       return (Integer.toString(m_value));
    }
 
-   private static final CurrencySymbolPosition[] TYPE_VALUES = EnumUtility.createTypeArray(CurrencySymbolPosition.class);
+   private static final CurrencySymbolPosition[] TYPE_VALUES = EnumHelper.createTypeArray(CurrencySymbolPosition.class);
 
    private int m_value;
 }

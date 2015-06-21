@@ -53,7 +53,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.List;
 
 import net.sf.mpxj.AccrueType;
@@ -68,7 +67,7 @@ import net.sf.mpxj.Priority;
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectCalendarException;
 import net.sf.mpxj.ProjectCalendarHours;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Resource;
 import net.sf.mpxj.ResourceAssignment;
 import net.sf.mpxj.Task;
@@ -77,19 +76,16 @@ import net.sf.mpxj.TimeUnit;
 import net.sf.mpxj.WorkContour;
 import net.sf.mpxj.mspdi.DatatypeConverter;
 
-import com.projity.configuration.CircularDependencyException;
 import com.projity.configuration.Configuration;
 import com.projity.contrib.util.Log;
 import com.projity.contrib.util.LogFactory;
 import com.projity.datatype.Duration;
 import com.projity.datatype.Rate;
-import com.projity.exchange.Context;
 import com.projity.exchange.ImportedCalendarService;
 import com.projity.field.CustomFields;
 import com.projity.grouping.core.VoidNodeImpl;
 import com.projity.options.CalendarOption;
 import com.projity.pm.assignment.Assignment;
-import com.projity.pm.calendar.CalendarService;
 import com.projity.pm.calendar.WorkCalendar;
 import com.projity.pm.calendar.WorkDay;
 import com.projity.pm.calendar.WorkRange;
@@ -98,7 +94,6 @@ import com.projity.pm.calendar.WorkingHours;
 import com.projity.pm.resource.ResourceImpl;
 import com.projity.pm.task.NormalTask;
 import com.projity.pm.task.Project;
-import com.projity.strings.Messages;
 import com.projity.util.DateTime;
 import com.projity.util.MathUtils;
 /**
@@ -110,7 +105,7 @@ public class MPXConverter {
 	public static int nameFieldWidth = Configuration.getFieldFromId("Field.name").getTextWidth();
 
 
-	public static void toMPXOptions(ProjectHeader projectHeader) {
+	public static void toMPXOptions(ProjectProperties projectHeader) {
 
 		CalendarOption calendarOption = CalendarOption.getInstance();
 //		projectHeader.setDefaultHoursInDay(new Float(calendarOption.getHoursPerDay()));
@@ -124,9 +119,9 @@ public class MPXConverter {
 		projectHeader.setDefaultEndTime(calendarOption.getDefaultEndTime().getTime());
 	}
 
-	public static void toMPXProject(Project project,ProjectHeader projectHeader) {
+	public static void toMPXProject(Project project,ProjectProperties projectHeader) {
 		WorkCalendar baseCalendar=project.getBaseCalendar();
-		projectHeader.setCalendarName(baseCalendar.getName()); // use unique id for name - this is a hack
+		projectHeader.setDefaultCalendarName(baseCalendar.getName()); // use unique id for name - this is a hack
 		projectHeader.setName(project.getName());
 		projectHeader.setProjectTitle(project.getName()); //TODO separate title and name
 		projectHeader.setComments(project.getNotes());

@@ -116,8 +116,8 @@ public class OpenprojAssignmentConverter {
 		
 		
 		//create assignment
-		com.projity.pm.assignment.Assignment openprojAssignment=AssignmentService.getInstance().newAssignment(task,resource
-				,(Double)assignment.getPropertyValue("units"),0,null);
+		com.projity.pm.assignment.Assignment openprojAssignment=com.projity.pm.assignment.Assignment.getInstance(task,resource
+				,(Double)assignment.getPropertyValue("units"),0);
 
 		
 		//convert fields

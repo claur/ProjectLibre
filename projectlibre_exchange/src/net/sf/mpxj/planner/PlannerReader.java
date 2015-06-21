@@ -50,13 +50,15 @@ import net.sf.mpxj.DateRange;
 import net.sf.mpxj.Day;
 import net.sf.mpxj.DayType;
 import net.sf.mpxj.Duration;
+import net.sf.mpxj.EventManager;
 import net.sf.mpxj.MPXJException;
 import net.sf.mpxj.Priority;
 import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectCalendarException;
 import net.sf.mpxj.ProjectCalendarHours;
+import net.sf.mpxj.ProjectConfig;
 import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectHeader;
+import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Relation;
 import net.sf.mpxj.RelationType;
 import net.sf.mpxj.Resource;
@@ -65,6 +67,7 @@ import net.sf.mpxj.ResourceType;
 import net.sf.mpxj.Task;
 import net.sf.mpxj.TaskType;
 import net.sf.mpxj.TimeUnit;
+import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.listener.ProjectListener;
 import net.sf.mpxj.planner.schema.Allocation;
 import net.sf.mpxj.planner.schema.Allocations;
@@ -81,7 +84,6 @@ import net.sf.mpxj.planner.schema.Project;
 import net.sf.mpxj.planner.schema.Resources;
 import net.sf.mpxj.planner.schema.Tasks;
 import net.sf.mpxj.reader.AbstractProjectReader;
-import net.sf.mpxj.utility.NumberUtility;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -95,7 +97,7 @@ public final class PlannerReader extends AbstractProjectReader
    /**
     * {@inheritDoc}
     */
-   public void addProjectListener(ProjectListener listener)
+   @Override public void addProjectListener(ProjectListener listener)
    {
       if (m_projectListeners == null)
       {
@@ -107,20 +109,24 @@ public final class PlannerReader extends AbstractProjectReader
    /**
     * {@inheritDoc}
     */
-   public ProjectFile read(InputStream stream) throws MPXJException
+   @Override public ProjectFile read(InputStream stream) throws MPXJException
    {
       try
       {
          m_projectFile = new ProjectFile();
+         m_eventManager = m_projectFile.getEventManager();
 
-         m_projectFile.addProjectListeners(m_projectListeners);
-         m_projectFile.setAutoTaskUniqueID(false);
-         m_projectFile.setAutoResourceUniqueID(false);
-         m_projectFile.setAutoOutlineLevel(false);
-         m_projectFile.setAutoOutlineNumber(false);
-         m_projectFile.setAutoWBS(false);
+         ProjectConfig config = m_projectFile.getProjectConfig();
+         config.setAutoTaskUniqueID(false);
+         config.setAutoResourceUniqueID(false);
+         config.setAutoOutlineLevel(false);
+         config.setAutoOutlineNumber(false);
+         config.setAutoWBS(false);
+
+         m_eventManager.addProjectListeners(m_projectListeners);
 
          SAXParserFactory factory = SAXParserFactory.newInstance();
+         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
          factory.setNamespaceAware(true);
          SAXParser saxParser = factory.newSAXParser();
          XMLReader xmlReader = saxParser.getXMLReader();
@@ -135,7 +141,7 @@ public final class PlannerReader extends AbstractProjectReader
 
          Project plannerProject = (Project) unmarshaller.unmarshal(doc);
 
-         readProjectHeader(plannerProject);
+         readProjectProperties(plannerProject);
          readCalendars(plannerProject);
          readResources(plannerProject);
          readTasks(plannerProject);
@@ -144,7 +150,7 @@ public final class PlannerReader extends AbstractProjectReader
          //
          // Ensure that the unique ID counters are correct
          //
-         m_projectFile.updateUniqueCounters();
+         config.updateUniqueCounters();
 
          return (m_projectFile);
       }
@@ -172,18 +178,18 @@ public final class PlannerReader extends AbstractProjectReader
    }
 
    /**
-    * This method extracts project header data from a Planner file.
+    * This method extracts project properties from a Planner file.
     *
     * @param project Root node of the Planner file
     */
-   private void readProjectHeader(Project project) throws MPXJException
+   private void readProjectProperties(Project project) throws MPXJException
    {
-      ProjectHeader header = m_projectFile.getProjectHeader();
+      ProjectProperties properties = m_projectFile.getProjectProperties();
 
-      header.setCompany(project.getCompany());
-      header.setManager(project.getManager());
-      header.setName(project.getName());
-      header.setStartDate(getDateTime(project.getProjectStart()));
+      properties.setCompany(project.getCompany());
+      properties.setManager(project.getManager());
+      properties.setName(project.getName());
+      properties.setStartDate(getDateTime(project.getProjectStart()));
    }
 
    /**
@@ -202,10 +208,10 @@ public final class PlannerReader extends AbstractProjectReader
          }
 
          Integer defaultCalendarID = getInteger(project.getCalendar());
-         m_defaultCalendar = m_projectFile.getBaseCalendarByUniqueID(defaultCalendarID);
+         m_defaultCalendar = m_projectFile.getCalendarByUniqueID(defaultCalendarID);
          if (m_defaultCalendar != null)
          {
-            m_projectFile.getProjectHeader().setCalendarName(m_defaultCalendar.getName());
+            m_projectFile.getProjectProperties().setDefaultCalendarName(m_defaultCalendar.getName());
          }
       }
    }
@@ -221,15 +227,7 @@ public final class PlannerReader extends AbstractProjectReader
       //
       // Create a calendar instance
       //
-      ProjectCalendar mpxjCalendar;
-      if (parentMpxjCalendar == null)
-      {
-         mpxjCalendar = m_projectFile.addBaseCalendar();
-      }
-      else
-      {
-         mpxjCalendar = m_projectFile.addResourceCalendar();
-      }
+      ProjectCalendar mpxjCalendar = m_projectFile.addCalendar();
 
       //
       // Populate basic details
@@ -260,18 +258,15 @@ public final class PlannerReader extends AbstractProjectReader
       //
       processExceptionDays(mpxjCalendar, plannerCalendar);
 
-      m_projectFile.fireCalendarReadEvent(mpxjCalendar);
+      m_eventManager.fireCalendarReadEvent(mpxjCalendar);
 
       //
       // Process any derived calendars
       //
       List<net.sf.mpxj.planner.schema.Calendar> calendarList = plannerCalendar.getCalendar();
-      if (calendarList != null)
+      for (net.sf.mpxj.planner.schema.Calendar cal : calendarList)
       {
-         for (net.sf.mpxj.planner.schema.Calendar cal : calendarList)
-         {
-            readCalendar(cal, mpxjCalendar);
-         }
+         readCalendar(cal, mpxjCalendar);
       }
    }
 
@@ -290,13 +285,13 @@ public final class PlannerReader extends AbstractProjectReader
       {
          switch (getInt(plannerDay))
          {
-            case 0 :
+            case 0:
             {
                dayType = DayType.WORKING;
                break;
             }
 
-            case 1 :
+            case 1:
             {
                dayType = DayType.NON_WORKING;
                break;
@@ -319,112 +314,106 @@ public final class PlannerReader extends AbstractProjectReader
       if (types != null)
       {
          List<OverriddenDayType> typeList = types.getOverriddenDayType();
-         if (typeList != null)
+         Iterator<OverriddenDayType> iter = typeList.iterator();
+         OverriddenDayType odt = null;
+         while (iter.hasNext())
          {
-            Iterator<OverriddenDayType> iter = typeList.iterator();
-            OverriddenDayType odt = null;
-            while (iter.hasNext())
+            odt = iter.next();
+            if (getInt(odt.getId()) != 0)
             {
-               odt = iter.next();
-               if (getInt(odt.getId()) != 0)
-               {
-                  odt = null;
-                  continue;
-               }
-
-               break;
+               odt = null;
+               continue;
             }
 
-            if (odt != null)
+            break;
+         }
+
+         if (odt != null)
+         {
+            List<Interval> intervalList = odt.getInterval();
+            ProjectCalendarHours mondayHours = null;
+            ProjectCalendarHours tuesdayHours = null;
+            ProjectCalendarHours wednesdayHours = null;
+            ProjectCalendarHours thursdayHours = null;
+            ProjectCalendarHours fridayHours = null;
+            ProjectCalendarHours saturdayHours = null;
+            ProjectCalendarHours sundayHours = null;
+
+            if (mpxjCalendar.isWorkingDay(Day.MONDAY))
             {
-               List<Interval> intervalList = odt.getInterval();
-               if (intervalList != null)
+               mondayHours = mpxjCalendar.addCalendarHours(Day.MONDAY);
+            }
+
+            if (mpxjCalendar.isWorkingDay(Day.TUESDAY))
+            {
+               tuesdayHours = mpxjCalendar.addCalendarHours(Day.TUESDAY);
+            }
+
+            if (mpxjCalendar.isWorkingDay(Day.WEDNESDAY))
+            {
+               wednesdayHours = mpxjCalendar.addCalendarHours(Day.WEDNESDAY);
+            }
+
+            if (mpxjCalendar.isWorkingDay(Day.THURSDAY))
+            {
+               thursdayHours = mpxjCalendar.addCalendarHours(Day.THURSDAY);
+            }
+
+            if (mpxjCalendar.isWorkingDay(Day.FRIDAY))
+            {
+               fridayHours = mpxjCalendar.addCalendarHours(Day.FRIDAY);
+            }
+
+            if (mpxjCalendar.isWorkingDay(Day.SATURDAY))
+            {
+               saturdayHours = mpxjCalendar.addCalendarHours(Day.SATURDAY);
+            }
+
+            if (mpxjCalendar.isWorkingDay(Day.SUNDAY))
+            {
+               sundayHours = mpxjCalendar.addCalendarHours(Day.SUNDAY);
+            }
+
+            for (Interval interval : intervalList)
+            {
+               Date startTime = getTime(interval.getStart());
+               Date endTime = getTime(interval.getEnd());
+
+               m_defaultWorkingHours.add(new DateRange(startTime, endTime));
+
+               if (mondayHours != null)
                {
-                  ProjectCalendarHours mondayHours = null;
-                  ProjectCalendarHours tuesdayHours = null;
-                  ProjectCalendarHours wednesdayHours = null;
-                  ProjectCalendarHours thursdayHours = null;
-                  ProjectCalendarHours fridayHours = null;
-                  ProjectCalendarHours saturdayHours = null;
-                  ProjectCalendarHours sundayHours = null;
+                  mondayHours.addRange(new DateRange(startTime, endTime));
+               }
 
-                  if (mpxjCalendar.isWorkingDay(Day.MONDAY))
-                  {
-                     mondayHours = mpxjCalendar.addCalendarHours(Day.MONDAY);
-                  }
+               if (tuesdayHours != null)
+               {
+                  tuesdayHours.addRange(new DateRange(startTime, endTime));
+               }
 
-                  if (mpxjCalendar.isWorkingDay(Day.TUESDAY))
-                  {
-                     tuesdayHours = mpxjCalendar.addCalendarHours(Day.TUESDAY);
-                  }
+               if (wednesdayHours != null)
+               {
+                  wednesdayHours.addRange(new DateRange(startTime, endTime));
+               }
 
-                  if (mpxjCalendar.isWorkingDay(Day.WEDNESDAY))
-                  {
-                     wednesdayHours = mpxjCalendar.addCalendarHours(Day.WEDNESDAY);
-                  }
+               if (thursdayHours != null)
+               {
+                  thursdayHours.addRange(new DateRange(startTime, endTime));
+               }
 
-                  if (mpxjCalendar.isWorkingDay(Day.THURSDAY))
-                  {
-                     thursdayHours = mpxjCalendar.addCalendarHours(Day.THURSDAY);
-                  }
+               if (fridayHours != null)
+               {
+                  fridayHours.addRange(new DateRange(startTime, endTime));
+               }
 
-                  if (mpxjCalendar.isWorkingDay(Day.FRIDAY))
-                  {
-                     fridayHours = mpxjCalendar.addCalendarHours(Day.FRIDAY);
-                  }
+               if (saturdayHours != null)
+               {
+                  saturdayHours.addRange(new DateRange(startTime, endTime));
+               }
 
-                  if (mpxjCalendar.isWorkingDay(Day.SATURDAY))
-                  {
-                     saturdayHours = mpxjCalendar.addCalendarHours(Day.SATURDAY);
-                  }
-
-                  if (mpxjCalendar.isWorkingDay(Day.SUNDAY))
-                  {
-                     sundayHours = mpxjCalendar.addCalendarHours(Day.SUNDAY);
-                  }
-
-                  for (Interval interval : intervalList)
-                  {
-                     Date startTime = getTime(interval.getStart());
-                     Date endTime = getTime(interval.getEnd());
-
-                     m_defaultWorkingHours.add(new DateRange(startTime, endTime));
-
-                     if (mondayHours != null)
-                     {
-                        mondayHours.addRange(new DateRange(startTime, endTime));
-                     }
-
-                     if (tuesdayHours != null)
-                     {
-                        tuesdayHours.addRange(new DateRange(startTime, endTime));
-                     }
-
-                     if (wednesdayHours != null)
-                     {
-                        wednesdayHours.addRange(new DateRange(startTime, endTime));
-                     }
-
-                     if (thursdayHours != null)
-                     {
-                        thursdayHours.addRange(new DateRange(startTime, endTime));
-                     }
-
-                     if (fridayHours != null)
-                     {
-                        fridayHours.addRange(new DateRange(startTime, endTime));
-                     }
-
-                     if (saturdayHours != null)
-                     {
-                        saturdayHours.addRange(new DateRange(startTime, endTime));
-                     }
-
-                     if (sundayHours != null)
-                     {
-                        sundayHours.addRange(new DateRange(startTime, endTime));
-                     }
-                  }
+               if (sundayHours != null)
+               {
+                  sundayHours.addRange(new DateRange(startTime, endTime));
                }
             }
          }
@@ -443,21 +432,18 @@ public final class PlannerReader extends AbstractProjectReader
       if (days != null)
       {
          List<net.sf.mpxj.planner.schema.Day> dayList = days.getDay();
-         if (dayList != null)
+         for (net.sf.mpxj.planner.schema.Day day : dayList)
          {
-            for (net.sf.mpxj.planner.schema.Day day : dayList)
+            if (day.getType().equals("day-type"))
             {
-               if (day.getType().equals("day-type"))
+               Date exceptionDate = getDate(day.getDate());
+               ProjectCalendarException exception = mpxjCalendar.addCalendarException(exceptionDate, exceptionDate);
+               if (getInt(day.getId()) == 0)
                {
-                  Date exceptionDate = getDate(day.getDate());
-                  ProjectCalendarException exception = mpxjCalendar.addCalendarException(exceptionDate, exceptionDate);
-                  if (getInt(day.getId()) == 0)
+                  for (int hoursIndex = 0; hoursIndex < m_defaultWorkingHours.size(); hoursIndex++)
                   {
-                     for (int hoursIndex = 0; hoursIndex < m_defaultWorkingHours.size(); hoursIndex++)
-                     {
-                        DateRange range = m_defaultWorkingHours.get(hoursIndex);
-                        exception.addRange(range);
-                     }
+                     DateRange range = m_defaultWorkingHours.get(hoursIndex);
+                     exception.addRange(range);
                   }
                }
             }
@@ -513,14 +499,14 @@ public final class PlannerReader extends AbstractProjectReader
       calendar.setWorkingDay(Day.FRIDAY, DayType.DEFAULT);
       calendar.setWorkingDay(Day.SATURDAY, DayType.DEFAULT);
 
-      ProjectCalendar baseCalendar = m_projectFile.getBaseCalendarByUniqueID(getInteger(plannerResource.getCalendar()));
+      ProjectCalendar baseCalendar = m_projectFile.getCalendarByUniqueID(getInteger(plannerResource.getCalendar()));
       if (baseCalendar == null)
       {
          baseCalendar = m_defaultCalendar;
       }
       calendar.setParent(baseCalendar);
 
-      m_projectFile.fireResourceReadEvent(mpxjResource);
+      m_eventManager.fireResourceReadEvent(mpxjResource);
    }
 
    /**
@@ -615,7 +601,7 @@ public final class PlannerReader extends AbstractProjectReader
       //
       // Calculate missing attributes
       //
-      ProjectCalendar calendar = m_projectFile.getCalendar();
+      ProjectCalendar calendar = m_projectFile.getDefaultCalendar();
       if (calendar != null)
       {
          Duration duration = calendar.getWork(mpxjTask.getStart(), mpxjTask.getFinish(), TimeUnit.HOURS);
@@ -650,18 +636,15 @@ public final class PlannerReader extends AbstractProjectReader
       }
       mpxjTask.setEffortDriven(true);
 
-      m_projectFile.fireTaskReadEvent(mpxjTask);
+      m_eventManager.fireTaskReadEvent(mpxjTask);
 
       //
       // Process child tasks
       //
       List<net.sf.mpxj.planner.schema.Task> childTasks = plannerTask.getTask();
-      if (childTasks != null)
+      for (net.sf.mpxj.planner.schema.Task childTask : childTasks)
       {
-         for (net.sf.mpxj.planner.schema.Task childTask : childTasks)
-         {
-            readTask(mpxjTask, childTask);
-         }
+         readTask(mpxjTask, childTask);
       }
    }
 
@@ -678,22 +661,19 @@ public final class PlannerReader extends AbstractProjectReader
       if (predecessors != null)
       {
          List<Predecessor> predecessorList = predecessors.getPredecessor();
-         if (predecessorList != null)
+         for (Predecessor predecessor : predecessorList)
          {
-            for (Predecessor predecessor : predecessorList)
+            Integer predecessorID = getInteger(predecessor.getPredecessorId());
+            Task predecessorTask = m_projectFile.getTaskByUniqueID(predecessorID);
+            if (predecessorTask != null)
             {
-               Integer predecessorID = getInteger(predecessor.getPredecessorId());
-               Task predecessorTask = m_projectFile.getTaskByUniqueID(predecessorID);
-               if (predecessorTask != null)
+               Duration lag = getDuration(predecessor.getLag());
+               if (lag == null)
                {
-                  Duration lag = getDuration(predecessor.getLag());
-                  if (lag == null)
-                  {
-                     lag = Duration.getInstance(0, TimeUnit.HOURS);
-                  }
-                  Relation relation = mpxjTask.addPredecessor(predecessorTask, RELATIONSHIP_TYPES.get(predecessor.getType()), lag);
-                  m_projectFile.fireRelationReadEvent(relation);
+                  lag = Duration.getInstance(0, TimeUnit.HOURS);
                }
+               Relation relation = mpxjTask.addPredecessor(predecessorTask, RELATIONSHIP_TYPES.get(predecessor.getType()), lag);
+               m_eventManager.fireRelationReadEvent(relation);
             }
          }
       }
@@ -702,12 +682,9 @@ public final class PlannerReader extends AbstractProjectReader
       // Process child tasks
       //
       List<net.sf.mpxj.planner.schema.Task> childTasks = plannerTask.getTask();
-      if (childTasks != null)
+      for (net.sf.mpxj.planner.schema.Task childTask : childTasks)
       {
-         for (net.sf.mpxj.planner.schema.Task childTask : childTasks)
-         {
-            readPredecessors(childTask);
-         }
+         readPredecessors(childTask);
       }
    }
 
@@ -720,82 +697,79 @@ public final class PlannerReader extends AbstractProjectReader
    {
       Allocations allocations = plannerProject.getAllocations();
       List<Allocation> allocationList = allocations.getAllocation();
-      if (allocationList != null)
+      Set<Task> tasksWithAssignments = new HashSet<Task>();
+
+      for (Allocation allocation : allocationList)
       {
-         Set<Task> tasksWithAssignments = new HashSet<Task>();
+         Integer taskID = getInteger(allocation.getTaskId());
+         Integer resourceID = getInteger(allocation.getResourceId());
+         Integer units = getInteger(allocation.getUnits());
 
-         for (Allocation allocation : allocationList)
+         Task task = m_projectFile.getTaskByUniqueID(taskID);
+         Resource resource = m_projectFile.getResourceByUniqueID(resourceID);
+
+         if (task != null && resource != null)
          {
-            Integer taskID = getInteger(allocation.getTaskId());
-            Integer resourceID = getInteger(allocation.getResourceId());
-            Integer units = getInteger(allocation.getUnits());
+            Duration work = task.getWork();
+            int percentComplete = NumberHelper.getInt(task.getPercentageComplete());
 
-            Task task = m_projectFile.getTaskByUniqueID(taskID);
-            Resource resource = m_projectFile.getResourceByUniqueID(resourceID);
+            ResourceAssignment assignment = task.addResourceAssignment(resource);
+            assignment.setUnits(units);
+            assignment.setWork(work);
 
-            if (task != null && resource != null)
+            if (percentComplete != 0)
             {
-               Duration work = task.getWork();
-               int percentComplete = NumberUtility.getInt(task.getPercentageComplete());
-
-               ResourceAssignment assignment = task.addResourceAssignment(resource);
-               assignment.setUnits(units);
-               assignment.setWork(work);
-
-               if (percentComplete != 0)
-               {
-                  Duration actualWork = Duration.getInstance((work.getDuration() * percentComplete) / 100, work.getUnits());
-                  assignment.setActualWork(actualWork);
-                  assignment.setRemainingWork(Duration.getInstance(work.getDuration() - actualWork.getDuration(), work.getUnits()));
-               }
-               else
-               {
-                  assignment.setRemainingWork(work);
-               }
-
-               assignment.setStart(task.getStart());
-               assignment.setFinish(task.getFinish());
-
-               tasksWithAssignments.add(task);
-
-               m_projectFile.fireAssignmentReadEvent(assignment);
+               Duration actualWork = Duration.getInstance((work.getDuration() * percentComplete) / 100, work.getUnits());
+               assignment.setActualWork(actualWork);
+               assignment.setRemainingWork(Duration.getInstance(work.getDuration() - actualWork.getDuration(), work.getUnits()));
             }
-         }
-
-         //
-         // Adjust work per assignment for tasks with multiple assignments
-         //
-         for (Task task : tasksWithAssignments)
-         {
-            List<ResourceAssignment> assignments = task.getResourceAssignments();
-            if (assignments.size() > 1)
+            else
             {
-               double maxUnits = 0;
-               for (ResourceAssignment assignment : assignments)
+               assignment.setRemainingWork(work);
+            }
+
+            assignment.setStart(task.getStart());
+            assignment.setFinish(task.getFinish());
+
+            tasksWithAssignments.add(task);
+
+            m_eventManager.fireAssignmentReadEvent(assignment);
+         }
+      }
+
+      //
+      // Adjust work per assignment for tasks with multiple assignments
+      //
+      for (Task task : tasksWithAssignments)
+      {
+         List<ResourceAssignment> assignments = task.getResourceAssignments();
+         if (assignments.size() > 1)
+         {
+            double maxUnits = 0;
+            for (ResourceAssignment assignment : assignments)
+            {
+               maxUnits += assignment.getUnits().doubleValue();
+            }
+
+            for (ResourceAssignment assignment : assignments)
+            {
+               Duration work = assignment.getWork();
+               double factor = assignment.getUnits().doubleValue() / maxUnits;
+
+               work = Duration.getInstance(work.getDuration() * factor, work.getUnits());
+               assignment.setWork(work);
+               Duration actualWork = assignment.getActualWork();
+               if (actualWork != null)
                {
-                  maxUnits += assignment.getUnits().doubleValue();
+                  actualWork = Duration.getInstance(actualWork.getDuration() * factor, actualWork.getUnits());
+                  assignment.setActualWork(actualWork);
                }
 
-               for (ResourceAssignment assignment : assignments)
+               Duration remainingWork = assignment.getRemainingWork();
+               if (remainingWork != null)
                {
-                  Duration work = assignment.getWork();
-                  double factor = assignment.getUnits().doubleValue() / maxUnits;
-
-                  work = Duration.getInstance(work.getDuration() * factor, work.getUnits());
-                  assignment.setWork(work);
-                  Duration actualWork = assignment.getActualWork();
-                  if (actualWork != null)
-                  {
-                     actualWork = Duration.getInstance(actualWork.getDuration() * factor, actualWork.getUnits());
-                     assignment.setActualWork(actualWork);
-                  }
-
-                  Duration remainingWork = assignment.getRemainingWork();
-                  if (remainingWork != null)
-                  {
-                     remainingWork = Duration.getInstance(remainingWork.getDuration() * factor, remainingWork.getUnits());
-                     assignment.setRemainingWork(remainingWork);
-                  }
+                  remainingWork = Duration.getInstance(remainingWork.getDuration() * factor, remainingWork.getUnits());
+                  assignment.setRemainingWork(remainingWork);
                }
             }
          }
@@ -914,7 +888,7 @@ public final class PlannerReader extends AbstractProjectReader
     */
    private Integer getInteger(String value)
    {
-      return (NumberUtility.getInteger(value));
+      return (NumberHelper.getInteger(value));
    }
 
    /**
@@ -992,6 +966,7 @@ public final class PlannerReader extends AbstractProjectReader
    }
 
    private ProjectFile m_projectFile;
+   private EventManager m_eventManager;
    private ProjectCalendar m_defaultCalendar;
    private NumberFormat m_twoDigitFormat = new DecimalFormat("00");
    private NumberFormat m_fourDigitFormat = new DecimalFormat("0000");

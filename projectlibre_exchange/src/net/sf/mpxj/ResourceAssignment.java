@@ -30,15 +30,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import net.sf.mpxj.common.AssignmentFieldLists;
+import net.sf.mpxj.common.BooleanHelper;
+import net.sf.mpxj.common.DateHelper;
+import net.sf.mpxj.common.DefaultTimephasedWorkContainer;
+import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.listener.FieldListener;
-import net.sf.mpxj.utility.BooleanUtility;
-import net.sf.mpxj.utility.DateUtility;
-import net.sf.mpxj.utility.NumberUtility;
 
 /**
  * This class represents a resource assignment record from an MPX file.
  */
-public final class ResourceAssignment extends ProjectEntity implements FieldContainer
+public final class ResourceAssignment extends ProjectEntity implements ProjectEntityWithUniqueID, FieldContainer
 {
    /**
     * Constructor.
@@ -49,9 +51,9 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
    {
       super(file);
 
-      if (file.getAutoAssignmentUniqueID() == true)
+      if (file.getProjectConfig().getAutoAssignmentUniqueID() == true)
       {
-         setUniqueID(Integer.valueOf(file.getAssignmentUniqueID()));
+         setUniqueID(Integer.valueOf(file.getProjectConfig().getNextAssignmentUniqueID()));
       }
    }
 
@@ -93,7 +95,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * 
     * @return resource assignment unique ID
     */
-   public Integer getUniqueID()
+   @Override public Integer getUniqueID()
    {
       return (Integer) getCachedValue(AssignmentField.UNIQUE_ID);
    }
@@ -103,7 +105,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * 
     * @param uniqueID resource assignment unique ID
     */
-   public void setUniqueID(Integer uniqueID)
+   @Override public void setUniqueID(Integer uniqueID)
    {
       set(AssignmentField.UNIQUE_ID, uniqueID);
    }
@@ -499,7 +501,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void remove()
    {
-      getParentFile().removeResourceAssignment(this);
+      getParentFile().getAllResourceAssignments().remove(this);
    }
 
    /**
@@ -559,7 +561,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * 
     * @param data timephased data
     */
-   public void setTimephasedActualWork(TimephasedWorkData data)
+   public void setTimephasedActualWork(TimephasedWorkContainer data)
    {
       m_timephasedActualWork = data;
    }
@@ -581,7 +583,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * 
     * @param data timephased data 
     */
-   public void setTimephasedWork(TimephasedWorkData data)
+   public void setTimephasedWork(DefaultTimephasedWorkContainer data)
    {
       m_timephasedWork = data;
    }
@@ -599,7 +601,10 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
          double perDayFactor = getRemainingOvertimeWork().getDuration() / (getRemainingWork().getDuration() - getRemainingOvertimeWork().getDuration());
          double totalFactor = getRemainingOvertimeWork().getDuration() / getRemainingWork().getDuration();
 
-         m_timephasedOvertimeWork = new TimephasedWorkData(m_timephasedWork, perDayFactor, totalFactor);
+         perDayFactor = Double.isNaN(perDayFactor) ? 0 : perDayFactor;
+         totalFactor = Double.isNaN(totalFactor) ? 0 : totalFactor;
+
+         m_timephasedOvertimeWork = new DefaultTimephasedWorkContainer(m_timephasedWork, perDayFactor, totalFactor);
       }
       return m_timephasedOvertimeWork == null ? null : m_timephasedOvertimeWork.getData();
    }
@@ -610,7 +615,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * 
     * @param data timephased work
     */
-   public void setTimephasedActualOvertimeWork(TimephasedWorkData data)
+   public void setTimephasedActualOvertimeWork(TimephasedWorkContainer data)
    {
       m_timephasedActualOvertimeWork = data;
    }
@@ -633,16 +638,31 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public List<TimephasedCost> getTimephasedCost()
    {
-      if (m_timephasedCost == null && m_timephasedWork != null && m_timephasedWork.hasData())
+      if (m_timephasedCost == null)
       {
-         if (hasMultipleCostRates())
+         Resource r = getResource();
+         ResourceType type = r != null ? r.getType() : ResourceType.WORK;
+
+         //for Work and Material resources, we will calculate in the normal way
+         if (type != ResourceType.COST)
          {
-            m_timephasedCost = getTimephasedCostMultipleRates(getTimephasedWork(), getTimephasedOvertimeWork());
+            if (m_timephasedWork != null && m_timephasedWork.hasData())
+            {
+               if (hasMultipleCostRates())
+               {
+                  m_timephasedCost = getTimephasedCostMultipleRates(getTimephasedWork(), getTimephasedOvertimeWork());
+               }
+               else
+               {
+                  m_timephasedCost = getTimephasedCostSingleRate(getTimephasedWork(), getTimephasedOvertimeWork());
+               }
+            }
          }
          else
          {
-            m_timephasedCost = getTimephasedCostSingleRate(getTimephasedWork(), getTimephasedOvertimeWork());
+            m_timephasedCost = getTimephasedCostFixedAmount();
          }
+
       }
       return m_timephasedCost;
    }
@@ -654,17 +674,33 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public List<TimephasedCost> getTimephasedActualCost()
    {
-      if (m_timephasedActualCost == null && m_timephasedActualWork != null && m_timephasedActualWork.hasData())
+      if (m_timephasedActualCost == null)
       {
-         if (hasMultipleCostRates())
+         Resource r = getResource();
+         ResourceType type = r != null ? r.getType() : ResourceType.WORK;
+
+         //for Work and Material resources, we will calculate in the normal way
+         if (type != ResourceType.COST)
          {
-            m_timephasedActualCost = getTimephasedCostMultipleRates(getTimephasedActualWork(), getTimephasedActualOvertimeWork());
+            if (m_timephasedActualWork != null && m_timephasedActualWork.hasData())
+            {
+               if (hasMultipleCostRates())
+               {
+                  m_timephasedActualCost = getTimephasedCostMultipleRates(getTimephasedActualWork(), getTimephasedActualOvertimeWork());
+               }
+               else
+               {
+                  m_timephasedActualCost = getTimephasedCostSingleRate(getTimephasedActualWork(), getTimephasedActualOvertimeWork());
+               }
+            }
          }
          else
          {
-            m_timephasedActualCost = getTimephasedCostSingleRate(getTimephasedActualWork(), getTimephasedActualOvertimeWork());
+            m_timephasedActualCost = getTimephasedActualCostFixedAmount();
          }
+
       }
+
       return m_timephasedActualCost;
    }
 
@@ -680,27 +716,41 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
    {
       List<TimephasedCost> result = new LinkedList<TimephasedCost>();
 
-      Iterator<TimephasedWork> overtimeIterator = overtimeWorkList.iterator();
+      //just return an empty list if there is no timephased work passed in
+      if (standardWorkList == null)
+      {
+         return result;
+      }
+
+      //takes care of the situation where there is no timephased overtime work
+      Iterator<TimephasedWork> overtimeIterator = overtimeWorkList == null ? java.util.Collections.<TimephasedWork> emptyList().iterator() : overtimeWorkList.iterator();
+
       for (TimephasedWork standardWork : standardWorkList)
       {
          CostRateTableEntry rate = getCostRateTableEntry(standardWork.getStart());
          double standardRateValue = rate.getStandardRate().getAmount();
          TimeUnit standardRateUnits = rate.getStandardRate().getUnits();
-         double overtimeRateValue = rate.getOvertimeRate().getAmount();
-         TimeUnit overtimeRateUnits = rate.getOvertimeRate().getUnits();
+         double overtimeRateValue = 0;
+         TimeUnit overtimeRateUnits = standardRateUnits;
+
+         if (rate.getOvertimeRate() != null)
+         {
+            overtimeRateValue = rate.getOvertimeRate().getAmount();
+            overtimeRateUnits = rate.getOvertimeRate().getUnits();
+         }
 
          TimephasedWork overtimeWork = overtimeIterator.hasNext() ? overtimeIterator.next() : null;
 
          Duration standardWorkPerDay = standardWork.getAmountPerDay();
          if (standardWorkPerDay.getUnits() != standardRateUnits)
          {
-            standardWorkPerDay = standardWorkPerDay.convertUnits(standardRateUnits, getParentFile().getProjectHeader());
+            standardWorkPerDay = standardWorkPerDay.convertUnits(standardRateUnits, getParentFile().getProjectProperties());
          }
 
          Duration totalStandardWork = standardWork.getTotalAmount();
          if (totalStandardWork.getUnits() != standardRateUnits)
          {
-            totalStandardWork = totalStandardWork.convertUnits(standardRateUnits, getParentFile().getProjectHeader());
+            totalStandardWork = totalStandardWork.convertUnits(standardRateUnits, getParentFile().getProjectProperties());
          }
 
          Duration overtimeWorkPerDay;
@@ -716,26 +766,39 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
             overtimeWorkPerDay = overtimeWork.getAmountPerDay();
             if (overtimeWorkPerDay.getUnits() != overtimeRateUnits)
             {
-               overtimeWorkPerDay = overtimeWorkPerDay.convertUnits(overtimeRateUnits, getParentFile().getProjectHeader());
+               overtimeWorkPerDay = overtimeWorkPerDay.convertUnits(overtimeRateUnits, getParentFile().getProjectProperties());
             }
 
             totalOvertimeWork = overtimeWork.getTotalAmount();
             if (totalOvertimeWork.getUnits() != overtimeRateUnits)
             {
-               totalOvertimeWork = totalOvertimeWork.convertUnits(overtimeRateUnits, getParentFile().getProjectHeader());
+               totalOvertimeWork = totalOvertimeWork.convertUnits(overtimeRateUnits, getParentFile().getProjectProperties());
             }
          }
 
          double costPerDay = (standardWorkPerDay.getDuration() * standardRateValue) + (overtimeWorkPerDay.getDuration() * overtimeRateValue);
          double totalCost = (totalStandardWork.getDuration() * standardRateValue) + (totalOvertimeWork.getDuration() * overtimeRateValue);
 
-         TimephasedCost cost = new TimephasedCost();
-         cost.setStart(standardWork.getStart());
-         cost.setFinish(standardWork.getFinish());
-         cost.setModified(standardWork.getModified());
-         cost.setAmountPerDay(Double.valueOf(costPerDay));
-         cost.setTotalAmount(Double.valueOf(totalCost));
-         result.add(cost);
+         //if the overtime work does not span the same number of days as the work,
+         //then we have to split this into two TimephasedCost values
+         if (overtimeWork == null || (overtimeWork.getFinish().equals(standardWork.getFinish())))
+         {
+            //normal way
+            TimephasedCost cost = new TimephasedCost();
+            cost.setStart(standardWork.getStart());
+            cost.setFinish(standardWork.getFinish());
+            cost.setModified(standardWork.getModified());
+            cost.setAmountPerDay(Double.valueOf(costPerDay));
+            cost.setTotalAmount(Double.valueOf(totalCost));
+            result.add(cost);
+
+         }
+         else
+         {
+            //prorated way
+            result.addAll(splitCostProrated(getCalendar(), totalCost, costPerDay, standardWork.getStart()));
+         }
+
       }
 
       return result;
@@ -749,7 +812,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * @param overtimeWorkList timephased work
     * @return timephased cost
     */
-   @SuppressWarnings("all") private List<TimephasedCost> getTimephasedCostMultipleRates(List<TimephasedWork> standardWorkList, List<TimephasedWork> overtimeWorkList)
+   private List<TimephasedCost> getTimephasedCostMultipleRates(List<TimephasedWork> standardWorkList, List<TimephasedWork> overtimeWorkList)
    {
       List<TimephasedWork> standardWorkResult = new LinkedList<TimephasedWork>();
       List<TimephasedWork> overtimeWorkResult = new LinkedList<TimephasedWork>();
@@ -783,6 +846,215 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
       }
 
       return getTimephasedCostSingleRate(standardWorkResult, overtimeWorkResult);
+   }
+
+   /**
+    * Generates timephased costs from the assignment's cost value. Used for Cost type Resources.
+    * 
+    * @return timephased cost
+    */
+   private List<TimephasedCost> getTimephasedCostFixedAmount()
+   {
+      List<TimephasedCost> result = new LinkedList<TimephasedCost>();
+
+      ProjectCalendar cal = getCalendar();
+
+      double remainingCost = getRemainingCost().doubleValue();
+
+      if (remainingCost > 0)
+      {
+         AccrueType accrueAt = getResource().getAccrueAt();
+
+         if (accrueAt == AccrueType.START)
+         {
+            result.add(splitCostStart(cal, remainingCost, getStart()));
+         }
+         else
+            if (accrueAt == AccrueType.END)
+            {
+               result.add(splitCostEnd(cal, remainingCost, getFinish()));
+            }
+            else
+            {
+               //for prorated, we have to deal with it differently depending on whether or not
+               //any actual has been entered, since we want to mimic the other timephased data
+               //where planned and actual values do not overlap
+               double numWorkingDays = cal.getWork(getStart(), getFinish(), TimeUnit.DAYS).getDuration();
+               double standardAmountPerDay = getCost().doubleValue() / numWorkingDays;
+
+               if (getActualCost().intValue() > 0)
+               {
+                  //need to get three possible blocks of data: one for the possible partial amount
+                  //overlap with timephased actual cost; one with all the standard amount days
+                  //that happen after the actual cost stops; and one with any remaining
+                  //partial day cost amount
+
+                  int numActualDaysUsed = (int) Math.ceil(getActualCost().doubleValue() / standardAmountPerDay);
+                  Date actualWorkFinish = cal.getDate(getStart(), Duration.getInstance(numActualDaysUsed, TimeUnit.DAYS), false);
+
+                  double partialDayActualAmount = getActualCost().doubleValue() % standardAmountPerDay;
+
+                  if (partialDayActualAmount > 0)
+                  {
+                     double dayAmount = standardAmountPerDay < remainingCost ? standardAmountPerDay - partialDayActualAmount : remainingCost;
+
+                     result.add(splitCostEnd(cal, dayAmount, actualWorkFinish));
+
+                     remainingCost -= dayAmount;
+                  }
+
+                  //see if there's anything left to work with
+                  if (remainingCost > 0)
+                  {
+                     //have to split up the amount into standard prorated amount days and whatever is left
+                     result.addAll(splitCostProrated(cal, remainingCost, standardAmountPerDay, cal.getNextWorkStart(actualWorkFinish)));
+                  }
+
+               }
+               else
+               {
+                  //no actual cost to worry about, so just a standard split from the beginning of the assignment
+                  result.addAll(splitCostProrated(cal, remainingCost, standardAmountPerDay, getStart()));
+               }
+            }
+      }
+
+      return result;
+   }
+
+   /**
+    * Generates timephased actual costs from the assignment's cost value. Used for Cost type Resources.
+    * 
+    * @return timephased cost
+    */
+   private List<TimephasedCost> getTimephasedActualCostFixedAmount()
+   {
+      List<TimephasedCost> result = new LinkedList<TimephasedCost>();
+
+      double actualCost = getActualCost().doubleValue();
+
+      if (actualCost > 0)
+      {
+         AccrueType accrueAt = getResource().getAccrueAt();
+
+         if (accrueAt == AccrueType.START)
+         {
+            result.add(splitCostStart(getCalendar(), actualCost, getActualStart()));
+         }
+         else
+            if (accrueAt == AccrueType.END)
+            {
+               result.add(splitCostEnd(getCalendar(), actualCost, getActualFinish()));
+            }
+            else
+            {
+               //for prorated, we have to deal with it differently; have to 'fill up' each
+               //day with the standard amount before going to the next one
+               double numWorkingDays = getCalendar().getWork(getStart(), getFinish(), TimeUnit.DAYS).getDuration();
+               double standardAmountPerDay = getCost().doubleValue() / numWorkingDays;
+
+               result.addAll(splitCostProrated(getCalendar(), actualCost, standardAmountPerDay, getActualStart()));
+            }
+      }
+
+      return result;
+   }
+
+   /**
+    * Used for Cost type Resources. 
+    * 
+    * Generates a TimphasedCost block for the total amount on the start date. This is useful
+    * for Cost resources that have an AccrueAt value of Start. 
+    * 
+    * @param calendar calendar used by this assignment
+    * @param totalAmount cost amount for this block
+    * @param start start date of the timephased cost block
+    * @return timephased cost
+    */
+   private TimephasedCost splitCostStart(ProjectCalendar calendar, double totalAmount, Date start)
+   {
+      TimephasedCost cost = new TimephasedCost();
+      cost.setStart(start);
+      cost.setFinish(calendar.getDate(start, Duration.getInstance(1, TimeUnit.DAYS), false));
+      cost.setAmountPerDay(Double.valueOf(totalAmount));
+      cost.setTotalAmount(Double.valueOf(totalAmount));
+
+      return cost;
+   }
+
+   /**
+    * Used for Cost type Resources. 
+    * 
+    * Generates a TimphasedCost block for the total amount on the finish date. This is useful
+    * for Cost resources that have an AccrueAt value of End. 
+    * 
+    * @param calendar calendar used by this assignment
+    * @param totalAmount cost amount for this block
+    * @param finish finish date of the timephased cost block
+    * @return timephased cost
+    */
+   private TimephasedCost splitCostEnd(ProjectCalendar calendar, double totalAmount, Date finish)
+   {
+      TimephasedCost cost = new TimephasedCost();
+      cost.setStart(calendar.getStartDate(finish, Duration.getInstance(1, TimeUnit.DAYS)));
+      cost.setFinish(finish);
+      cost.setAmountPerDay(Double.valueOf(totalAmount));
+      cost.setTotalAmount(Double.valueOf(totalAmount));
+
+      return cost;
+   }
+
+   /**
+    * Used for Cost type Resources. 
+    * 
+    * Generates up to two TimephasedCost blocks for a cost amount. The first block will contain
+    * all the days using the standardAmountPerDay, and a second block will contain any
+    * final amount that is not enough for a complete day. This is useful for Cost resources
+    * who have an AccrueAt value of Prorated.
+    * 
+    * @param calendar calendar used by this assignment
+    * @param totalAmount cost amount to be prorated
+    * @param standardAmountPerDay cost amount for a normal working day
+    * @param start date of the first timephased cost block
+    * @return timephased cost
+    */
+   private List<TimephasedCost> splitCostProrated(ProjectCalendar calendar, double totalAmount, double standardAmountPerDay, Date start)
+   {
+      List<TimephasedCost> result = new LinkedList<TimephasedCost>();
+
+      double numStandardAmountDays = Math.floor(totalAmount / standardAmountPerDay);
+      double amountForLastDay = totalAmount % standardAmountPerDay;
+
+      //first block contains all the normal work at the beginning of the assignments life, if any
+
+      if (numStandardAmountDays > 0)
+      {
+         Date finishStandardBlock = calendar.getDate(start, Duration.getInstance(numStandardAmountDays, TimeUnit.DAYS), false);
+
+         TimephasedCost standardBlock = new TimephasedCost();
+         standardBlock.setAmountPerDay(Double.valueOf(standardAmountPerDay));
+         standardBlock.setStart(start);
+         standardBlock.setFinish(finishStandardBlock);
+         standardBlock.setTotalAmount(Double.valueOf(numStandardAmountDays * standardAmountPerDay));
+
+         result.add(standardBlock);
+
+         start = calendar.getNextWorkStart(finishStandardBlock);
+      }
+
+      //next block contains the partial day amount, if any
+      if (amountForLastDay > 0)
+      {
+         TimephasedCost nextBlock = new TimephasedCost();
+         nextBlock.setAmountPerDay(Double.valueOf(amountForLastDay));
+         nextBlock.setTotalAmount(Double.valueOf(amountForLastDay));
+         nextBlock.setStart(start);
+         nextBlock.setFinish(calendar.getDate(start, Duration.getInstance(1, TimeUnit.DAYS), false));
+
+         result.add(nextBlock);
+      }
+
+      return result;
    }
 
    /**
@@ -931,7 +1203,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * @param index baseline index
     * @param data timephased data
     */
-   public void setTimephasedBaselineWork(int index, TimephasedWorkData data)
+   public void setTimephasedBaselineWork(int index, TimephasedWorkContainer data)
    {
       m_timephasedBaselineWork[index] = data;
    }
@@ -943,7 +1215,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * @param index baseline index
     * @param data timephased data
     */
-   public void setTimephasedBaselineCost(int index, TimephasedCostData data)
+   public void setTimephasedBaselineCost(int index, TimephasedCostContainer data)
    {
       m_timephasedBaselineCost[index] = data;
    }
@@ -994,7 +1266,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
 
       if (calendar == null)
       {
-         calendar = getParentFile().getCalendar();
+         calendar = getParentFile().getDefaultCalendar();
       }
 
       return calendar;
@@ -1128,7 +1400,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setBaselineCost(int baselineNumber, Number value)
    {
-      set(selectField(BASELINE_COSTS, baselineNumber), value);
+      set(selectField(AssignmentFieldLists.BASELINE_COSTS, baselineNumber), value);
    }
 
    /**
@@ -1139,7 +1411,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setBaselineWork(int baselineNumber, Duration value)
    {
-      set(selectField(BASELINE_WORKS, baselineNumber), value);
+      set(selectField(AssignmentFieldLists.BASELINE_WORKS, baselineNumber), value);
    }
 
    /**
@@ -1150,7 +1422,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Duration getBaselineWork(int baselineNumber)
    {
-      return ((Duration) getCachedValue(selectField(BASELINE_WORKS, baselineNumber)));
+      return ((Duration) getCachedValue(selectField(AssignmentFieldLists.BASELINE_WORKS, baselineNumber)));
    }
 
    /**
@@ -1161,7 +1433,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Number getBaselineCost(int baselineNumber)
    {
-      return ((Number) getCachedValue(selectField(BASELINE_COSTS, baselineNumber)));
+      return ((Number) getCachedValue(selectField(AssignmentFieldLists.BASELINE_COSTS, baselineNumber)));
    }
 
    /**
@@ -1172,7 +1444,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setBaselineStart(int baselineNumber, Date value)
    {
-      set(selectField(BASELINE_STARTS, baselineNumber), value);
+      set(selectField(AssignmentFieldLists.BASELINE_STARTS, baselineNumber), value);
    }
 
    /**
@@ -1183,7 +1455,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Date getBaselineStart(int baselineNumber)
    {
-      return (Date) getCachedValue(selectField(BASELINE_STARTS, baselineNumber));
+      return (Date) getCachedValue(selectField(AssignmentFieldLists.BASELINE_STARTS, baselineNumber));
    }
 
    /**
@@ -1194,7 +1466,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setBaselineFinish(int baselineNumber, Date value)
    {
-      set(selectField(BASELINE_FINISHES, baselineNumber), value);
+      set(selectField(AssignmentFieldLists.BASELINE_FINISHES, baselineNumber), value);
    }
 
    /**
@@ -1205,7 +1477,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Date getBaselineFinish(int baselineNumber)
    {
-      return (Date) getCachedValue(selectField(BASELINE_FINISHES, baselineNumber));
+      return (Date) getCachedValue(selectField(AssignmentFieldLists.BASELINE_FINISHES, baselineNumber));
    }
 
    /**
@@ -1216,7 +1488,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setBaselineBudgetCost(int baselineNumber, Number value)
    {
-      set(selectField(BASELINE_BUDGET_COSTS, baselineNumber), value);
+      set(selectField(AssignmentFieldLists.BASELINE_BUDGET_COSTS, baselineNumber), value);
    }
 
    /**
@@ -1227,7 +1499,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setBaselineBudgetWork(int baselineNumber, Duration value)
    {
-      set(selectField(BASELINE_BUDGET_WORKS, baselineNumber), value);
+      set(selectField(AssignmentFieldLists.BASELINE_BUDGET_WORKS, baselineNumber), value);
    }
 
    /**
@@ -1238,7 +1510,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Duration getBaselineBudgetWork(int baselineNumber)
    {
-      return ((Duration) getCachedValue(selectField(BASELINE_BUDGET_WORKS, baselineNumber)));
+      return ((Duration) getCachedValue(selectField(AssignmentFieldLists.BASELINE_BUDGET_WORKS, baselineNumber)));
    }
 
    /**
@@ -1249,7 +1521,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Number getBaselineBudgetCost(int baselineNumber)
    {
-      return ((Number) getCachedValue(selectField(BASELINE_BUDGET_COSTS, baselineNumber)));
+      return ((Number) getCachedValue(selectField(AssignmentFieldLists.BASELINE_BUDGET_COSTS, baselineNumber)));
    }
 
    /**
@@ -1260,7 +1532,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setText(int index, String value)
    {
-      set(selectField(CUSTOM_TEXT, index), value);
+      set(selectField(AssignmentFieldLists.CUSTOM_TEXT, index), value);
    }
 
    /**
@@ -1271,161 +1543,161 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public String getText(int index)
    {
-      return (String) getCachedValue(selectField(CUSTOM_TEXT, index));
+      return (String) getCachedValue(selectField(AssignmentFieldLists.CUSTOM_TEXT, index));
    }
 
    /**
     * Set a start value.
     * 
-    * @param index start index (1-30)
+    * @param index start index (1-10)
     * @param value start value
     */
    public void setStart(int index, Date value)
    {
-      set(selectField(CUSTOM_START, index), value);
+      set(selectField(AssignmentFieldLists.CUSTOM_START, index), value);
    }
 
    /**
     * Retrieve a start value.
     * 
-    * @param index start index (1-30)
+    * @param index start index (1-10)
     * @return start value
     */
    public Date getStart(int index)
    {
-      return (Date) getCachedValue(selectField(CUSTOM_START, index));
+      return (Date) getCachedValue(selectField(AssignmentFieldLists.CUSTOM_START, index));
    }
 
    /**
     * Set a finish value.
     * 
-    * @param index finish index (1-30)
+    * @param index finish index (1-10)
     * @param value finish value
     */
    public void setFinish(int index, Date value)
    {
-      set(selectField(CUSTOM_FINISH, index), value);
+      set(selectField(AssignmentFieldLists.CUSTOM_FINISH, index), value);
    }
 
    /**
     * Retrieve a finish value.
     * 
-    * @param index finish index (1-30)
+    * @param index finish index (1-10)
     * @return finish value
     */
    public Date getFinish(int index)
    {
-      return (Date) getCachedValue(selectField(CUSTOM_FINISH, index));
+      return (Date) getCachedValue(selectField(AssignmentFieldLists.CUSTOM_FINISH, index));
    }
 
    /**
     * Set a date value.
     * 
-    * @param index date index (1-30)
+    * @param index date index (1-10)
     * @param value date value
     */
    public void setDate(int index, Date value)
    {
-      set(selectField(CUSTOM_DATE, index), value);
+      set(selectField(AssignmentFieldLists.CUSTOM_DATE, index), value);
    }
 
    /**
     * Retrieve a date value.
     * 
-    * @param index date index (1-30)
+    * @param index date index (1-10)
     * @return date value
     */
    public Date getDate(int index)
    {
-      return (Date) getCachedValue(selectField(CUSTOM_DATE, index));
+      return (Date) getCachedValue(selectField(AssignmentFieldLists.CUSTOM_DATE, index));
    }
 
    /**
     * Set a number value.
     * 
-    * @param index number index (1-30)
+    * @param index number index (1-20)
     * @param value number value
     */
    public void setNumber(int index, Number value)
    {
-      set(selectField(CUSTOM_NUMBER, index), value);
+      set(selectField(AssignmentFieldLists.CUSTOM_NUMBER, index), value);
    }
 
    /**
     * Retrieve a number value.
     * 
-    * @param index number index (1-30)
+    * @param index number index (1-20)
     * @return number value
     */
    public Number getNumber(int index)
    {
-      return (Number) getCachedValue(selectField(CUSTOM_NUMBER, index));
+      return (Number) getCachedValue(selectField(AssignmentFieldLists.CUSTOM_NUMBER, index));
    }
 
    /**
     * Set a duration value.
     * 
-    * @param index duration index (1-30)
+    * @param index duration index (1-10)
     * @param value duration value
     */
    public void setDuration(int index, Duration value)
    {
-      set(selectField(CUSTOM_DURATION, index), value);
+      set(selectField(AssignmentFieldLists.CUSTOM_DURATION, index), value);
    }
 
    /**
     * Retrieve a duration value.
     * 
-    * @param index duration index (1-30)
+    * @param index duration index (1-10)
     * @return duration value
     */
    public Duration getDuration(int index)
    {
-      return (Duration) getCachedValue(selectField(CUSTOM_DURATION, index));
+      return (Duration) getCachedValue(selectField(AssignmentFieldLists.CUSTOM_DURATION, index));
    }
 
    /**
     * Set a cost value.
     * 
-    * @param index cost index (1-30)
+    * @param index cost index (1-10)
     * @param value cost value
     */
    public void setCost(int index, Number value)
    {
-      set(selectField(CUSTOM_COST, index), value);
+      set(selectField(AssignmentFieldLists.CUSTOM_COST, index), value);
    }
 
    /**
     * Retrieve a cost value.
     * 
-    * @param index cost index (1-30)
+    * @param index cost index (1-10)
     * @return cost value
     */
    public Number getCost(int index)
    {
-      return (Number) getCachedValue(selectField(CUSTOM_COST, index));
+      return (Number) getCachedValue(selectField(AssignmentFieldLists.CUSTOM_COST, index));
    }
 
    /**
     * Set a flag value.
     * 
-    * @param index flag index (1-30)
+    * @param index flag index (1-20)
     * @param value flag value
     */
    public void setFlag(int index, boolean value)
    {
-      set(selectField(CUSTOM_FLAG, index), value);
+      set(selectField(AssignmentFieldLists.CUSTOM_FLAG, index), value);
    }
 
    /**
     * Retrieve a flag value.
     * 
-    * @param index flag index (1-30)
+    * @param index flag index (1-20)
     * @return flag value
     */
    public boolean getFlag(int index)
    {
-      return BooleanUtility.getBoolean((Boolean) getCachedValue(selectField(CUSTOM_FLAG, index)));
+      return BooleanHelper.getBoolean((Boolean) getCachedValue(selectField(AssignmentFieldLists.CUSTOM_FLAG, index)));
    }
 
    /**
@@ -1436,7 +1708,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setEnterpriseCost(int index, Number value)
    {
-      set(selectField(ENTERPRISE_COST, index), value);
+      set(selectField(AssignmentFieldLists.ENTERPRISE_COST, index), value);
    }
 
    /**
@@ -1447,7 +1719,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Number getEnterpriseCost(int index)
    {
-      return (Number) getCachedValue(selectField(ENTERPRISE_COST, index));
+      return (Number) getCachedValue(selectField(AssignmentFieldLists.ENTERPRISE_COST, index));
    }
 
    /**
@@ -1458,7 +1730,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setEnterpriseDate(int index, Date value)
    {
-      set(selectField(ENTERPRISE_DATE, index), value);
+      set(selectField(AssignmentFieldLists.ENTERPRISE_DATE, index), value);
    }
 
    /**
@@ -1469,7 +1741,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Date getEnterpriseDate(int index)
    {
-      return (Date) getCachedValue(selectField(ENTERPRISE_DATE, index));
+      return (Date) getCachedValue(selectField(AssignmentFieldLists.ENTERPRISE_DATE, index));
    }
 
    /**
@@ -1480,7 +1752,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setEnterpriseDuration(int index, Duration value)
    {
-      set(selectField(ENTERPRISE_DURATION, index), value);
+      set(selectField(AssignmentFieldLists.ENTERPRISE_DURATION, index), value);
    }
 
    /**
@@ -1491,7 +1763,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Duration getEnterpriseDuration(int index)
    {
-      return (Duration) getCachedValue(selectField(ENTERPRISE_DURATION, index));
+      return (Duration) getCachedValue(selectField(AssignmentFieldLists.ENTERPRISE_DURATION, index));
    }
 
    /**
@@ -1502,7 +1774,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setEnterpriseFlag(int index, boolean value)
    {
-      set(selectField(ENTERPRISE_FLAG, index), value);
+      set(selectField(AssignmentFieldLists.ENTERPRISE_FLAG, index), value);
    }
 
    /**
@@ -1513,7 +1785,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public boolean getEnterpriseFlag(int index)
    {
-      return BooleanUtility.getBoolean((Boolean) getCachedValue(selectField(ENTERPRISE_FLAG, index)));
+      return BooleanHelper.getBoolean((Boolean) getCachedValue(selectField(AssignmentFieldLists.ENTERPRISE_FLAG, index)));
    }
 
    /**
@@ -1524,7 +1796,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setEnterpriseNumber(int index, Number value)
    {
-      set(selectField(ENTERPRISE_NUMBER, index), value);
+      set(selectField(AssignmentFieldLists.ENTERPRISE_NUMBER, index), value);
    }
 
    /**
@@ -1535,7 +1807,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public Number getEnterpriseNumber(int index)
    {
-      return (Number) getCachedValue(selectField(ENTERPRISE_NUMBER, index));
+      return (Number) getCachedValue(selectField(AssignmentFieldLists.ENTERPRISE_NUMBER, index));
    }
 
    /**
@@ -1546,7 +1818,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public void setEnterpriseText(int index, String value)
    {
-      set(selectField(ENTERPRISE_TEXT, index), value);
+      set(selectField(AssignmentFieldLists.ENTERPRISE_TEXT, index), value);
    }
 
    /**
@@ -1557,7 +1829,29 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public String getEnterpriseText(int index)
    {
-      return (String) getCachedValue(selectField(ENTERPRISE_TEXT, index));
+      return (String) getCachedValue(selectField(AssignmentFieldLists.ENTERPRISE_TEXT, index));
+   }
+
+   /**
+    * Retrieve an enterprise custom field value.
+    * 
+    * @param index field index
+    * @return field value
+    */
+   public String getEnterpriseCustomField(int index)
+   {
+      return ((String) getCachedValue(selectField(AssignmentFieldLists.ENTERPRISE_CUSTOM_FIELD, index)));
+   }
+
+   /**
+    * Set an enterprise custom field value.
+    * 
+    * @param index field index
+    * @param value field value
+    */
+   public void setEnterpriseCustomField(int index, String value)
+   {
+      set(selectField(AssignmentFieldLists.ENTERPRISE_CUSTOM_FIELD, index), value);
    }
 
    /**
@@ -1634,7 +1928,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
          Number remaining = getRemainingOvertimeCost();
          if (actual != null && remaining != null)
          {
-            cost = NumberUtility.getDouble(actual.doubleValue() + remaining.doubleValue());
+            cost = NumberHelper.getDouble(actual.doubleValue() + remaining.doubleValue());
             set(AssignmentField.OVERTIME_COST, cost);
          }
       }
@@ -1812,7 +2106,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
          Number bcws = getBCWS();
          if (bcwp != null && bcws != null)
          {
-            variance = NumberUtility.getDouble(bcwp.doubleValue() - bcws.doubleValue());
+            variance = NumberHelper.getDouble(bcwp.doubleValue() - bcws.doubleValue());
             set(AssignmentField.SV, variance);
          }
       }
@@ -1849,7 +2143,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
       Number variance = (Number) getCachedValue(AssignmentField.CV);
       if (variance == null)
       {
-         variance = Double.valueOf(NumberUtility.getDouble(getBCWP()) - NumberUtility.getDouble(getACWP()));
+         variance = Double.valueOf(NumberHelper.getDouble(getBCWP()) - NumberHelper.getDouble(getACWP()));
          set(AssignmentField.CV, variance);
       }
       return (variance);
@@ -1885,7 +2179,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
          Number baselineCost = getBaselineCost();
          if (cost != null && baselineCost != null)
          {
-            variance = NumberUtility.getDouble(cost.doubleValue() - baselineCost.doubleValue());
+            variance = NumberHelper.getDouble(cost.doubleValue() - baselineCost.doubleValue());
             set(AssignmentField.COST_VARIANCE, variance);
          }
       }
@@ -1925,7 +2219,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
          Duration work = getWork();
          if (actualWork != null && work != null && work.getDuration() != 0)
          {
-            pct = Double.valueOf((actualWork.getDuration() * 100) / work.convertUnits(actualWork.getUnits(), getParentFile().getProjectHeader()).getDuration());
+            pct = Double.valueOf((actualWork.getDuration() * 100) / work.convertUnits(actualWork.getUnits(), getParentFile().getProjectProperties()).getDuration());
             set(AssignmentField.PERCENT_WORK_COMPLETE, pct);
          }
       }
@@ -1975,7 +2269,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public boolean getConfirmed()
    {
-      return (BooleanUtility.getBoolean((Boolean) getCachedValue(AssignmentField.CONFIRMED)));
+      return (BooleanHelper.getBoolean((Boolean) getCachedValue(AssignmentField.CONFIRMED)));
    }
 
    /**
@@ -1999,7 +2293,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public boolean getUpdateNeeded()
    {
-      return (BooleanUtility.getBoolean((Boolean) getCachedValue(AssignmentField.UPDATE_NEEDED)));
+      return (BooleanHelper.getBoolean((Boolean) getCachedValue(AssignmentField.UPDATE_NEEDED)));
    }
 
    /**
@@ -2023,7 +2317,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public boolean getLinkedFields()
    {
-      return (BooleanUtility.getBoolean((Boolean) getCachedValue(AssignmentField.LINKED_FIELDS)));
+      return (BooleanHelper.getBoolean((Boolean) getCachedValue(AssignmentField.LINKED_FIELDS)));
    }
 
    /**
@@ -2112,7 +2406,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
          Duration baselineWork = getBaselineWork();
          if (work != null && baselineWork != null)
          {
-            variance = Duration.getInstance(work.getDuration() - baselineWork.convertUnits(work.getUnits(), getParentFile().getProjectHeader()).getDuration(), work.getUnits());
+            variance = Duration.getInstance(work.getDuration() - baselineWork.convertUnits(work.getUnits(), getParentFile().getProjectProperties()).getDuration(), work.getUnits());
             set(AssignmentField.WORK_VARIANCE, variance);
          }
       }
@@ -2141,8 +2435,8 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
       Duration variance = (Duration) getCachedValue(AssignmentField.START_VARIANCE);
       if (variance == null)
       {
-         TimeUnit format = getParentFile().getProjectHeader().getDefaultDurationUnits();
-         variance = DateUtility.getVariance(getTask(), getBaselineStart(), getStart(), format);
+         TimeUnit format = getParentFile().getProjectProperties().getDefaultDurationUnits();
+         variance = DateHelper.getVariance(getTask(), getBaselineStart(), getStart(), format);
          set(AssignmentField.START_VARIANCE, variance);
       }
       return (variance);
@@ -2170,8 +2464,8 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
       Duration variance = (Duration) getCachedValue(AssignmentField.FINISH_VARIANCE);
       if (variance == null)
       {
-         TimeUnit format = getParentFile().getProjectHeader().getDefaultDurationUnits();
-         variance = DateUtility.getVariance(getTask(), getBaselineFinish(), getFinish(), format);
+         TimeUnit format = getParentFile().getProjectProperties().getDefaultDurationUnits();
+         variance = DateHelper.getVariance(getTask(), getBaselineFinish(), getFinish(), format);
          set(AssignmentField.FINISH_VARIANCE, variance);
       }
       return (variance);
@@ -2238,7 +2532,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public boolean getResponsePending()
    {
-      return (BooleanUtility.getBoolean((Boolean) getCachedValue(AssignmentField.RESPONSE_PENDING)));
+      return (BooleanHelper.getBoolean((Boolean) getCachedValue(AssignmentField.RESPONSE_PENDING)));
    }
 
    /**
@@ -2260,7 +2554,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     */
    public boolean getTeamStatusPending()
    {
-      return (BooleanUtility.getBoolean((Boolean) getCachedValue(AssignmentField.TEAM_STATUS_PENDING)));
+      return (BooleanHelper.getBoolean((Boolean) getCachedValue(AssignmentField.TEAM_STATUS_PENDING)));
    }
 
    /**
@@ -2335,6 +2629,26 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
    }
 
    /**
+    * Retrieves the resource request type attribute.
+    * 
+    * @return resource request type
+    */
+   public ResourceRequestType getResourceRequestType()
+   {
+      return (ResourceRequestType) getCachedValue(AssignmentField.RESOURCE_REQUEST_TYPE);
+   }
+
+   /**
+    * Sets the resource request type attribute.
+    * 
+    * @param type resource request type
+    */
+   public void setResourceRequestType(ResourceRequestType type)
+   {
+      set(AssignmentField.RESOURCE_REQUEST_TYPE, type);
+   }
+
+   /**
     * Maps a field index to an AssignmentField instance.
     * 
     * @param fields array of fields used as the basis for the mapping.
@@ -2361,7 +2675,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
    /**
     * {@inheritDoc}
     */
-   public void set(FieldType field, Object value)
+   @Override public void set(FieldType field, Object value)
    {
       if (field != null)
       {
@@ -2401,50 +2715,50 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
       //
       switch (field)
       {
-         case START :
-         case BASELINE_START :
+         case START:
+         case BASELINE_START:
          {
             m_array[AssignmentField.START_VARIANCE.getValue()] = null;
             break;
          }
 
-         case FINISH :
-         case BASELINE_FINISH :
+         case FINISH:
+         case BASELINE_FINISH:
          {
             m_array[AssignmentField.FINISH_VARIANCE.getValue()] = null;
             break;
          }
 
-         case BCWP :
-         case ACWP :
+         case BCWP:
+         case ACWP:
          {
             m_array[AssignmentField.CV.getValue()] = null;
             m_array[AssignmentField.SV.getValue()] = null;
             break;
          }
 
-         case COST :
-         case BASELINE_COST :
+         case COST:
+         case BASELINE_COST:
          {
             m_array[AssignmentField.COST_VARIANCE.getValue()] = null;
             break;
          }
 
-         case WORK :
-         case BASELINE_WORK :
+         case WORK:
+         case BASELINE_WORK:
          {
             m_array[AssignmentField.WORK_VARIANCE.getValue()] = null;
             break;
          }
 
-         case ACTUAL_OVERTIME_COST :
-         case REMAINING_OVERTIME_COST :
+         case ACTUAL_OVERTIME_COST:
+         case REMAINING_OVERTIME_COST:
          {
             m_array[AssignmentField.OVERTIME_COST.getValue()] = null;
             break;
          }
 
-         default :
+         default:
          {
             break;
          }
@@ -2465,7 +2779,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
    /**
     * {@inheritDoc}
     */
-   public void addFieldListener(FieldListener listener)
+   @Override public void addFieldListener(FieldListener listener)
    {
       if (m_listeners == null)
       {
@@ -2477,7 +2791,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
    /**
     * {@inheritDoc}
     */
-   public void removeFieldListener(FieldListener listener)
+   @Override public void removeFieldListener(FieldListener listener)
    {
       if (m_listeners != null)
       {
@@ -2488,7 +2802,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
    /**
     * {@inheritDoc}
     */
-   public Object getCachedValue(FieldType field)
+   @Override public Object getCachedValue(FieldType field)
    {
       return (field == null ? null : m_array[field.getValue()]);
    }
@@ -2496,7 +2810,7 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
    /**
     * {@inheritDoc}
     */
-   public Object getCurrentValue(FieldType field)
+   @Override public Object getCurrentValue(FieldType field)
    {
       Object result = null;
 
@@ -2533,18 +2847,18 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
 
    private boolean m_eventsEnabled = true;
 
-   private TimephasedWorkData m_timephasedWork;
+   private DefaultTimephasedWorkContainer m_timephasedWork;
    private List<TimephasedCost> m_timephasedCost;
 
-   private TimephasedWorkData m_timephasedActualWork;
+   private TimephasedWorkContainer m_timephasedActualWork;
    private List<TimephasedCost> m_timephasedActualCost;
 
-   private TimephasedWorkData m_timephasedOvertimeWork;
-   private TimephasedWorkData m_timephasedActualOvertimeWork;
+   private TimephasedWorkContainer m_timephasedOvertimeWork;
+   private TimephasedWorkContainer m_timephasedActualOvertimeWork;
 
    private List<FieldListener> m_listeners;
-   private TimephasedWorkData[] m_timephasedBaselineWork = new TimephasedWorkData[11];
-   private TimephasedCostData[] m_timephasedBaselineCost = new TimephasedCostData[11];
+   private TimephasedWorkContainer[] m_timephasedBaselineWork = new TimephasedWorkContainer[11];
+   private TimephasedCostContainer[] m_timephasedBaselineCost = new TimephasedCostContainer[11];
 
    /**
     * Reference to the parent task of this assignment.
@@ -2560,415 +2874,5 @@ public final class ResourceAssignment extends ProjectEntity implements FieldCont
     * Default units value: 100%.
     */
    public static final Double DEFAULT_UNITS = Double.valueOf(100);
-
-   private static final AssignmentField[] BASELINE_COSTS =
-   {
-      AssignmentField.BASELINE1_COST,
-      AssignmentField.BASELINE2_COST,
-      AssignmentField.BASELINE3_COST,
-      AssignmentField.BASELINE4_COST,
-      AssignmentField.BASELINE5_COST,
-      AssignmentField.BASELINE6_COST,
-      AssignmentField.BASELINE7_COST,
-      AssignmentField.BASELINE8_COST,
-      AssignmentField.BASELINE9_COST,
-      AssignmentField.BASELINE10_COST
-   };
-
-   private static final AssignmentField[] BASELINE_WORKS =
-   {
-      AssignmentField.BASELINE1_WORK,
-      AssignmentField.BASELINE2_WORK,
-      AssignmentField.BASELINE3_WORK,
-      AssignmentField.BASELINE4_WORK,
-      AssignmentField.BASELINE5_WORK,
-      AssignmentField.BASELINE6_WORK,
-      AssignmentField.BASELINE7_WORK,
-      AssignmentField.BASELINE8_WORK,
-      AssignmentField.BASELINE9_WORK,
-      AssignmentField.BASELINE10_WORK
-   };
-
-   private static final AssignmentField[] BASELINE_STARTS =
-   {
-      AssignmentField.BASELINE1_START,
-      AssignmentField.BASELINE2_START,
-      AssignmentField.BASELINE3_START,
-      AssignmentField.BASELINE4_START,
-      AssignmentField.BASELINE5_START,
-      AssignmentField.BASELINE6_START,
-      AssignmentField.BASELINE7_START,
-      AssignmentField.BASELINE8_START,
-      AssignmentField.BASELINE9_START,
-      AssignmentField.BASELINE10_START
-   };
-
-   private static final AssignmentField[] BASELINE_FINISHES =
-   {
-      AssignmentField.BASELINE1_FINISH,
-      AssignmentField.BASELINE2_FINISH,
-      AssignmentField.BASELINE3_FINISH,
-      AssignmentField.BASELINE4_FINISH,
-      AssignmentField.BASELINE5_FINISH,
-      AssignmentField.BASELINE6_FINISH,
-      AssignmentField.BASELINE7_FINISH,
-      AssignmentField.BASELINE8_FINISH,
-      AssignmentField.BASELINE9_FINISH,
-      AssignmentField.BASELINE10_FINISH
-   };
-
-   private static final AssignmentField[] BASELINE_BUDGET_COSTS =
-   {
-      AssignmentField.BASELINE1_BUDGET_COST,
-      AssignmentField.BASELINE2_BUDGET_COST,
-      AssignmentField.BASELINE3_BUDGET_COST,
-      AssignmentField.BASELINE4_BUDGET_COST,
-      AssignmentField.BASELINE5_BUDGET_COST,
-      AssignmentField.BASELINE6_BUDGET_COST,
-      AssignmentField.BASELINE7_BUDGET_COST,
-      AssignmentField.BASELINE8_BUDGET_COST,
-      AssignmentField.BASELINE9_BUDGET_COST,
-      AssignmentField.BASELINE10_BUDGET_COST
-   };
-
-   private static final AssignmentField[] BASELINE_BUDGET_WORKS =
-   {
-      AssignmentField.BASELINE1_BUDGET_WORK,
-      AssignmentField.BASELINE2_BUDGET_WORK,
-      AssignmentField.BASELINE3_BUDGET_WORK,
-      AssignmentField.BASELINE4_BUDGET_WORK,
-      AssignmentField.BASELINE5_BUDGET_WORK,
-      AssignmentField.BASELINE6_BUDGET_WORK,
-      AssignmentField.BASELINE7_BUDGET_WORK,
-      AssignmentField.BASELINE8_BUDGET_WORK,
-      AssignmentField.BASELINE9_BUDGET_WORK,
-      AssignmentField.BASELINE10_BUDGET_WORK
-   };
-
-   private static final AssignmentField[] CUSTOM_TEXT =
-   {
-      AssignmentField.TEXT1,
-      AssignmentField.TEXT2,
-      AssignmentField.TEXT3,
-      AssignmentField.TEXT4,
-      AssignmentField.TEXT5,
-      AssignmentField.TEXT6,
-      AssignmentField.TEXT7,
-      AssignmentField.TEXT8,
-      AssignmentField.TEXT9,
-      AssignmentField.TEXT10,
-      AssignmentField.TEXT11,
-      AssignmentField.TEXT12,
-      AssignmentField.TEXT13,
-      AssignmentField.TEXT14,
-      AssignmentField.TEXT15,
-      AssignmentField.TEXT16,
-      AssignmentField.TEXT17,
-      AssignmentField.TEXT18,
-      AssignmentField.TEXT19,
-      AssignmentField.TEXT20,
-      AssignmentField.TEXT21,
-      AssignmentField.TEXT22,
-      AssignmentField.TEXT23,
-      AssignmentField.TEXT24,
-      AssignmentField.TEXT25,
-      AssignmentField.TEXT26,
-      AssignmentField.TEXT27,
-      AssignmentField.TEXT28,
-      AssignmentField.TEXT29,
-      AssignmentField.TEXT30
-   };
-
-   private static final AssignmentField[] CUSTOM_START =
-   {
-      AssignmentField.START1,
-      AssignmentField.START2,
-      AssignmentField.START3,
-      AssignmentField.START4,
-      AssignmentField.START5,
-      AssignmentField.START6,
-      AssignmentField.START7,
-      AssignmentField.START8,
-      AssignmentField.START9,
-      AssignmentField.START10
-   };
-
-   private static final AssignmentField[] CUSTOM_FINISH =
-   {
-      AssignmentField.FINISH1,
-      AssignmentField.FINISH2,
-      AssignmentField.FINISH3,
-      AssignmentField.FINISH4,
-      AssignmentField.FINISH5,
-      AssignmentField.FINISH6,
-      AssignmentField.FINISH7,
-      AssignmentField.FINISH8,
-      AssignmentField.FINISH9,
-      AssignmentField.FINISH10
-   };
-
-   private static final AssignmentField[] CUSTOM_DATE =
-   {
-      AssignmentField.DATE1,
-      AssignmentField.DATE2,
-      AssignmentField.DATE3,
-      AssignmentField.DATE4,
-      AssignmentField.DATE5,
-      AssignmentField.DATE6,
-      AssignmentField.DATE7,
-      AssignmentField.DATE8,
-      AssignmentField.DATE9,
-      AssignmentField.DATE10
-   };
-
-   private static final AssignmentField[] CUSTOM_NUMBER =
-   {
-      AssignmentField.NUMBER1,
-      AssignmentField.NUMBER2,
-      AssignmentField.NUMBER3,
-      AssignmentField.NUMBER4,
-      AssignmentField.NUMBER5,
-      AssignmentField.NUMBER6,
-      AssignmentField.NUMBER7,
-      AssignmentField.NUMBER8,
-      AssignmentField.NUMBER9,
-      AssignmentField.NUMBER10,
-      AssignmentField.NUMBER11,
-      AssignmentField.NUMBER12,
-      AssignmentField.NUMBER13,
-      AssignmentField.NUMBER14,
-      AssignmentField.NUMBER15,
-      AssignmentField.NUMBER16,
-      AssignmentField.NUMBER17,
-      AssignmentField.NUMBER18,
-      AssignmentField.NUMBER19,
-      AssignmentField.NUMBER20
-   };
-
-   private static final AssignmentField[] CUSTOM_DURATION =
-   {
-      AssignmentField.DURATION1,
-      AssignmentField.DURATION2,
-      AssignmentField.DURATION3,
-      AssignmentField.DURATION4,
-      AssignmentField.DURATION5,
-      AssignmentField.DURATION6,
-      AssignmentField.DURATION7,
-      AssignmentField.DURATION8,
-      AssignmentField.DURATION9,
-      AssignmentField.DURATION10
-   };
-
-   private static final AssignmentField[] CUSTOM_COST =
-   {
-      AssignmentField.COST1,
-      AssignmentField.COST2,
-      AssignmentField.COST3,
-      AssignmentField.COST4,
-      AssignmentField.COST5,
-      AssignmentField.COST6,
-      AssignmentField.COST7,
-      AssignmentField.COST8,
-      AssignmentField.COST9,
-      AssignmentField.COST10
-   };
-
-   private static final AssignmentField[] CUSTOM_FLAG =
-   {
-      AssignmentField.FLAG1,
-      AssignmentField.FLAG2,
-      AssignmentField.FLAG3,
-      AssignmentField.FLAG4,
-      AssignmentField.FLAG5,
-      AssignmentField.FLAG6,
-      AssignmentField.FLAG7,
-      AssignmentField.FLAG8,
-      AssignmentField.FLAG9,
-      AssignmentField.FLAG10,
-      AssignmentField.FLAG11,
-      AssignmentField.FLAG12,
-      AssignmentField.FLAG13,
-      AssignmentField.FLAG14,
-      AssignmentField.FLAG15,
-      AssignmentField.FLAG16,
-      AssignmentField.FLAG17,
-      AssignmentField.FLAG18,
-      AssignmentField.FLAG19,
-      AssignmentField.FLAG20
-   };
-
-   private static final AssignmentField[] ENTERPRISE_COST =
-   {
-      AssignmentField.ENTERPRISE_COST1,
-      AssignmentField.ENTERPRISE_COST2,
-      AssignmentField.ENTERPRISE_COST3,
-      AssignmentField.ENTERPRISE_COST4,
-      AssignmentField.ENTERPRISE_COST5,
-      AssignmentField.ENTERPRISE_COST6,
-      AssignmentField.ENTERPRISE_COST7,
-      AssignmentField.ENTERPRISE_COST8,
-      AssignmentField.ENTERPRISE_COST9,
-      AssignmentField.ENTERPRISE_COST10
-   };
-
-   private static final AssignmentField[] ENTERPRISE_DATE =
-   {
-      AssignmentField.ENTERPRISE_DATE1,
-      AssignmentField.ENTERPRISE_DATE2,
-      AssignmentField.ENTERPRISE_DATE3,
-      AssignmentField.ENTERPRISE_DATE4,
-      AssignmentField.ENTERPRISE_DATE5,
-      AssignmentField.ENTERPRISE_DATE6,
-      AssignmentField.ENTERPRISE_DATE7,
-      AssignmentField.ENTERPRISE_DATE8,
-      AssignmentField.ENTERPRISE_DATE9,
-      AssignmentField.ENTERPRISE_DATE10,
-      AssignmentField.ENTERPRISE_DATE11,
-      AssignmentField.ENTERPRISE_DATE12,
-      AssignmentField.ENTERPRISE_DATE13,
-      AssignmentField.ENTERPRISE_DATE14,
-      AssignmentField.ENTERPRISE_DATE15,
-      AssignmentField.ENTERPRISE_DATE16,
-      AssignmentField.ENTERPRISE_DATE17,
-      AssignmentField.ENTERPRISE_DATE18,
-      AssignmentField.ENTERPRISE_DATE19,
-      AssignmentField.ENTERPRISE_DATE20,
-      AssignmentField.ENTERPRISE_DATE21,
-      AssignmentField.ENTERPRISE_DATE22,
-      AssignmentField.ENTERPRISE_DATE23,
-      AssignmentField.ENTERPRISE_DATE24,
-      AssignmentField.ENTERPRISE_DATE25,
-      AssignmentField.ENTERPRISE_DATE26,
-      AssignmentField.ENTERPRISE_DATE27,
-      AssignmentField.ENTERPRISE_DATE28,
-      AssignmentField.ENTERPRISE_DATE29,
-      AssignmentField.ENTERPRISE_DATE30
-   };
-
-   private static final AssignmentField[] ENTERPRISE_DURATION =
-   {
-      AssignmentField.ENTERPRISE_DURATION1,
-      AssignmentField.ENTERPRISE_DURATION2,
-      AssignmentField.ENTERPRISE_DURATION3,
-      AssignmentField.ENTERPRISE_DURATION4,
-      AssignmentField.ENTERPRISE_DURATION5,
-      AssignmentField.ENTERPRISE_DURATION6,
-      AssignmentField.ENTERPRISE_DURATION7,
-      AssignmentField.ENTERPRISE_DURATION8,
-      AssignmentField.ENTERPRISE_DURATION9,
-      AssignmentField.ENTERPRISE_DURATION10
-   };
-
-   private static final AssignmentField[] ENTERPRISE_FLAG =
-   {
-      AssignmentField.ENTERPRISE_FLAG1,
-      AssignmentField.ENTERPRISE_FLAG2,
-      AssignmentField.ENTERPRISE_FLAG3,
-      AssignmentField.ENTERPRISE_FLAG4,
-      AssignmentField.ENTERPRISE_FLAG5,
-      AssignmentField.ENTERPRISE_FLAG6,
-      AssignmentField.ENTERPRISE_FLAG7,
-      AssignmentField.ENTERPRISE_FLAG8,
-      AssignmentField.ENTERPRISE_FLAG9,
-      AssignmentField.ENTERPRISE_FLAG10,
-      AssignmentField.ENTERPRISE_FLAG11,
-      AssignmentField.ENTERPRISE_FLAG12,
-      AssignmentField.ENTERPRISE_FLAG13,
-      AssignmentField.ENTERPRISE_FLAG14,
-      AssignmentField.ENTERPRISE_FLAG15,
-      AssignmentField.ENTERPRISE_FLAG16,
-      AssignmentField.ENTERPRISE_FLAG17,
-      AssignmentField.ENTERPRISE_FLAG18,
-      AssignmentField.ENTERPRISE_FLAG19,
-      AssignmentField.ENTERPRISE_FLAG20
-   };
-
-   private static final AssignmentField[] ENTERPRISE_NUMBER =
-   {
-      AssignmentField.ENTERPRISE_NUMBER1,
-      AssignmentField.ENTERPRISE_NUMBER2,
-      AssignmentField.ENTERPRISE_NUMBER3,
-      AssignmentField.ENTERPRISE_NUMBER4,
-      AssignmentField.ENTERPRISE_NUMBER5,
-      AssignmentField.ENTERPRISE_NUMBER6,
-      AssignmentField.ENTERPRISE_NUMBER7,
-      AssignmentField.ENTERPRISE_NUMBER8,
-      AssignmentField.ENTERPRISE_NUMBER9,
-      AssignmentField.ENTERPRISE_NUMBER10,
-      AssignmentField.ENTERPRISE_NUMBER11,
-      AssignmentField.ENTERPRISE_NUMBER12,
-      AssignmentField.ENTERPRISE_NUMBER13,
-      AssignmentField.ENTERPRISE_NUMBER14,
-      AssignmentField.ENTERPRISE_NUMBER15,
-      AssignmentField.ENTERPRISE_NUMBER16,
-      AssignmentField.ENTERPRISE_NUMBER17,
-      AssignmentField.ENTERPRISE_NUMBER18,
-      AssignmentField.ENTERPRISE_NUMBER19,
-      AssignmentField.ENTERPRISE_NUMBER20,
-      AssignmentField.ENTERPRISE_NUMBER21,
-      AssignmentField.ENTERPRISE_NUMBER22,
-      AssignmentField.ENTERPRISE_NUMBER23,
-      AssignmentField.ENTERPRISE_NUMBER24,
-      AssignmentField.ENTERPRISE_NUMBER25,
-      AssignmentField.ENTERPRISE_NUMBER26,
-      AssignmentField.ENTERPRISE_NUMBER27,
-      AssignmentField.ENTERPRISE_NUMBER28,
-      AssignmentField.ENTERPRISE_NUMBER29,
-      AssignmentField.ENTERPRISE_NUMBER30,
-      AssignmentField.ENTERPRISE_NUMBER31,
-      AssignmentField.ENTERPRISE_NUMBER32,
-      AssignmentField.ENTERPRISE_NUMBER33,
-      AssignmentField.ENTERPRISE_NUMBER34,
-      AssignmentField.ENTERPRISE_NUMBER35,
-      AssignmentField.ENTERPRISE_NUMBER36,
-      AssignmentField.ENTERPRISE_NUMBER37,
-      AssignmentField.ENTERPRISE_NUMBER38,
-      AssignmentField.ENTERPRISE_NUMBER39,
-      AssignmentField.ENTERPRISE_NUMBER40
-   };
-
-   private static final AssignmentField[] ENTERPRISE_TEXT =
-   {
-      AssignmentField.ENTERPRISE_TEXT1,
-      AssignmentField.ENTERPRISE_TEXT2,
-      AssignmentField.ENTERPRISE_TEXT3,
-      AssignmentField.ENTERPRISE_TEXT4,
-      AssignmentField.ENTERPRISE_TEXT5,
-      AssignmentField.ENTERPRISE_TEXT6,
-      AssignmentField.ENTERPRISE_TEXT7,
-      AssignmentField.ENTERPRISE_TEXT8,
-      AssignmentField.ENTERPRISE_TEXT9,
-      AssignmentField.ENTERPRISE_TEXT10,
-      AssignmentField.ENTERPRISE_TEXT11,
-      AssignmentField.ENTERPRISE_TEXT12,
-      AssignmentField.ENTERPRISE_TEXT13,
-      AssignmentField.ENTERPRISE_TEXT14,
-      AssignmentField.ENTERPRISE_TEXT15,
-      AssignmentField.ENTERPRISE_TEXT16,
-      AssignmentField.ENTERPRISE_TEXT17,
-      AssignmentField.ENTERPRISE_TEXT18,
-      AssignmentField.ENTERPRISE_TEXT19,
-      AssignmentField.ENTERPRISE_TEXT20,
-      AssignmentField.ENTERPRISE_TEXT21,
-      AssignmentField.ENTERPRISE_TEXT22,
-      AssignmentField.ENTERPRISE_TEXT23,
-      AssignmentField.ENTERPRISE_TEXT24,
-      AssignmentField.ENTERPRISE_TEXT25,
-      AssignmentField.ENTERPRISE_TEXT26,
-      AssignmentField.ENTERPRISE_TEXT27,
-      AssignmentField.ENTERPRISE_TEXT28,
-      AssignmentField.ENTERPRISE_TEXT29,
-      AssignmentField.ENTERPRISE_TEXT30,
-      AssignmentField.ENTERPRISE_TEXT31,
-      AssignmentField.ENTERPRISE_TEXT32,
-      AssignmentField.ENTERPRISE_TEXT33,
-      AssignmentField.ENTERPRISE_TEXT34,
-      AssignmentField.ENTERPRISE_TEXT35,
-      AssignmentField.ENTERPRISE_TEXT36,
-      AssignmentField.ENTERPRISE_TEXT37,
-      AssignmentField.ENTERPRISE_TEXT38,
-      AssignmentField.ENTERPRISE_TEXT39,
-      AssignmentField.ENTERPRISE_TEXT40
-   };
 
 }
