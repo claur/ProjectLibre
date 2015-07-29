@@ -100,6 +100,8 @@ public class OpenprojCalendarConverter {
 		WorkingCalendar baseCalendar = null;
 		if (calendar.getBase()!=null){
 			baseCalendar=state.getMappedOpenprojBaseCalendar(calendar.getId());
+			if (baseCalendar==null)
+				baseCalendar=openprojStandardCalendar;
 			try {
 				openprojCalendar.setBaseCalendar(baseCalendar);
 			} catch (CircularDependencyException e) {
