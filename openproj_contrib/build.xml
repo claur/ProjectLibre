@@ -79,6 +79,26 @@
 		 <then>
 		 	<proguard configuration="openproj_contrib.conf"/>
 		</then>
+		<else>
+			<jar jarfile="openproj-contrib.jar">
+				<zipgroupfileset file="tmp/openproj-contrib-tmp.jar" /> 
+				<zipgroupfileset file="lib/commons-beanutils.jar" /> 
+				<zipgroupfileset file="lib/commons-digester.jar" /> 
+				<zipgroupfileset file="lib/commons-pool.jar" /> 
+				<zipgroupfileset file="lib/commons-collections.jar" /> 
+				<zipgroupfileset file="lib/commons-logging-api.jar" /> 
+				<zipgroupfileset file="lib/forms.jar" /> 
+				<zipgroupfileset file="lib/jlfgr.jar" /> 
+				<zipgroupfileset file="lib/l2fprod-common-totd.jar" /> 
+				<zipgroupfileset file="lib/nachocalendar.jar" /> 
+				<zipgroupfileset file="lib/jfreechart.jar" /> 
+				<zipgroupfileset file="lib/jcommon.jar" /> 
+				<zipgroupfileset file="lib/jdnc-0_7-all.jar" /> 
+				<zipgroupfileset file="lib/itext.jar" /> 
+				<zipgroupfileset file="lib/trident-6.2.jar" /> 
+				<zipgroupfileset file="lib/exchange/jakarta-poi.jar" /> 
+			</jar>
+		</else>
 	  </if>
 	</target>
 
@@ -88,6 +108,16 @@
 		 <then>
 		 	<proguard configuration="openproj_script.conf"/>
 		</then>
+			<else>
+				<jar jarfile="openproj-script.jar">
+					<zipgroupfileset file="tmp/openproj-script-tmp.jar" /> 
+					<zipgroupfileset file="lib/groovy/groovy.jar" /> 
+					<zipgroupfileset file="lib/groovy/antlr.jar" /> 
+					<zipgroupfileset file="lib/groovy/asm-attrs.jar" /> 
+					<zipgroupfileset file="lib/groovy/asm.jar" /> 
+					<zipgroupfileset file="lib/commons-lang.jar" /> 
+				</jar>
+			</else>
 	  </if>
 	</target>
 
@@ -107,6 +137,13 @@
 		 <then>
 		 	<proguard configuration="openproj_reports.conf"/>
 		</then>
+			<else>
+				<jar jarfile="openproj-reports.jar">
+					<zipgroupfileset file="tmp/openproj-reports-tmp.jar" /> 
+					<zipgroupfileset file="lib/jasperreports/bsh.jar" /> 
+					<zipgroupfileset file="lib/jasperreports/jasperreports.jar" /> 
+				</jar>
+			</else>
 	  </if>
 	</target>
 
