@@ -94,7 +94,7 @@ public final class LicenseDialog extends AbstractDialog {
 	}
 
 	private LicenseDialog(Frame owner) {
-		super(owner, Messages.getContextString("Text.ApplicationTitle") + " License", true); //$NON-NLS-1$ //$NON-NLS-2$
+		super(owner, Messages.getContextString("Text.ApplicationTitle") + " "+Messages.getString("LicenseDialog.License"), true); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!Environment.isOpenProj())
 			validated = true; // POD validation is on web
 	}
@@ -163,7 +163,7 @@ public final class LicenseDialog extends AbstractDialog {
 	 */
 
 	public JComponent createContentPanel() {
-		FormLayout layout = new FormLayout("600px", // cols //$NON-NLS-1$
+		FormLayout layout = new FormLayout("700px", // cols //$NON-NLS-1$
 				"600px"); // rows //$NON-NLS-1$
 
 		// Create a builder that assists in adding components to the container.

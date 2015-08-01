@@ -84,7 +84,7 @@ public final class UserInfoDialog extends AbstractDialog {
 	}
 
 	private UserInfoDialog(Frame owner) {
-		super(owner, Messages.getContextString("Text.ApplicationTitle") + " Customer Information", true); //$NON-NLS-1$ //$NON-NLS-2$
+		super(owner, Messages.getContextString("Text.ApplicationTitle") + " " + Messages.getString("LicenseDialog.CustomerInformation"), true); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 
