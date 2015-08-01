@@ -12,6 +12,12 @@
 		</fileset>
 	</path>
 	
+	<path id="compile-no_contrib_built.class.path">
+		<fileset dir="../openproj_contrib/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
  	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="../openproj_contrib/ant-lib/ant-contrib-1.jar"/>
 	
 
@@ -31,23 +37,48 @@
 	</target>
 
 	<target name="compile" depends="prepare,contrib">
-		<javac destdir="${build}"
-			classpathref="compile.class.path"
-			debug="off"
-			nowarn="on"
-			source="1.5"
-			target="1.5">
-				<src path="${src_pl_core}" />
-				<src path="${src_core}" />
-				<src path="${src_ui}" />
-				<src path="${src_reports}" />
-				<src path="${src_pl_exchange}" />
-				<src path="${src_exchange}" />
-				<src path="${src_ext}" />
-				<include name="**/*.java" />
-				<!--exclude name="**/version.properties" / -->
-				<exclude name="test/**" />
-		</javac>
+		<if>
+ 			<equals arg1="${build_contrib}" arg2="true" />
+ 			<then>
+				<javac destdir="${build}"
+					classpathref="compile.class.path"
+					debug="off"
+					nowarn="on"
+					source="1.5"
+					target="1.5">
+						<src path="${src_pl_core}" />
+						<src path="${src_core}" />
+						<src path="${src_ui}" />
+						<src path="${src_reports}" />
+						<src path="${src_pl_exchange}" />
+						<src path="${src_exchange}" />
+						<src path="${src_ext}" />
+						<include name="**/*.java" />
+						<!--exclude name="**/version.properties" / -->
+						<exclude name="test/**" />
+				</javac>
+			</then>
+ 			<else>
+				<javac destdir="${build}"
+					classpathref="compile-no_contrib_built.class.path"
+					debug="off"
+					nowarn="on"
+					source="1.5"
+					target="1.5">
+						<src path="${src_pl_core}" />
+						<src path="${src_core}" />
+						<src path="${src_ui}" />
+						<src path="${src_reports}" />
+						<src path="${src_pl_exchange}" />
+						<src path="${src_exchange}" />
+						<src path="${src_ext}" />
+						<src path="${src_contrib}" />
+						<include name="**/*.java" />
+						<!--exclude name="**/version.properties" / -->
+						<exclude name="test/**" />
+				</javac>
+			</else>
+  		</if>
 	</target>
 	
 	<target name="build" depends="compile">
@@ -87,33 +118,61 @@
 
 
 	<target name="lib" depends="build">
-		<jar jarfile="${dist}/projectlibre.jar">
-			<zipfileset dir="${build}" >
-				<include name="**/*" />
-			</zipfileset>
-			<zipfileset dir="." >
-				<include name="license/**" />
-			</zipfileset>
+		<if>
+ 			<equals arg1="${build_contrib}" arg2="true" />
+ 			<then>
+ 				<jar jarfile="${dist}/projectlibre.jar">
+ 					<zipfileset dir="${build}" >
+ 						<include name="**/*" />
+ 					</zipfileset>
+ 					<zipfileset dir="." >
+ 						<include name="license/**" />
+ 					</zipfileset>
 
-			<manifest>
-				<attribute name="Main-Class" value="com.projity.main.Main"/>
-				<attribute name="Class-Path" value="lib/openproj-contrib.jar lib/openproj-script.jar lib/openproj-reports.jar"/>
-			</manifest>
+ 					<manifest>
+ 						<attribute name="Main-Class" value="com.projity.main.Main"/>
+ 						<attribute name="Class-Path" value="lib/openproj-contrib.jar lib/openproj-script.jar lib/openproj-reports.jar"/>
+ 					</manifest>
 
-			<metainf dir="license">
-				<include name="**" />
-			</metainf>
-		</jar>
+ 					<metainf dir="license">
+ 						<include name="**" />
+ 					</metainf>
+ 				</jar>
+			</then>
+ 			<else>
+ 				<jar jarfile="${dist}/projectlibre.jar">
+ 					<zipfileset dir="${build}" >
+ 						<include name="**/*" />
+ 					</zipfileset>
+ 					<zipfileset dir="." >
+ 						<include name="license/**" />
+ 					</zipfileset>
+
+ 					<manifest>
+ 						<attribute name="Main-Class" value="com.projity.main.Main"/>
+ 					</manifest>
+
+ 					<metainf dir="license">
+ 						<include name="**" />
+ 					</metainf>
+ 				</jar>
+			</else>
+  		</if>
 	</target>
 
 
 	<target name="dist" depends="lib">
-	 	<mkdir dir="${dist}/lib"/>
-		  <copy todir="${dist}/lib">
-		    <fileset dir="../openproj_contrib/">
-		    	<include name="*.jar" />
-		  	</fileset>
-		  </copy>
+		<if>
+ 			<equals arg1="${build_contrib}" arg2="true" />
+ 			<then>
+ 			 	<mkdir dir="${dist}/lib"/>
+ 				  <copy todir="${dist}/lib">
+ 				    <fileset dir="../openproj_contrib/">
+ 				    	<include name="*.jar" />
+ 				  	</fileset>
+ 				  </copy>
+			</then>
+  		</if>
 	</target>
 
 	<target name="dir" depends="dist">
