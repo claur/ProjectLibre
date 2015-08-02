@@ -63,7 +63,18 @@ MIN_JAVA_VERSION="1.6"
 #Default conf values
 JAVA_EXE="java"
 JAVA_OPTS="-Xms128m -Xmx768m"
-OPENPROJ_HOME0="/usr/share/projectlibre"
+if [ -d "/usr/share/projectlibre" ]
+then
+  OPENPROJ_HOME0="/usr/share/projectlibre"
+else
+  if [ -d "/usr/share/java/projectlibre" ]
+  then
+    OPENPROJ_HOME0="/usr/share/java/projectlibre"
+  else
+    echo "Directory OPENPROJ_HOME0 does not exists"
+    exit 1
+  fi
+fi
 #OPENPROJ_HOME0=`(dirname $0)`
 OPENPROJ_HOME="$OPENPROJ_HOME0"
 LOG_LEVEL="DEBUG"
