@@ -164,6 +164,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public void setCustomCost(int i, double cost) {
 		if (this.cost == null)
 			this.cost = new double[NUM_COST];
+		if (this.cost.length!=NUM_COST)
+			this.cost=Arrays.copyOf(this.cost, NUM_COST);
 		this.cost[i] = cost;
 	}
 	public long getCustomDate(int i) {
@@ -176,6 +178,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public void setCustomDate(int i, long date) {
 		if (this.date == null)
 			this.date = new long[NUM_DATE];
+		if (this.date.length!=NUM_DATE)
+			this.date=Arrays.copyOf(this.date, NUM_DATE);
 		this.date[i] = date;
 	}
 	public long getCustomDuration(int i) {
@@ -188,6 +192,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public void setCustomDuration(int i, long duration) {
 		if (this.duration == null)
 			this.duration = new long[NUM_DATE];
+		if (this.duration.length!=NUM_DURATION)
+			this.duration=Arrays.copyOf(this.duration, NUM_DURATION);
 		this.duration[i] = duration;
 	}
 	public long getCustomFinish(int i) {
@@ -200,6 +206,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public void setCustomFinish(int i, long finish) {
 		if (this.finish == null)
 			this.finish = new long[NUM_FINISH];
+		if (this.finish.length!=NUM_FINISH)
+			this.finish=Arrays.copyOf(this.finish, NUM_FINISH);
 		this.finish[i] = finish;
 	}
 	public boolean getCustomFlag(int i) {
@@ -212,6 +220,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public void setCustomFlag(int i, boolean flag) {
 		if (this.flag == null)
 			this.flag = new boolean[NUM_FLAG];
+		if (this.flag.length!=NUM_FLAG)
+			this.flag=Arrays.copyOf(this.flag, NUM_FLAG);
 		this.flag[i] = flag;
 	}
 	public double getCustomNumber(int i) {
@@ -224,6 +234,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public void setCustomNumber(int i, double number) {
 		if (this.number == null)
 			this.number = new double[NUM_NUMBER];
+		if (this.number.length!=NUM_NUMBER)
+			this.number=Arrays.copyOf(this.number, NUM_NUMBER);
 		this.number[i] = number;
 	}
 	public long getCustomStart(int i) {
@@ -236,6 +248,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public void setCustomStart(int i, long start) {
 		if (this.start == null)
 			this.start = new long[NUM_START];
+		if (this.start.length!=NUM_START)
+			this.start=Arrays.copyOf(this.start, NUM_START);
 		this.start[i] = start;
 	}
 	public String getCustomText(int i) {
@@ -248,6 +262,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public void setCustomText(int i, String text) {
 		if (this.text == null)
 			this.text = new String[NUM_TEXT];
+		if (this.text.length!=NUM_TEXT)
+			this.text=Arrays.copyOf(this.text, NUM_TEXT);
 		this.text[i] = text;
 	}
 	
