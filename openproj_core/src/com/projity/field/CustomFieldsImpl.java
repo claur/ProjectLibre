@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 
 /**
@@ -156,6 +157,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public double getCustomCost(int i) {
 		if (cost == null)
 			return 0.0;
+		if (cost.length!=NUM_COST)
+			cost=Arrays.copyOf(cost, NUM_COST);
 		return cost[i];
 	}
 	public void setCustomCost(int i, double cost) {
@@ -166,6 +169,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public long getCustomDate(int i) {
 		if (date == null)
 			return 0;
+		if (date.length!=NUM_DATE)
+			date=Arrays.copyOf(date, NUM_DATE);
 		return date[i];
 	}
 	public void setCustomDate(int i, long date) {
@@ -176,6 +181,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public long getCustomDuration(int i) {
 		if (duration == null)
 			return 0;
+		if (duration.length!=NUM_DURATION)
+			duration=Arrays.copyOf(duration, NUM_DURATION);
 		return duration[i];
 	}
 	public void setCustomDuration(int i, long duration) {
@@ -186,6 +193,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public long getCustomFinish(int i) {
 		if (finish == null)
 			return 0;
+		if (finish.length!=NUM_FINISH)
+			finish=Arrays.copyOf(finish, NUM_FINISH);
 		return finish[i];
 	}
 	public void setCustomFinish(int i, long finish) {
@@ -196,6 +205,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public boolean getCustomFlag(int i) {
 		if (flag == null)
 			return false;
+		if (flag.length!=NUM_FLAG)
+			flag=Arrays.copyOf(flag, NUM_FLAG);
 		return flag[i];
 	}
 	public void setCustomFlag(int i, boolean flag) {
@@ -206,6 +217,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public double getCustomNumber(int i) {
 		if (number == null)
 			return 0.0D;
+		if (number.length!=NUM_NUMBER)
+			number=Arrays.copyOf(number, NUM_NUMBER);
 		return number[i];
 	}
 	public void setCustomNumber(int i, double number) {
@@ -214,8 +227,10 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 		this.number[i] = number;
 	}
 	public long getCustomStart(int i) {
-		if (start == null)
+		if (start == null || i>= start.length)
 			return 0;
+		if (start.length!=NUM_START)
+			start=Arrays.copyOf(start, NUM_START);
 		return start[i];
 	}
 	public void setCustomStart(int i, long start) {
@@ -226,6 +241,8 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 	public String getCustomText(int i) {
 		if (text == null)
 			return null;
+		if (text.length!=NUM_TEXT)
+			text=Arrays.copyOf(text, NUM_TEXT);
 		return text[i];
 	}
 	public void setCustomText(int i, String text) {
@@ -234,7 +251,4 @@ public class CustomFieldsImpl implements CustomFields, Serializable, Cloneable {
 		this.text[i] = text;
 	}
 	
-	
-	
-
 }
