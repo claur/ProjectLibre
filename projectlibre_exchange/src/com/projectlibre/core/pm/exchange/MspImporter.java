@@ -278,9 +278,13 @@ public class MspImporter {
 		} else { // normal task
 			task=new Task();
 			converter.from(mpxTask, task, state);
-			long taskStart=((Date)task.getPropertyValue("start")).getTime();
-			if (earliestTaskStart==-1L || taskStart<earliestTaskStart)
-				earliestTaskStart=taskStart;
+
+			final Date taskStartDate = (Date) task.getPropertyValue("start");
+			if (taskStartDate != null) {
+				final long taskStart = taskStartDate.getTime();
+				if (earliestTaskStart == -1L || taskStart < earliestTaskStart)
+					earliestTaskStart = taskStart;
+			}
 
 			project.addTask(task,parentTask);			
 			
