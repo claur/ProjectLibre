@@ -39,19 +39,20 @@ import net.sf.mpxj.TimephasedWork;
 import net.sf.mpxj.WorkContour;
 import net.sf.mpxj.common.DefaultTimephasedWorkContainer;
 import net.sf.mpxj.common.NumberHelper;
+import net.sf.mpxj.common.RtfHelper;
 import net.sf.mpxj.common.SplitTaskFactory;
 import net.sf.mpxj.common.TimephasedCostNormaliser;
 import net.sf.mpxj.common.TimephasedWorkNormaliser;
 
 /**
- * Common implementation detail to extract resource assignment data from 
+ * Common implementation detail to extract resource assignment data from
  * MPP9, MPP12, and MPP14 files.
  */
 public class ResourceAssignmentFactory
 {
    /**
     * Main entry point when called to process assignment data.
-    * 
+    *
     * @param file parent project file
     * @param fieldMap assignment field map
     * @param enterpriseCustomFieldMap enterprise custom field map
@@ -124,7 +125,7 @@ public class ResourceAssignmentFactory
             data2 = assnFixedData2.getByteArrayValue(loop);
          }
 
-         ResourceAssignment assignment = new ResourceAssignment(file);
+         ResourceAssignment assignment = new ResourceAssignment(file, null);
 
          assignment.disableEvents();
 
@@ -167,11 +168,10 @@ public class ResourceAssignmentFactory
          String notes = assignment.getNotes();
          if (notes != null)
          {
-//claur
-//            if (!preserveNoteFormatting)
-//            {
-//               notes = RtfHelper.strip(notes);
-//            }
+            if (!preserveNoteFormatting)
+            {
+               notes = RtfHelper.strip(notes);
+            }
 
             assignment.setNotes(notes);
          }
@@ -270,8 +270,8 @@ public class ResourceAssignmentFactory
    }
 
    /**
-    * Extract assignment hyperlink data. 
-    * 
+    * Extract assignment hyperlink data.
+    *
     * @param assignment assignment instance
     * @param data hyperlink data
     */
@@ -305,7 +305,7 @@ public class ResourceAssignmentFactory
 
    /**
     * Method used to create missing timephased data.
-    * 
+    *
     * @param file project file
     * @param assignment resource assignment
     * @param timephasedPlanned planned timephased data

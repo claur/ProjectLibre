@@ -49,6 +49,7 @@ must direct them back to http://www.projity.com.
 */
 package com.projity.server.data;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -86,6 +87,8 @@ import com.projity.server.data.linker.Linker;
 import com.projity.server.data.linker.ResourceLinker;
 import com.projity.server.data.linker.TaskLinker;
 import com.projity.server.data.mspdi.ModifiedMSPDIWriter;
+import com.projity.strings.Messages;
+import com.projity.util.Alert;
 
 /**
  *
@@ -299,12 +302,38 @@ public class MSPDISerializer implements ProjectSerializer {
      }
     
 	public boolean saveProject(Project project,String fileName) {
-		try {
-			return saveProject(project,new FileOutputStream(fileName));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return false;
+		String extension="";
+		String name=fileName;
+		String tmpFileName=fileName;
+		int i=fileName.lastIndexOf('.');
+		if (i>0){
+			extension=fileName.substring(i);
+			name=fileName.substring(0, i);
 		}
+		
+		File file=new File(fileName);
+		File tmpFile=file;
+		for (int count=0;tmpFile.exists();count++){
+			tmpFileName=name+"_tmp"+count+extension;
+			tmpFile=new File(tmpFileName);
+		}
+		
+		
+		try {
+			if (saveProject(project,new FileOutputStream(tmpFile))
+					 && tmpFile.length()>0){
+				if (!file.equals(tmpFile)){
+					file.delete();
+					tmpFile.renameTo(file);
+				}
+				return true;
+			}
+		} catch (FileNotFoundException e) {
+		}
+		if (file.equals(tmpFile))
+			Alert.error(Messages.getString("Message.saveError"));
+		else Alert.error(Messages.getString("Message.saveErrorTmpFile")+tmpFileName);
+		return false;
 	}
 
 	public boolean saveProject(Project project,OutputStream out) {

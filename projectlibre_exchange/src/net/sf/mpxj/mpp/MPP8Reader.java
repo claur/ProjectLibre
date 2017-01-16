@@ -61,6 +61,7 @@ import net.sf.mpxj.common.MPPResourceField;
 import net.sf.mpxj.common.MPPTaskField;
 import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.common.Pair;
+import net.sf.mpxj.common.RtfHelper;
 
 import org.apache.poi.poifs.filesystem.DirectoryEntry;
 import org.apache.poi.poifs.filesystem.DocumentEntry;
@@ -116,7 +117,7 @@ final class MPP8Reader implements MPPVariantReader
 
    /**
     * Populate member data used by the rest of the reader.
-    * 
+    *
     * @param reader parent file reader
     * @param file parent MPP file
     * @param root Root of the POI file system.
@@ -707,11 +708,10 @@ final class MPP8Reader implements MPPVariantReader
          notes = taskExtData.getString(TASK_NOTES);
          if (notes != null)
          {
-        	 //claur
-//            if (m_reader.getPreserveNoteFormatting() == false)
-//            {
-//               notes = RtfHelper.strip(notes);
-//            }
+            if (m_reader.getPreserveNoteFormatting() == false)
+            {
+               notes = RtfHelper.strip(notes);
+            }
 
             task.setNotes(notes);
          }
@@ -1043,11 +1043,10 @@ final class MPP8Reader implements MPPVariantReader
          notes = rscExtData.getString(RESOURCE_NOTES);
          if (notes != null)
          {
-        	 //claur
-//            if (m_reader.getPreserveNoteFormatting() == false)
-//            {
-//               notes = RtfHelper.strip(notes);
-//            }
+            if (m_reader.getPreserveNoteFormatting() == false)
+            {
+               notes = RtfHelper.strip(notes);
+            }
 
             resource.setNotes(notes);
          }
@@ -1231,14 +1230,14 @@ final class MPP8Reader implements MPPVariantReader
             processColumnData(table, columnData);
          }
 
-         //System.out.println(table);         
+         //System.out.println(table);
       }
    }
 
    /**
     * This method processes the column data associated with the
     * current table.
-    * 
+    *
     * @param table current table
     * @param data raw column data
     */

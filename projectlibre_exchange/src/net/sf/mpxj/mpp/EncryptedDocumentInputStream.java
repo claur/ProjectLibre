@@ -38,7 +38,7 @@ final class EncryptedDocumentInputStream extends InputStream
 {
    /**
     * Constructor.
-    * 
+    *
     * @param entry file entry
     * @param mask the mask used to decrypt the stream.
     * @throws IOException
@@ -78,7 +78,7 @@ final class EncryptedDocumentInputStream extends InputStream
     */
    @Override public int available()
    {
-	   return m_dis.available();
+      return m_dis.available();
    }
 
    /**
@@ -86,7 +86,7 @@ final class EncryptedDocumentInputStream extends InputStream
     */
    @Override public void close()
    {
-		m_dis.close();
+      m_dis.close();
    }
 
    /**

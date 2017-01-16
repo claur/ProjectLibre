@@ -167,7 +167,7 @@ public class MspImporter {
 	}
 	
 	
-	protected void parseProject(InputStream in, String extension) throws Exception {
+	public void parseProject(InputStream in, String extension) throws Exception {
 		try {
 			if (extension.equals("xml")){
 				reader=new ImprovedMSPDIReader();

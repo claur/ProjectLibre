@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="ProjectLibre"
+		Language="1033" Version="@version@" Manufacturer="ProjectLibre"
+		UpgradeCode="D8EF9CE4-1F7D-4117-B020-68B58074C08B">
+		<Package
+			Description="ProjectLibre is an open source project management application"
+			Comments="Window Installer Package" InstallerVersion="200"
+			Compressed="yes" />
+			
+			
+		<Upgrade Id='D8EF9CE4-1F7D-4117-B020-68B58074C08B'>
+			<UpgradeVersion OnlyDetect='no' Property='PROJECT_UPGRADE' Maximum='@version@' IncludeMaximum='no' RemoveFeatures='all' />
+			<Property Id='PROJECT_UPGRADE' Secure='yes' />
+			<UpgradeVersion OnlyDetect='yes' Property='PROJECT_DOWNGRADE' Minimum='@version@' IncludeMinimum='no' />
+			<Property Id='PROJECT_DOWNGRADE' Secure='yes' />
+		</Upgrade>
+		<CustomAction Id='NoDownGrade' Error='A later version of ProjectLibre is already installed.' />
+		<InstallExecuteSequence>
+			<LaunchConditions After='AppSearch'></LaunchConditions>
+			<Custom Action='NoDownGrade' After='FindRelatedProducts'> <![CDATA[PROJECT_DOWNGRADE]]></Custom>
+			<RemoveExistingProducts After='InstallFinalize' />
+		</InstallExecuteSequence>		
+			
+			
+		<Media Id="1" Cabinet="projectlibre.cab" EmbedCab="yes" />
+        <Icon Id="projectlibre.ico" SourceFile="projectlibre\msi_images\projectlibre.ico" />
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="APPLICATIONROOTDIRECTORY" Name="ProjectLibre" />
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ApplicationProgramsFolder" Name="ProjectLibre" />
+			</Directory>
+
+		</Directory>
+
+		<DirectoryRef Id="APPLICATIONROOTDIRECTORY">
+			<Component Id="ApplicationFiles" DiskId="1"
+				Guid="63BEC2FA-F7C8-4D6A-8431-FBCEFEB1CB7D">
+				<File Id="PROJECTLIBRE.BAT" Name="projectlibre.bat" Source="@resourcedir@\projectlibre.bat" />
+			</Component>
+			<Component Id="PROJECTLIBRE.JAR" DiskId="1"
+				Guid="A6C3B4A5-2867-453F-B9D6-DD54A9E5B9FB">
+				<File Id="PROJECTLIBRE.JAR" Name="projectlibre.jar" Source="@resourcedir@\projectlibre.jar" />
+			</Component>
+			<Component Id="PROJECTLIBRE.EXE" DiskId="1"
+				Guid="73D9D08E-FE6E-4E09-8431-92EE35066CB9">
+				<File Id="PROJECTLIBRE.EXE" Name="projectlibre.exe" Source="@resourcedir@\projectlibre.exe" />
+                <ProgId Id='ProjectLibrePOD' Description='ProjectLibre POD Project' Advertise="yes" Icon='projectlibre.ico'>
+                    <Extension Id='pod' Advertise="yes">
+                        <Verb Id='open' Command='Open' Argument='"%1"' Sequence="1"/>
+                    </Extension>
+                </ProgId>
+                <!--ProgId Id='ProjectLibreMPP' Description='Microsoft Project MPP' Advertise="yes" Icon='projectlibre.ico'>
+                    <Extension Id='mpp' Advertise="yes">
+                        <Verb Id='open' Command='Open' Argument='"%1"' Sequence="1"/>
+                    </Extension>
+                </ProgId-->
+            </Component>
+			<Component Id="README.HTML" DiskId="1"
+				Guid="A27C2FF7-BC56-4AE0-A365-EC66D7D41B4E">
+				<File Id="README.HTML" Name="readme.html" Source="@resourcedir@\readme.html" />
+			</Component>
+			<Directory Id="LIB" Name="lib">
+				<Component Id="OPENPROJ_CONTRIB.JAR" DiskId="1"
+					Guid="4E1A0CB9-86DB-4834-AD53-214A123573FB">
+					<File Id="OPENPROJ_CONTRIB.JAR" Name="openproj-contrib.jar"
+						Source="@resourcedir@\lib\openproj-contrib.jar" />
+				</Component>
+				<Component Id="OPENPROJ_REPORTS.JAR" DiskId="1"
+					Guid="52A4DE99-5236-42EB-A793-615EE488528C">
+					<File Id="OPENPROJ_REPORTS.JAR" Name="openproj-reports.jar"
+						Source="@resourcedir@\lib\openproj-reports.jar" />
+				</Component>
+				<Component Id="OPENPROJ_SCRIPT.JAR" DiskId="1"
+					Guid="947A3AC5-C490-4AAF-A2BA-6C8C21AC258C">
+					<File Id="OPENPROJ_SCRIPT.JAR" Name="openproj-script.jar"
+						Source="@resourcedir@\lib\openproj-script.jar" />
+				</Component>
+			</Directory>
+			<Directory Id="LICENSE" Name="license">
+				<Component Id="INDEX.HTML" DiskId="1"
+					Guid="6EF0A2BE-CC5C-4B79-9FFF-E9B24BD4A9BA">
+					<File Id="INDEX.HTML" Name="index.html"
+						Source="@resourcedir@\license\index.html" />
+				</Component>
+				<Directory Id="THIRD_PARTY" Name="third-party">
+					<Component Id="ANTLR.TXT" DiskId="1"
+						Guid="8089444A-E073-4CB1-8A15-4357F0E720A4">
+						<File Id="ANTLR.TXT" Name="antlr.txt"
+							Source="@resourcedir@\license\third-party\antlr.txt" />
+					</Component>
+					<Component Id="APACHE_LICENSE_2.0.TXT" DiskId="1"
+						Guid="293FD040-D63F-4D2C-862A-29004B666E02">
+						<File Id="APACHE_LICENSE_2.0.TXT" Name="Apache-LICENSE-2.0.txt"
+							Source="@resourcedir@\license\third-party\Apache-LICENSE-2.0.txt" />
+					</Component>
+					<Component Id="APPLE.TXT" DiskId="1"
+						Guid="B958767A-5EA8-47E7-B1E1-7DF5801033FF">
+						<File Id="APPLE.TXT" Name="apple.txt"
+							Source="@resourcedir@\license\third-party\apple.txt" />
+					</Component>
+					<Component Id="BSD_GENERIC.TXT" DiskId="1"
+						Guid="9AAF2437-789F-4BD9-8332-65B5494F430C">
+						<File Id="BSD_GENERIC.TXT" Name="bsd-generic.txt"
+							Source="@resourcedir@\license\third-party\bsd-generic.txt" />
+					</Component>
+					<Component Id="CDDL.TXT" DiskId="1"
+						Guid="643AF98F-5D6F-4AF0-8E87-1DDD48865EE3">
+						<File Id="CDDL.TXT" Name="CDDL.txt"
+							Source="@resourcedir@\license\third-party\CDDL.txt" />
+					</Component>
+					<Component Id="CPL_1.0.TXT" DiskId="1"
+						Guid="D9088AE3-84C9-4C43-B3A3-98EEFE6B63C2">
+						<File Id="CPL_1.0.TXT" Name="cpl-1.0.txt"
+							Source="@resourcedir@\license\third-party\cpl-1.0.txt" />
+					</Component>
+					<Component Id="GROOVY.TXT" DiskId="1"
+						Guid="D6EB1A16-60AA-4867-B18B-F8C8068CF341">
+						<File Id="GROOVY.TXT" Name="groovy.txt"
+							Source="@resourcedir@\license\third-party\groovy.txt" />
+					</Component>
+					<Component Id="ICAL4J.TXT" DiskId="1"
+						Guid="626A9563-2272-45D6-83BE-9573E38493B8">
+						<File Id="ICAL4J.TXT" Name="iCal4j.txt"
+							Source="@resourcedir@\license\third-party\iCal4j.txt" />
+					</Component>
+					<Component Id="INDEX.HTML_1" DiskId="1"
+						Guid="14EEDF96-AC25-479D-A989-9F5B7DF6510D">
+						<File Id="INDEX.HTML_1" Name="index.html"
+							Source="@resourcedir@\license\third-party\index.html" />
+					</Component>
+					<Component Id="JASPER_LGPL.TXT" DiskId="1"
+						Guid="9159864B-5CD2-475F-85C1-0E0423EBA1FE">
+						<File Id="JASPER_LGPL.TXT" Name="Jasper-LGPL.txt"
+							Source="@resourcedir@\license\third-party\Jasper-LGPL.txt" />
+					</Component>
+					<Component Id="JGOODIES_FORMS.TXT" DiskId="1"
+						Guid="223A7A57-BF22-4663-87A6-F774D150692B">
+						<File Id="JGOODIES_FORMS.TXT" Name="jgoodies-forms.txt"
+							Source="@resourcedir@\license\third-party\jgoodies-forms.txt" />
+					</Component>
+					<Component Id="LGPL_2.1.TXT" DiskId="1"
+						Guid="6C06725B-D414-4F22-BCBE-E3E2ADC172AE">
+						<File Id="LGPL_2.1.TXT" Name="lgpl-2.1.txt"
+							Source="@resourcedir@\license\third-party\lgpl-2.1.txt" />
+					</Component>
+					<Component Id="OSX_ADAPTER.TXT" DiskId="1"
+						Guid="81055435-A896-4687-A94A-42A437FA96D3">
+						<File Id="OSX_ADAPTER.TXT" Name="osx-adapter.txt"
+							Source="@resourcedir@\license\third-party\osx-adapter.txt" />
+					</Component>
+					<Component Id="SUN_JWSDP.TXT" DiskId="1"
+						Guid="12512A5C-3B7B-4DDD-B5AD-50AFE2E8D956">
+						<File Id="SUN_JWSDP.TXT" Name="sun-jwsdp.txt"
+							Source="@resourcedir@\license\third-party\sun-jwsdp.txt" />
+					</Component>
+					<Component Id="SUN.TXT" DiskId="1"
+						Guid="471C501E-6E61-474D-BD4B-B396503E77F9">
+						<File Id="SUN.TXT" Name="sun.txt"
+							Source="@resourcedir@\license\third-party\sun.txt" />
+					</Component>
+					<Component Id="THIRD_PARTY_LICENSES_WITH_BUILD_LIBS.HTML"
+						DiskId="1" Guid="1AEC3E45-8DE7-4FE3-9EDD-75C6D9B0049B">
+						<File Id="THIRD_PARTY_LICENSES_WITH_BUILD_LIBS.HTML" Name="third-party-licenses-with-build-libs.html"
+							Source="@resourcedir@\license\third-party\third-party-licenses-with-build-libs.html" />
+					</Component>
+					<Component Id="XSTREAM.TXT" DiskId="1"
+						Guid="F54316D7-9063-4125-BABD-0C632E778928">
+						<File Id="XSTREAM.TXT" Name="xstream.txt"
+							Source="@resourcedir@\license\third-party\xstream.txt" />
+					</Component>
+				</Directory>
+			</Directory>
+		</DirectoryRef>
+
+		<DirectoryRef Id="ApplicationProgramsFolder">
+			<Component Id="ApplicationShortcut" Guid="51C5EB84-32BB-4D70-96BC-3FAE2CAB7F34">
+				<Shortcut Id="ApplicationStartMenuShortcut" Name="ProjectLibre"
+					Description="ProjectLibre is an open source project management application"
+					Target="[APPLICATIONROOTDIRECTORY]projectlibre.exe" WorkingDirectory="APPLICATIONROOTDIRECTORY" Icon ="projectlibre.ico" Show="normal"/>
+				<RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+				<RegistryValue Root="HKCU" Key="Software\Microsoft\ProjectLibre"
+					Name="installed" Type="integer" Value="1" KeyPath="yes" />
+			</Component>
+		</DirectoryRef>
+
+        <Property Id="JAVA_CURRENT_VERSION">
+            <RegistrySearch Id="JRE_KEY" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw"  Win64="no"/>
+        </Property>
+        <Property Id="JAVA_CURRENT_VERSION64">
+            <RegistrySearch Id="JRE_KEY64" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw"  Win64="yes"/>
+        </Property>
+        <Condition Message="Java is not installed. ProjectLibre requires Java version 6 or later. Please install Java: http://www.java.com/download"><![CDATA[(Installed OR JAVA_CURRENT_VERSION OR JAVA_CURRENT_VERSION64) AND (JAVA_CURRENT_VERSION <> "" OR JAVA_CURRENT_VERSION64 <> "") ]]></Condition>
+        <Condition Message="ProjectLibre requires Java 6 or later. Please install the latest Java version : http://www.java.com/download"><![CDATA[(Installed OR JAVA_CURRENT_VERSION OR JAVA_CURRENT_VERSION64) AND (JAVA_CURRENT_VERSION >= "1.6" OR JAVA_CURRENT_VERSION64 >= "1.6")]]></Condition>
+
+		<Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+			<ComponentRef Id="ApplicationFiles" />
+			<ComponentRef Id="PROJECTLIBRE.JAR" />
+			<ComponentRef Id="PROJECTLIBRE.EXE" />
+			<ComponentRef Id="README.HTML" />
+			<ComponentRef Id="OPENPROJ_CONTRIB.JAR" />
+			<ComponentRef Id="OPENPROJ_REPORTS.JAR" />
+			<ComponentRef Id="OPENPROJ_SCRIPT.JAR" />
+			<ComponentRef Id="INDEX.HTML" />
+			<ComponentRef Id="ANTLR.TXT" />
+			<ComponentRef Id="APACHE_LICENSE_2.0.TXT" />
+			<ComponentRef Id="APPLE.TXT" />
+			<ComponentRef Id="BSD_GENERIC.TXT" />
+			<ComponentRef Id="CDDL.TXT" />
+			<ComponentRef Id="CPL_1.0.TXT" />
+			<ComponentRef Id="GROOVY.TXT" />
+			<ComponentRef Id="ICAL4J.TXT" />
+			<ComponentRef Id="INDEX.HTML_1" />
+			<ComponentRef Id="JASPER_LGPL.TXT" />
+			<ComponentRef Id="JGOODIES_FORMS.TXT" />
+			<ComponentRef Id="LGPL_2.1.TXT" />
+			<ComponentRef Id="OSX_ADAPTER.TXT" />
+			<ComponentRef Id="SUN_JWSDP.TXT" />
+			<ComponentRef Id="SUN.TXT" />
+			<ComponentRef Id="THIRD_PARTY_LICENSES_WITH_BUILD_LIBS.HTML" />
+			<ComponentRef Id="XSTREAM.TXT" />
+			<ComponentRef Id="ApplicationShortcut" />
+		</Feature>
+		
+        <WixVariable Id="WixUILicenseRtf" Value="projectlibre\license\License.rtf" />
+        <WixVariable Id="WixUIExclamationIco" Value="projectlibre\msi_images\projectlibre.ico" />
+        <WixVariable Id="WixUIInfoIco" Value="projectlibre\msi_images\projectlibre.ico" />
+        <WixVariable Id="WixUINewIco" Value="projectlibre\msi_images\projectlibre.ico" />
+        <WixVariable Id="WixUIUpIco" Value="projectlibre\msi_images\projectlibre.ico" />        
+        <WixVariable Id="WixUIBannerBmp" Value="projectlibre\msi_images\projectlibre_msi_banner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="projectlibre\msi_images\projectlibre_msi_splash.bmp" />
+
+        <UI>
+            <UIRef Id="WixUI_Minimal" />
+            <!--Publish Dialog="ExitDialog"
+                Control="Finish"
+                Event="DoAction"
+                Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish-->
+        </UI>
+        
+        <!--Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch ProjectLibre" />
+        
+        <Property Id="WixShellExecTarget" Value="[#PROJECTLIBRE.EXE]" />
+        <CustomAction Id="LaunchApplication" Property="CA1_PROP"
+        DllEntry="WixShellExec"
+        Impersonate="yes" /-->
+	</Product>
+</Wix>

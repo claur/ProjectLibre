@@ -58,12 +58,12 @@ import net.sf.mpxj.TableContainer;
 import net.sf.mpxj.Task;
 import net.sf.mpxj.TaskField;
 import net.sf.mpxj.TaskMode;
-import net.sf.mpxj.TimeUnit;
 import net.sf.mpxj.View;
 import net.sf.mpxj.WorkGroup;
 import net.sf.mpxj.common.DateHelper;
 import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.common.Pair;
+import net.sf.mpxj.common.RtfHelper;
 
 import org.apache.poi.poifs.filesystem.DirectoryEntry;
 import org.apache.poi.poifs.filesystem.DocumentEntry;
@@ -124,7 +124,7 @@ final class MPP14Reader implements MPPVariantReader
 
    /**
     * Populate member data used by the rest of the reader.
-    * 
+    *
     * @param reader parent file reader
     * @param file parent MPP file
     * @param root Root of the POI file system.
@@ -152,7 +152,7 @@ final class MPP14Reader implements MPPVariantReader
       // 0x01 = protection password has been supplied
       // 0x02 = write reservation password has been supplied
       // 0x03 = both passwords have been supplied
-      //  
+      //
       if ((props14.getByte(Props.PASSWORD_FLAG) & 0x01) != 0)
       {
          // Couldn't figure out how to get the password for MPP14 files so for now we just need to block the reading
@@ -207,9 +207,9 @@ final class MPP14Reader implements MPPVariantReader
    }
 
    /**
-    * This method extracts and collates the value list information 
-    * for custom column value lists. 
-    * @throws IOException 
+    * This method extracts and collates the value list information
+    * for custom column value lists.
+    * @throws IOException
     */
    private void processCustomValueLists() throws IOException
    {
@@ -241,7 +241,7 @@ final class MPP14Reader implements MPPVariantReader
    /**
     * Read sub project data from the file, and add it to a hash map
     * indexed by task ID.
-    * 
+    *
     * Project stores all subprojects that have ever been inserted into this project
     * in sequence and that is what used to count unique id offsets for each of the
     * subprojects.
@@ -299,7 +299,7 @@ final class MPP14Reader implements MPPVariantReader
             // able to always guarantee unique unique ids.
             //
                case 0x00:
-                  //   
+                  //
                   // deleted entry?
                   //
                case 0x10:
@@ -554,7 +554,7 @@ final class MPP14Reader implements MPPVariantReader
 
    /**
     * Read a list of sub projects.
-    * 
+    *
     * @param data byte array
     * @param uniqueIDOffset offset of unique ID
     * @param filePathOffset offset of file path
@@ -869,9 +869,9 @@ final class MPP14Reader implements MPPVariantReader
                else
                {
                   //
-                  // We apply a heuristic here - if we have more than 75% of the data, we assume 
+                  // We apply a heuristic here - if we have more than 75% of the data, we assume
                   // the task is valid.
-                  //                  
+                  //
                   int maxSize = fieldMap.getMaxFixedDataSize(0);
                   if (maxSize == 0 || ((data.length * 100) / maxSize) > 75)
                   {
@@ -965,7 +965,7 @@ final class MPP14Reader implements MPPVariantReader
       int resourceIDOffset;
 
       // ID offsets appear to be different for 2013 files
-      if (m_file.getProjectProperties().getFullApplicationName().equals("Microsoft.Project 15.0"))
+      if (NumberHelper.getInt(m_file.getProjectProperties().getApplicationVersion()) > ApplicationVersion.PROJECT_2010)
       {
          calendarIDOffset = 8;
          baseIDOffset = 0;
@@ -1060,9 +1060,9 @@ final class MPP14Reader implements MPPVariantReader
     * NOTE: MPP14 defines the concept of working weeks. MPXJ does not
     * currently support this, and thus we only read the working hours
     * for the default working week.
-    * 
+    *
     * @param data calendar data block
-    * @param defaultCalendar calendar to use for default values 
+    * @param defaultCalendar calendar to use for default values
     * @param cal calendar instance
     * @param isBaseCalendar true if this is a base calendar
     */
@@ -1166,7 +1166,7 @@ final class MPP14Reader implements MPPVariantReader
    {
       //
       // Handle any exceptions
-      //	   	
+      //
       if (data.length > 420)
       {
          int offset = 420; // The first 420 is for the working hours data
@@ -1182,12 +1182,12 @@ final class MPP14Reader implements MPPVariantReader
             Date start;
 
             //
-            // Move to the start of the first exception            
+            // Move to the start of the first exception
             //
             offset += 4;
 
             //
-            // Each exception is a 92 byte block, followed by a 
+            // Each exception is a 92 byte block, followed by a
             // variable length text block
             //
             for (index = 0; index < exceptionCount; index++)
@@ -1278,7 +1278,7 @@ final class MPP14Reader implements MPPVariantReader
       Var2Data taskVarData = new Var2Data(taskVarMeta, new DocumentInputStream(((DocumentEntry) taskDir.getEntry("Var2Data"))));
       FixedMeta taskFixedMeta = new FixedMeta(new DocumentInputStream(((DocumentEntry) taskDir.getEntry("FixedMeta"))), 47);
       FixedData taskFixedData = new FixedData(taskFixedMeta, new DocumentInputStream(((DocumentEntry) taskDir.getEntry("FixedData"))), fieldMap.getMaxFixedDataSize(0));
-      FixedMeta taskFixed2Meta = new FixedMeta(new DocumentInputStream(((DocumentEntry) taskDir.getEntry("Fixed2Meta"))), 92, 93);
+      FixedMeta taskFixed2Meta = new FixedMeta(new DocumentInputStream(((DocumentEntry) taskDir.getEntry("Fixed2Meta"))), taskFixedData, 92, 93);
       FixedData taskFixed2Data = new FixedData(taskFixed2Meta, new DocumentInputStream(((DocumentEntry) taskDir.getEntry("Fixed2Data"))));
 
       Props14 props = new Props14(m_inputStreamFactory.getInstance(taskDir, "Props"));
@@ -1292,7 +1292,7 @@ final class MPP14Reader implements MPPVariantReader
       //      System.out.println(m_outlineCodeVarData);
       //      System.out.println(props);
 
-      // Process aliases      
+      // Process aliases
       new CustomFieldAliasReader(m_file.getCustomFields(), props.getByteArray(TASK_FIELD_NAME_ALIASES)).process();
 
       TreeMap<Integer, Integer> taskMap = createTaskMap(fieldMap, taskFixedMeta, taskFixedData);
@@ -1316,7 +1316,7 @@ final class MPP14Reader implements MPPVariantReader
       //
       MppBitFlag[] metaDataBitFlags;
       MppBitFlag[] metaData2BitFlags;
-      if (m_file.getProjectProperties().getFullApplicationName().equals("Microsoft.Project 15.0"))
+      if (NumberHelper.getInt(m_file.getProjectProperties().getApplicationVersion()) > ApplicationVersion.PROJECT_2010)
       {
          metaDataBitFlags = PROJECT2013_TASK_META_DATA_BIT_FLAGS;
          metaData2BitFlags = PROJECT2013_TASK_META_DATA2_BIT_FLAGS;
@@ -1367,7 +1367,7 @@ final class MPP14Reader implements MPPVariantReader
 
          metaData2 = taskFixed2Meta.getByteArrayValue(offset.intValue());
          byte[] data2 = taskFixed2Data.getByteArrayValue(offset.intValue());
-         //System.out.println (MPPUtility.hexdump(metaData2, false, 16, ""));         
+         //System.out.println (MPPUtility.hexdump(metaData2, false, 16, ""));
          //System.out.println(MPPUtility.hexdump(data2, false, 16, ""));
          //System.out.println (MPPUtility.hexdump(metaData2,false));
 
@@ -1461,7 +1461,7 @@ final class MPP14Reader implements MPPVariantReader
          //
          // Adjust the start and finish dates if the task
          // is constrained to start as late as possible.
-         //            
+         //
             case AS_LATE_AS_POSSIBLE:
             {
                if (DateHelper.compare(task.getStart(), task.getLateStart()) < 0)
@@ -1508,11 +1508,10 @@ final class MPP14Reader implements MPPVariantReader
          // Retrieve the task notes.
          //
          notes = task.getNotes();
-         //claur
-//         if (m_reader.getPreserveNoteFormatting() == false)
-//         {
-//            notes = RtfHelper.strip(notes);
-//         }
+         if (m_reader.getPreserveNoteFormatting() == false)
+         {
+            notes = RtfHelper.strip(notes);
+         }
 
          task.setNotes(notes);
 
@@ -1627,9 +1626,9 @@ final class MPP14Reader implements MPPVariantReader
    /**
     * MPP14 files seem to exhibit some occasional weirdness
     * with duplicate ID values which leads to the task structure
-    * being reported incorrectly. The following method attempts to correct this. 
+    * being reported incorrectly. The following method attempts to correct this.
     * The method uses ordering data embedded in the file to reconstruct
-    * the correct ID order of the tasks. 
+    * the correct ID order of the tasks.
     */
    private void postProcessTasks() throws MPXJException
    {
@@ -1638,7 +1637,9 @@ final class MPP14Reader implements MPPVariantReader
       // space for later inserts.
       //
       TreeMap<Integer, Integer> taskMap = new TreeMap<Integer, Integer>();
-      int nextIDIncrement = 1000;
+
+      // I've found a pathological case of an MPP file with around 16k blank tasks...
+      int nextIDIncrement = 16500;
       int nextID = (m_file.getTaskByUniqueID(Integer.valueOf(0)) == null ? nextIDIncrement : 0);
       for (Map.Entry<Long, Integer> entry : m_taskOrder.entrySet())
       {
@@ -1687,8 +1688,8 @@ final class MPP14Reader implements MPPVariantReader
    }
 
    /**
-    * Extracts task enterprise column values. 
-    * 
+    * Extracts task enterprise column values.
+    *
     * @param id task unique ID
     * @param task task instance
     * @param taskVarData task var data
@@ -1724,11 +1725,11 @@ final class MPP14Reader implements MPPVariantReader
 
    /**
     * Extracts resource enterprise column data.
-    * 
-    * @param id resource unique ID 
+    *
+    * @param id resource unique ID
     * @param resource resource instance
     * @param resourceVarData resource var data
-    * @param metaData2 resource meta data 
+    * @param metaData2 resource meta data
     */
    private void processResourceEnterpriseColumns(Integer id, Resource resource, Var2Data resourceVarData, byte[] metaData2)
    {
@@ -1765,7 +1766,7 @@ final class MPP14Reader implements MPPVariantReader
     * This method iterates through the list of tasks marked as external
     * and attempts to ensure that the correct external project data (in the
     * form of a SubProject object) is linked to the task.
-    * 
+    *
     * @param externalTasks list of tasks marked as external
     */
    private void processExternalTasks(List<Task> externalTasks)
@@ -1777,7 +1778,7 @@ final class MPP14Reader implements MPPVariantReader
 
       //
       // Find any external tasks which don't have a sub project
-      // object, and set this attribute using the most recent 
+      // object, and set this attribute using the most recent
       // value.
       //
       SubProject currentSubProject = null;
@@ -1918,7 +1919,7 @@ final class MPP14Reader implements MPPVariantReader
       //System.out.println(rscFixed2Data);
       //System.out.println(props);
 
-      // Process aliases      
+      // Process aliases
       new CustomFieldAliasReader(m_file.getCustomFields(), props.getByteArray(RESOURCE_FIELD_NAME_ALIASES)).process();
 
       TreeMap<Integer, Integer> resourceMap = createResourceMap(fieldMap, rscFixedMeta, rscFixedData);
@@ -1936,7 +1937,7 @@ final class MPP14Reader implements MPPVariantReader
       //
       MppBitFlag[] metaDataBitFlags;
       MppBitFlag[] metaData2BitFlags;
-      if (m_file.getProjectProperties().getFullApplicationName().equals("Microsoft.Project 15.0"))
+      if (NumberHelper.getInt(m_file.getProjectProperties().getApplicationVersion()) > ApplicationVersion.PROJECT_2010)
       {
          metaDataBitFlags = PROJECT2013_RESOURCE_META_DATA_BIT_FLAGS;
          metaData2BitFlags = PROJECT2013_RESOURCE_META_DATA2_BIT_FLAGS;
@@ -1997,32 +1998,18 @@ final class MPP14Reader implements MPPVariantReader
          readBitFields(metaDataBitFlags, resource, metaData);
          readBitFields(metaData2BitFlags, resource, metaData2);
 
-         ResourceType type;
          if (resource.getWorkGroup() == WorkGroup.DEFAULT)
          {
-            type = ResourceType.WORK;
+            resource.setType(ResourceType.WORK);
          }
-         else
-         {
-            if (resource.getStandardRateUnits() == TimeUnit.ELAPSED_MINUTES)
-            {
-               type = ResourceType.MATERIAL;
-            }
-            else
-            {
-               type = ResourceType.COST;
-            }
-         }
-         resource.setType(type);
 
          resource.setUniqueID(id);
 
          notes = resource.getNotes();
-         //claur
-//         if (m_reader.getPreserveNoteFormatting() == false)
-//         {
-//            notes = RtfHelper.strip(notes);
-//         }
+         if (m_reader.getPreserveNoteFormatting() == false)
+         {
+            notes = RtfHelper.strip(notes);
+         }
 
          resource.setNotes(notes);
 
@@ -2033,7 +2020,7 @@ final class MPP14Reader implements MPPVariantReader
 
          //
          // Process any enterprise columns
-         //         
+         //
          processResourceEnterpriseColumns(id, resource, rscVarData, metaData2);
 
          //
@@ -2158,7 +2145,7 @@ final class MPP14Reader implements MPPVariantReader
 
    /**
     * Read filter definitions.
-    * 
+    *
     * @throws IOException
     */
    private void processFilterData() throws IOException
@@ -2180,7 +2167,7 @@ final class MPP14Reader implements MPPVariantReader
 
    /**
     * Read saved view state from an MPP file.
-    * 
+    *
     * @throws IOException
     */
    private void processSavedViewState() throws IOException
@@ -2203,7 +2190,7 @@ final class MPP14Reader implements MPPVariantReader
 
    /**
     * Read group definitions.
-    * 
+    *
     * @throws IOException
     */
    private void processGroupData() throws IOException
@@ -2217,7 +2204,7 @@ final class MPP14Reader implements MPPVariantReader
       //System.out.println(fixedMeta);
       //System.out.println(fixedData);
       //System.out.println(varMeta);
-      //System.out.println(varData);   
+      //System.out.println(varData);
 
       GroupReader14 reader = new GroupReader14();
       reader.process(m_file, fixedData, varData, m_fontBases);
@@ -2225,7 +2212,7 @@ final class MPP14Reader implements MPPVariantReader
 
    /**
     * Retrieve custom field value.
-    * 
+    *
     * @param varData var data block
     * @param outlineCodeVarData var data block
     * @param id item ID
@@ -2265,7 +2252,7 @@ final class MPP14Reader implements MPPVariantReader
 
    /**
     * Retrieve custom field value.
-    * 
+    *
     * @param varData var data block
     * @param outlineCodeVarData var data block
     * @param id parent item ID
@@ -2306,7 +2293,7 @@ final class MPP14Reader implements MPPVariantReader
    /**
     * Iterate through a set of bit field flags and set the value for each one
     * in the supplied container.
-    * 
+    *
     * @param flags bit field flags
     * @param container field container
     * @param data source data
@@ -2382,20 +2369,20 @@ final class MPP14Reader implements MPPVariantReader
    //         {
    //            result = o1.getUniqueID().intValue() - o2.getUniqueID().intValue();
    //            //result = o1.getID().intValue() - o2.getID().intValue();
-   //         }         
+   //         }
    //         return (result);
    //      }
-   //   };  
+   //   };
 
    //   private static final Comparator<Task> FINISH_COMPARATOR = new Comparator<Task>()
    //   {
    //      public int compare(Task o1, Task o2)
    //      {
-   //         int result = DateUtility.compare(o1.getFinish(), o2.getFinish()); 
+   //         int result = DateUtility.compare(o1.getFinish(), o2.getFinish());
    //         if (result == 0)
    //         {
    //            result = o1.getUniqueID().intValue() - o2.getUniqueID().intValue();
-   //         }         
+   //         }
    //         return (result);
    //      }
    //   };
@@ -2428,7 +2415,7 @@ final class MPP14Reader implements MPPVariantReader
    private static final Integer TABLE_COLUMN_DATA_BASELINE = Integer.valueOf(8);
    private static final Integer OUTLINECODE_DATA = Integer.valueOf(22);
 
-   /** 
+   /**
     * Custom value list types.
     */
    private static final int VALUE_LIST_MASK = 0x0700;
@@ -2550,7 +2537,7 @@ final class MPP14Reader implements MPPVariantReader
    private static final MppBitFlag[] PROJECT2013_RESOURCE_META_DATA2_BIT_FLAGS =
    {
       new MppBitFlag(ResourceField.BUDGET, 8, 0x20, Boolean.FALSE, Boolean.TRUE),
-      new MppBitFlag(ResourceField.TYPE, 4, 0x08, ResourceType.COST, ResourceType.MATERIAL)
+      new MppBitFlag(ResourceField.TYPE, 8, 0x10, ResourceType.MATERIAL, ResourceType.COST)
    };
 
    private static final MppBitFlag[] PROJECT2010_RESOURCE_META_DATA_BIT_FLAGS =

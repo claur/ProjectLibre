@@ -667,6 +667,12 @@
 				<filter token="resourcedir" value="projectlibre"/>
 			</filterset>
 		</copy>
+		<copy todir="${packages}/${wixbuild}-${version}" file="${resources}/wix/projectlibre-x86.wxs" >
+			<filterset>
+				<filter token="version" value="${numericVersion4}"/>
+				<filter token="resourcedir" value="projectlibre"/>
+			</filterset>
+		</copy>
 		<copy todir="${packages}/${wixbuild}-${version}" file="${resources}/wix/projectlibre.nsi" />
 		<copy todir="${packages}/${wixbuild}-${version}/projectlibre">
 			<fileset dir="${packages}/projectlibre-${version}">

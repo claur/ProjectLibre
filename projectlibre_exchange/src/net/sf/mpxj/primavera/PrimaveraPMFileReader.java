@@ -57,6 +57,7 @@ import net.sf.mpxj.ProjectCalendar;
 import net.sf.mpxj.ProjectCalendarException;
 import net.sf.mpxj.ProjectCalendarHours;
 import net.sf.mpxj.ProjectConfig;
+import net.sf.mpxj.ProjectEntityWithUniqueID;
 import net.sf.mpxj.ProjectFile;
 import net.sf.mpxj.ProjectProperties;
 import net.sf.mpxj.Relation;
@@ -70,6 +71,7 @@ import net.sf.mpxj.common.BooleanHelper;
 import net.sf.mpxj.common.DateHelper;
 import net.sf.mpxj.common.NumberHelper;
 import net.sf.mpxj.listener.ProjectListener;
+import net.sf.mpxj.mpp.CustomFieldValueItem;
 import net.sf.mpxj.primavera.schema.APIBusinessObjects;
 import net.sf.mpxj.primavera.schema.ActivityType;
 import net.sf.mpxj.primavera.schema.CalendarType;
@@ -83,6 +85,8 @@ import net.sf.mpxj.primavera.schema.ProjectType;
 import net.sf.mpxj.primavera.schema.RelationshipType;
 import net.sf.mpxj.primavera.schema.ResourceAssignmentType;
 import net.sf.mpxj.primavera.schema.ResourceType;
+import net.sf.mpxj.primavera.schema.UDFAssignmentType;
+import net.sf.mpxj.primavera.schema.UDFTypeType;
 import net.sf.mpxj.primavera.schema.WBSType;
 import net.sf.mpxj.primavera.schema.WorkTimeType;
 import net.sf.mpxj.reader.AbstractProjectReader;
@@ -168,6 +172,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
             throw new MPXJException("Unable to locate any non-external projects in a list of " + projects.size() + " projects");
          }
 
+         processProjectUDFs(apibo);
          processProjectProperties(apibo, project);
          processCalendars(apibo);
          processResources(apibo);
@@ -207,8 +212,25 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
    }
 
    /**
+    * Set up CustomFieldValueItems as UDF object id -> UDFType title (alias).
+    *
+    * @param apibo PMXML data
+    * @author lsong
+    */
+   private void processProjectUDFs(APIBusinessObjects apibo)
+   {
+      CustomFieldContainer customFields = m_projectFile.getCustomFields();
+      for (UDFTypeType udf : apibo.getUDFType())
+      {
+         CustomFieldValueItem item = new CustomFieldValueItem(udf.getObjectId());
+         item.setValue(udf.getTitle());
+         customFields.registerValue(item);
+      }
+   }
+
+   /**
     * Process project properties.
-    * 
+    *
     * @param apibo top level object
     * @param project xml container
     */
@@ -248,7 +270,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
    /**
     * Process project calendars.
-    * 
+    *
     * @param apibo xml container
     */
    private void processCalendars(APIBusinessObjects apibo)
@@ -281,7 +303,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
                   {
                      if (work != null)
                      {
-                        calendarHours.addRange(new DateRange(work.getStart(), work.getFinish()));
+                        calendarHours.addRange(new DateRange(work.getStart(), getEndTime(work.getFinish())));
                      }
                   }
                }
@@ -302,7 +324,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
                {
                   if (work != null)
                   {
-                     pce.addRange(new DateRange(work.getStart(), work.getFinish()));
+                     pce.addRange(new DateRange(work.getStart(), getEndTime(work.getFinish())));
                   }
                }
             }
@@ -312,7 +334,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
    /**
     * Process resources.
-    * 
+    *
     * @param apibo xml container
     */
    private void processResources(APIBusinessObjects apibo)
@@ -325,9 +347,12 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          resource.setName(xml.getName());
          resource.setCode(xml.getEmployeeId());
          resource.setEmailAddress(xml.getEmailAddress());
+         resource.setGUID(DatatypeConverter.parseUUID(xml.getGUID()));
          resource.setNotes(xml.getResourceNotes());
          resource.setCreationDate(xml.getCreateDate());
          resource.setType(RESOURCE_TYPE_MAP.get(xml.getResourceType()));
+         resource.setMaxUnits(reversePercentage(xml.getMaxUnitsPerTime()));
+         resource.setParentID(xml.getParentObjectId());
 
          Integer calendarID = xml.getCalendarObjectId();
          if (calendarID != null)
@@ -373,13 +398,15 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
             }
          }
 
+         readUDFTypes(resource, xml.getUDF());
+
          m_eventManager.fireResourceReadEvent(resource);
       }
    }
 
    /**
     * Process tasks.
-    * 
+    *
     * @param project xml container
     */
    private void processTasks(ProjectType project)
@@ -401,6 +428,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          task.setUniqueID(uniqueID);
          task.setName(row.getName());
          task.setBaselineCost(row.getSummaryBaselineTotalCost());
+         task.setGUID(DatatypeConverter.parseUUID(row.getGUID()));
          task.setRemainingCost(row.getSummaryRemainingTotalCost());
          task.setRemainingDuration(getDuration(row.getSummaryRemainingDuration()));
          task.setStart(row.getAnticipatedStartDate());
@@ -460,7 +488,8 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
          }
 
          task.setUniqueID(uniqueID);
-         task.setPercentageComplete(NumberHelper.getDouble(row.getPercentComplete().doubleValue() * 100.0));
+         task.setGUID(DatatypeConverter.parseUUID(row.getGUID()));
+         task.setPercentageComplete(reversePercentage(row.getPercentComplete()));
          task.setName(row.getName());
          task.setRemainingDuration(getDuration(row.getRemainingDuration()));
          task.setActualWork(getDuration(row.getActualDuration()));
@@ -501,6 +530,8 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
          populateField(task, TaskField.WORK, TaskField.BASELINE_WORK, TaskField.ACTUAL_WORK);
 
+         readUDFTypes(task, row.getUDF());
+
          m_eventManager.fireTaskReadEvent(task);
       }
 
@@ -509,7 +540,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
    /**
     * Populates a field based on baseline and actual values.
-    * 
+    *
     * @param container field container
     * @param target target field
     * @param baseline baseline field
@@ -541,8 +572,8 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
    /**
     * Iterates through the tasks setting the correct
-    * outline level and ID values. 
-    * 
+    * outline level and ID values.
+    *
     * @param id current ID value
     * @param task current task
     * @param outlineLevel current outline level
@@ -562,7 +593,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
    /**
     * Process predecessors.
-    * 
+    *
     * @param project xml container
     */
    private void processPredecessors(ProjectType project)
@@ -584,7 +615,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
    /**
     * Process resource assignments.
-    * 
+    *
     * @param project xml container
     */
    private void processAssignments(ProjectType project)
@@ -609,15 +640,18 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
             assignment.setActualFinish(row.getActualFinishDate());
             assignment.setBaselineStart(row.getPlannedStartDate());
             assignment.setBaselineFinish(row.getPlannedFinishDate());
+            assignment.setGUID(DatatypeConverter.parseUUID(row.getGUID()));
 
-            task.setActualCost(Double.valueOf(task.getActualCost().doubleValue() + assignment.getActualCost().doubleValue()));
-            task.setRemainingCost(Double.valueOf(task.getRemainingCost().doubleValue() + assignment.getRemainingCost().doubleValue()));
-            task.setBaselineCost(Double.valueOf(task.getBaselineCost().doubleValue() + assignment.getBaselineCost().doubleValue()));
+            task.setActualCost(Double.valueOf(NumberHelper.getDouble(task.getActualCost()) + NumberHelper.getDouble(assignment.getActualCost())));
+            task.setRemainingCost(Double.valueOf(NumberHelper.getDouble(task.getRemainingCost()) + NumberHelper.getDouble(assignment.getRemainingCost())));
+            task.setBaselineCost(Double.valueOf(NumberHelper.getDouble(task.getBaselineCost()) + NumberHelper.getDouble(assignment.getBaselineCost())));
 
             populateField(assignment, AssignmentField.WORK, AssignmentField.BASELINE_WORK, AssignmentField.ACTUAL_WORK);
             populateField(assignment, AssignmentField.COST, AssignmentField.BASELINE_COST, AssignmentField.ACTUAL_COST);
             populateField(assignment, AssignmentField.START, AssignmentField.BASELINE_START, AssignmentField.ACTUAL_START);
             populateField(assignment, AssignmentField.FINISH, AssignmentField.BASELINE_FINISH, AssignmentField.ACTUAL_FINISH);
+
+            readUDFTypes(assignment, row.getUDF());
 
             m_eventManager.fireAssignmentReadEvent(assignment);
          }
@@ -626,7 +660,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
    /**
     * Extracts a duration from a JAXBElement instance.
-    * 
+    *
     * @param duration duration expressed in hours
     * @return duration instance
     */
@@ -641,6 +675,47 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
       return result;
    }
+
+   /**
+    * The end of a Primavera time range finishes on the last minute
+    * of the period, so a range of 12:00 -> 13:00 is represented by
+    * Primavera as 12:00 -> 12:59.
+    *
+    * @param date Primavera end time
+    * @return date MPXJ end time
+    */
+   private Date getEndTime(Date date)
+   {
+      return new Date(date.getTime() + 60000);
+   }
+
+   /**
+    * Reverse the effects of PrimaveraPMFileWriter.getPercentage().
+    *
+    * @param n percentage value to convert
+    * @return percentage value usable by MPXJ
+    */
+   private Number reversePercentage(Double n)
+   {
+      return n == null ? null : NumberHelper.getDouble(n.doubleValue() * 100.0);
+   }
+
+   /**
+    * Write user defined types to the PMXML file.
+    *
+    * @param mpxj parent object
+    * @param udfs user defined fields
+    * @author lsong
+    */
+   private void readUDFTypes(ProjectEntityWithUniqueID mpxj, List<UDFAssignmentType> udfs)
+   {
+      CustomFieldContainer customFields = m_projectFile.getCustomFields();
+      for (UDFAssignmentType udf : udfs)
+      {
+         customFields.registerAliasValue((String) customFields.getCustomFieldValueItemByUniqueID(udf.getTypeObjectId()).getValue(), mpxj.getUniqueID(), udf);
+      }
+   }
+
    /**
     * Cached context to minimise construction cost.
     */
@@ -675,7 +750,7 @@ public final class PrimaveraPMFileReader extends AbstractProjectReader
 
    /**
     * Deals with the case where we have had to map a task ID to a new value.
-    * 
+    *
     * @param id task ID from database
     * @return mapped task ID
     */

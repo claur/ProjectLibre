@@ -53,6 +53,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,6 +74,7 @@ import com.projity.session.LocalSession;
 import com.projity.session.SessionFactory;
 import com.projity.strings.Messages;
 import com.projity.undo.DataFactoryUndoController;
+import com.projity.util.Alert;
 
 /**
  * Loads/Saves a project from/to a pod file
@@ -202,43 +204,78 @@ public class LocalFileImporter extends FileImporter {
 
 	@Override
 	public void exportFile() throws Exception{
-		File f=new File(getFileName());
-		FileOutputStream fout=new FileOutputStream(f);
-        try {
-			DataUtil serializer=new DataUtil();
-			System.out.println("Serialization..."); //$NON-NLS-1$
-			long t1=System.currentTimeMillis();
-			DocumentData projectData=serializer.serializeDocument(getProject());
-			projectData.setMaster(true);
-			projectData.setLocal(true);
-			long t2=System.currentTimeMillis();
-			System.out.println("Serialization...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
-			System.out.println("Saving "+f+"..."); //$NON-NLS-1$ //$NON-NLS-2$
-			t1=System.currentTimeMillis();
-			ObjectOutputStream out=new ObjectOutputStream(fout);
-			out.writeObject(VERSION);
-			out.writeObject(projectData);
-			out.flush();
-			//out.close();
-			t2=System.currentTimeMillis();
-			System.out.println("Saving...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+		String extension="";
+		String name=fileName;
+		String tmpFileName=fileName;
+		int i=fileName.lastIndexOf('.');
+		if (i>0){
+			extension=fileName.substring(i);
+			name=fileName.substring(0, i);
+		}
+		
+		File file=new File(fileName);
+		File tmpFile=file;
+		for (int count=0;tmpFile.exists();count++){
+			tmpFileName=name+"_tmp"+count+extension;
+			tmpFile=new File(tmpFileName);
+		}
+		
+		
+
+		boolean error=false;
+		
+		try {
+			FileOutputStream fout=new FileOutputStream(tmpFile);
+			try {
+				DataUtil serializer=new DataUtil();
+				System.out.println("Serialization..."); //$NON-NLS-1$
+				long t1=System.currentTimeMillis();
+				DocumentData projectData=serializer.serializeDocument(getProject());
+				projectData.setMaster(true);
+				projectData.setLocal(true);
+				long t2=System.currentTimeMillis();
+				System.out.println("Serialization...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+				System.out.println("Saving "+file+"..."); //$NON-NLS-1$ //$NON-NLS-2$
+				t1=System.currentTimeMillis();
+				ObjectOutputStream out=new ObjectOutputStream(fout);
+				out.writeObject(VERSION);
+				out.writeObject(projectData);
+				out.flush();
+				//out.close();
+				t2=System.currentTimeMillis();
+				System.out.println("Saving...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			} catch (Exception e) {
+				error=true;
+				e.printStackTrace();
+			}
+			try{
+				BufferedOutputStream bout=new BufferedOutputStream(fout);
+				bout.write(PROJECT_LIBRE_FILE_SEPARATOR.getBytes());
+				bout.flush();
+				FileImporter importer=LocalSession.getImporter("com.projity.exchange.MicrosoftImporter");
+				importer.saveProject(project, bout);
+				bout.flush();
+				
+			}catch (Exception e) {
+				error=true;
+				e.printStackTrace();
+			}
+			fout.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			error=true;
 			e.printStackTrace();
 		}
-        try{
-        	BufferedOutputStream bout=new BufferedOutputStream(fout);
-        	bout.write(PROJECT_LIBRE_FILE_SEPARATOR.getBytes());
-        	bout.flush();
-        	FileImporter importer=LocalSession.getImporter("com.projity.exchange.MicrosoftImporter");
-        	importer.saveProject(project, bout);
-        	bout.flush();
-        	
-        }catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+		//Don't replace original file if an error occurred
+		if (error){
+			if (file.equals(tmpFile))
+				Alert.error(Messages.getString("Message.saveError"));
+			else Alert.error(Messages.getString("Message.saveErrorTmpFile")+tmpFileName);
+		}else if (!file.equals(tmpFile)){
+			file.delete();
+			tmpFile.renameTo(file);
 		}
-        fout.close();
+
 	}
 
 

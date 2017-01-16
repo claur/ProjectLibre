@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.sf.mpxj.AccrueType;
+import net.sf.mpxj.BookingType;
 import net.sf.mpxj.ConstraintType;
 import net.sf.mpxj.CustomFieldContainer;
 import net.sf.mpxj.DataType;
@@ -58,7 +59,7 @@ abstract class FieldMap
 {
    /**
     * Constructor.
-    * 
+    *
     * @param properties project properties
     * @param customFields custom field values
     */
@@ -69,8 +70,8 @@ abstract class FieldMap
    }
 
    /**
-    * Generic method used to create a field map from a block of data. 
-    * 
+    * Generic method used to create a field map from a block of data.
+    *
     * @param data field map data
     */
    private void createFieldMap(byte[] data)
@@ -189,42 +190,42 @@ abstract class FieldMap
 
    /**
     * Used to determine what value is used as the var data key.
-    * 
+    *
     * @return true if the field type value is used as the var data key
     */
    protected abstract boolean useTypeAsVarDataKey();
 
    /**
     * Abstract method used by child classes to supply default data.
-    * 
+    *
     * @return default data
     */
    protected abstract FieldItem[] getDefaultTaskData();
 
    /**
     * Abstract method used by child classes to supply default data.
-    * 
+    *
     * @return default data
     */
    protected abstract FieldItem[] getDefaultResourceData();
 
    /**
     * Abstract method used by child classes to supply default data.
-    * 
+    *
     * @return default data
     */
    protected abstract FieldItem[] getDefaultAssignmentData();
 
    /**
     * Abstract method used by child classes to supply default data.
-    * 
+    *
     * @return default data
     */
    protected abstract FieldItem[] getDefaultRelationData();
 
    /**
     * Given a field ID, derive the field type.
-    * 
+    *
     * @param fieldID field ID
     * @return field type
     */
@@ -235,7 +236,7 @@ abstract class FieldMap
     * does not match the var data key derived from the type.
     * This method is used to perform a substitution so that
     * the correct value is used.
-    * 
+    *
     * @param type field type to be tested
     * @return substituted value, or null
     */
@@ -243,7 +244,7 @@ abstract class FieldMap
 
    /**
     * Creates a field map for tasks.
-    * 
+    *
     * @param props props data
     */
    public void createTaskFieldMap(Props props)
@@ -270,7 +271,7 @@ abstract class FieldMap
 
    /**
     * Creates a field map for relations.
-    * 
+    *
     * @param props props data
     */
    public void createRelationFieldMap(Props props)
@@ -297,7 +298,7 @@ abstract class FieldMap
 
    /**
     * Create a field map for enterprise custom fields.
-    * 
+    *
     * @param props props data
     * @param c target class
     */
@@ -338,7 +339,7 @@ abstract class FieldMap
 
    /**
     * Creates a field map for resources.
-    * 
+    *
     * @param props props data
     */
    public void createResourceFieldMap(Props props)
@@ -365,7 +366,7 @@ abstract class FieldMap
 
    /**
     * Creates a field map for assignments.
-    * 
+    *
     * @param props props data
     */
    public void createAssignmentFieldMap(Props props)
@@ -394,7 +395,7 @@ abstract class FieldMap
    /**
     * This method takes an array of data and uses this to populate the
     * field map.
-    * 
+    *
     * @param defaultData field map default data
     */
    private void populateDefaultData(FieldItem[] defaultData)
@@ -408,7 +409,7 @@ abstract class FieldMap
    /**
     * Given a container, and a set of raw data blocks, this method extracts
     * the field data and writes it into the container.
-    * 
+    *
     * @param type expected type
     * @param container field container
     * @param id entity ID
@@ -432,7 +433,7 @@ abstract class FieldMap
 
    /**
     * Retrieve the maximum offset in the fixed data block.
-    * 
+    *
     * @param blockIndex required block index
     * @return maximum offset
     */
@@ -443,7 +444,7 @@ abstract class FieldMap
 
    /**
     * Retrieve the fixed data offset for a specific field.
-    * 
+    *
     * @param type field type
     * @return offset
     */
@@ -464,7 +465,7 @@ abstract class FieldMap
 
    /**
     * Retrieve the var data key for a specific field.
-    * 
+    *
     * @param type field type
     * @return var data key
     */
@@ -482,7 +483,7 @@ abstract class FieldMap
    /**
     * Used to map from a var data key to a field type. Note this
     * is designed for diagnostic use only, and uses an inefficient search.
-    * 
+    *
     * @param key var data key
     * @return field type
     */
@@ -502,7 +503,7 @@ abstract class FieldMap
 
    /**
     * Retrieve the field location for a specific field.
-    * 
+    *
     * @param type field type
     * @return field location
     */
@@ -520,7 +521,7 @@ abstract class FieldMap
 
    /**
     * Retrieve a single field value.
-    * 
+    *
     * @param id parent entity ID
     * @param type field type
     * @param fixedData fixed data block
@@ -542,7 +543,7 @@ abstract class FieldMap
 
    /**
     * Retrieve the project properties.
-    * 
+    *
     * @return project file
     */
    protected ProjectProperties getProjectProperties()
@@ -561,7 +562,7 @@ abstract class FieldMap
 
    /**
     * Diagnostic method used to dump known field map data.
-    * 
+    *
     * @param props props block containing field map data
     */
    public void dumpKnownFieldMaps(Props props)
@@ -582,7 +583,7 @@ abstract class FieldMap
 
    /**
     * Determine the size of a field in a fixed data block.
-    * 
+    *
     * @param type field data type
     * @return field size in bytes
     */
@@ -703,7 +704,7 @@ abstract class FieldMap
    {
       /**
        * Constructor.
-       * 
+       *
        * @param type field type
        * @param location identifies which block the field is present in
        * @param fixedDataBlockIndex identifies which block the data comes from
@@ -725,7 +726,7 @@ abstract class FieldMap
 
       /**
        * Reads a single field value.
-       * 
+       *
        * @param id parent entity ID
        * @param fixedData fixed data block
        * @param varData var data block
@@ -774,7 +775,7 @@ abstract class FieldMap
 
       /**
        * Read a field from the fixed data block.
-       * 
+       *
        * @param id parent entity ID
        * @param fixedData fixed data block
        * @param varData var data block
@@ -944,7 +945,7 @@ abstract class FieldMap
 
       /**
        * Read a field value from a var data block.
-       * 
+       *
        * @param id parent entity ID
        * @param fixedData fixed data block
        * @param varData var data block
@@ -1077,6 +1078,12 @@ abstract class FieldMap
                break;
             }
 
+            case BOOKING_TYPE:
+            {
+               result = BookingType.getInstance(varData.getShort(id, m_varDataKey));
+               break;
+            }
+
             case BINARY:
             {
                // Do nothing for binary data
@@ -1095,7 +1102,7 @@ abstract class FieldMap
 
       /**
        * Retrieve custom field value.
-       * 
+       *
        * @param varData var data block
        * @param id item ID
        * @param type item type
@@ -1127,7 +1134,7 @@ abstract class FieldMap
             }
 
             //
-            // If we can't find a custom field value with this ID, fall back to treating this as a normal value 
+            // If we can't find a custom field value with this ID, fall back to treating this as a normal value
             //
             if (result == null)
             {
@@ -1139,7 +1146,7 @@ abstract class FieldMap
 
       /**
        * Retrieve a timestamp value.
-       * 
+       *
        * @param varData var data block
        * @param id item ID
        * @param type item type
@@ -1168,7 +1175,7 @@ abstract class FieldMap
 
       /**
        * Retrieve custom field value.
-       * 
+       *
        * @param varData var data block
        * @param id item ID
        * @param type item type
@@ -1202,7 +1209,7 @@ abstract class FieldMap
 
       /**
        * Retrieve custom field value.
-       * 
+       *
        * @param varData var data block
        * @param id item ID
        * @param type item type
@@ -1238,7 +1245,7 @@ abstract class FieldMap
 
       /**
        * Retrieve custom field value.
-       * 
+       *
        * @param varData var data block
        * @param id item ID
        * @param type item type
@@ -1274,7 +1281,7 @@ abstract class FieldMap
 
       /**
        * Retrieve the field type.
-       * 
+       *
        * @return field type
        */
       public FieldType getType()
@@ -1284,7 +1291,7 @@ abstract class FieldMap
 
       /**
        * Retrieve the index of the fixed data block containing this item.
-       * 
+       *
        * @return fixed data block index
        */
       public int getFixedDataBlockIndex()
@@ -1294,7 +1301,7 @@ abstract class FieldMap
 
       /**
        * Retrieve the fixed data offset for this field.
-       * 
+       *
        * @return fixed data offset
        */
       public int getFixedDataOffset()
@@ -1304,7 +1311,7 @@ abstract class FieldMap
 
       /**
        * Retrieve the var data key for this field.
-       * 
+       *
        * @return var data key
        */
       public Integer getVarDataKey()
@@ -1314,7 +1321,7 @@ abstract class FieldMap
 
       /**
        * Retrieve the field location for this field.
-       * 
+       *
        * @return field location
        */
       public FieldLocation getFieldLocation()
@@ -1325,7 +1332,7 @@ abstract class FieldMap
       /**
        * Implements the only method in the Comparable interface to allow
        * FieldItem instances to be sorted.
-       * 
+       *
        * @param item item to compare with
        * @return comparison result
        */
@@ -1368,6 +1375,8 @@ abstract class FieldMap
       {
          StringBuilder buffer = new StringBuilder();
          buffer.append("[FieldItem type=");
+         buffer.append(m_type.getFieldTypeClass());
+         buffer.append('.');
          buffer.append(m_type);
          buffer.append(" location=");
          buffer.append(m_location);

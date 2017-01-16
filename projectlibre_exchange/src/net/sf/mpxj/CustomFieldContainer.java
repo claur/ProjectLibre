@@ -37,7 +37,7 @@ public class CustomFieldContainer implements Iterable<CustomField>
 {
    /**
     * Retrieve configuration details for a given custom field.
-    * 
+    *
     * @param field required custom field
     * @return configuration detail
     */
@@ -52,6 +52,16 @@ public class CustomFieldContainer implements Iterable<CustomField>
       return result;
    }
 
+   /**
+    * Return the number of custom fields.
+    *
+    * @return number of custom fields
+    */
+   public int size()
+   {
+      return m_configMap.values().size();
+   }
+
    @Override public Iterator<CustomField> iterator()
    {
       return m_configMap.values().iterator();
@@ -59,7 +69,7 @@ public class CustomFieldContainer implements Iterable<CustomField>
 
    /**
     * Retrieve a custom field value by its unique ID.
-    * 
+    *
     * @param uniqueID custom field value unique ID
     * @return custom field value
     */
@@ -70,27 +80,27 @@ public class CustomFieldContainer implements Iterable<CustomField>
 
    /**
     * Add a value to the custom field value index.
-    * 
+    *
     * @param item custom field value
     */
-   void registerValue(CustomFieldValueItem item)
+   public void registerValue(CustomFieldValueItem item)
    {
       m_valueMap.put(item.getUniqueID(), item);
    }
 
    /**
     * Remove a value from the custom field value index.
-    * 
+    *
     * @param item custom field value
     */
-   void deregisterValue(CustomFieldValueItem item)
+   public void deregisterValue(CustomFieldValueItem item)
    {
       m_valueMap.remove(item.getUniqueID());
    }
 
    /**
     * When an alias for a field is added, index it here to allow lookup by alias and type.
-    * 
+    *
     * @param type field type
     * @param alias field alias
     */
@@ -104,14 +114,49 @@ public class CustomFieldContainer implements Iterable<CustomField>
     *
     * @param typeClass the type of entity we are interested in
     * @param alias the alias
-    * @return the field type refered to be the alias, or null if not found
+    * @return the field type referred to be the alias, or null if not found
     */
    public FieldType getFieldByAlias(FieldTypeClass typeClass, String alias)
    {
       return m_aliasMap.get(new Pair<FieldTypeClass, String>(typeClass, alias));
    }
 
+   /**
+    * Because there seemingly is no deterministic method of mapping UDF ObjectIds from Primavera PM to FieldTypes,
+    * the aliasValueMap will store UDF values to be used by something that knows what alias maps to which FieldType.
+    * @author lsong
+    * @param alias custom field alias
+    * @param uid field container unique id
+    * @param value field value
+    */
+   public void registerAliasValue(String alias, Integer uid, Object value)
+   {
+      if (!m_aliasValueMap.containsKey(alias))
+      {
+         m_aliasValueMap.put(alias, new HashMap<Integer, Object>());
+      }
+      m_aliasValueMap.get(alias).put(uid, value);
+   }
+
+   /**
+    * Importers with access to the ProjectFile containing this can determine how to
+    * use the values in the UDFAssignmentTypes in UDF containers.
+    * @author lsong
+    * @param alias custom field alias
+    * @param uid field container unique id
+    * @return field value
+    */
+   public Object getAliasValue(String alias, Integer uid)
+   {
+      if (m_aliasValueMap.containsKey(alias))
+      {
+         return m_aliasValueMap.get(alias).get(uid);
+      }
+      return null;
+   }
+
    private Map<FieldType, CustomField> m_configMap = new HashMap<FieldType, CustomField>();
    private Map<Integer, CustomFieldValueItem> m_valueMap = new HashMap<Integer, CustomFieldValueItem>();
    private Map<Pair<FieldTypeClass, String>, FieldType> m_aliasMap = new HashMap<Pair<FieldTypeClass, String>, FieldType>();
+   private Map<String, Map<Integer, Object>> m_aliasValueMap = new HashMap<String, Map<Integer, Object>>();
 }

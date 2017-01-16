@@ -51,7 +51,7 @@ public final class ProjectPropertiesReader
 {
    /**
     * The main entry point for processing project properties.
-    * 
+    *
     * @param file parent project file
     * @param props properties data
     * @param rootDir Root of the POI file system.
@@ -111,7 +111,7 @@ public final class ProjectPropertiesReader
          ph.setLastPrinted(summaryInformation.getLastPrinted());
 
          ps = new PropertySet(new DocumentInputStream(((DocumentEntry) rootDir.getEntry(DocumentSummaryInformation.DEFAULT_STREAM_NAME))));
-         ExtendedDocumentSummaryInformation documentSummaryInformation = new ExtendedDocumentSummaryInformation(ps);
+         DocumentSummaryInformation documentSummaryInformation = new DocumentSummaryInformation(ps);
          ph.setCategory(documentSummaryInformation.getCategory());
          ph.setPresentationFormat(documentSummaryInformation.getPresentationFormat());
          ph.setManager(documentSummaryInformation.getManager());

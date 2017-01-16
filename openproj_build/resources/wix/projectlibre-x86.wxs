@@ -1,0 +1,1070 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="ProjectLibre"
+		Language="1033" Version="@version@" Manufacturer="ProjectLibre"
+		UpgradeCode="D8EF9CE4-1F7D-4117-B020-68B58074C08B">
+		<Package
+			Description="ProjectLibre is an open source project management application"
+			Comments="Window Installer Package" InstallerVersion="200"
+			Compressed="yes" />
+			
+			
+		<Upgrade Id='D8EF9CE4-1F7D-4117-B020-68B58074C08B'>
+			<UpgradeVersion OnlyDetect='no' Property='PROJECT_UPGRADE' Maximum='@version@' IncludeMaximum='no' RemoveFeatures='all' />
+			<Property Id='PROJECT_UPGRADE' Secure='yes' />
+			<UpgradeVersion OnlyDetect='yes' Property='PROJECT_DOWNGRADE' Minimum='@version@' IncludeMinimum='no' />
+			<Property Id='PROJECT_DOWNGRADE' Secure='yes' />
+		</Upgrade>
+		<CustomAction Id='NoDownGrade' Error='A later version of ProjectLibre is already installed.' />
+		<InstallExecuteSequence>
+			<LaunchConditions After='AppSearch'></LaunchConditions>
+			<Custom Action='NoDownGrade' After='FindRelatedProducts'> <![CDATA[PROJECT_DOWNGRADE]]></Custom>
+			<RemoveExistingProducts After='InstallFinalize' />
+		</InstallExecuteSequence>		
+			
+			
+		<Media Id="1" Cabinet="projectlibre.cab" EmbedCab="yes" />
+        <Icon Id="projectlibre.ico" SourceFile="projectlibre\msi_images\projectlibre.ico" />
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="APPLICATIONROOTDIRECTORY" Name="ProjectLibre" />
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ApplicationProgramsFolder" Name="ProjectLibre" />
+			</Directory>
+
+		</Directory>
+
+		<DirectoryRef Id="APPLICATIONROOTDIRECTORY">
+			<Component Id="ApplicationFiles" DiskId="1"
+				Guid="63BEC2FA-F7C8-4D6A-8431-FBCEFEB1CB7D">
+				<File Id="PROJECTLIBRE.BAT" Name="projectlibre.bat" Source="@resourcedir@\projectlibre.bat" />
+			</Component>
+			<Component Id="PROJECTLIBRE.JAR" DiskId="1"
+				Guid="A6C3B4A5-2867-453F-B9D6-DD54A9E5B9FB">
+				<File Id="PROJECTLIBRE.JAR" Name="projectlibre.jar" Source="@resourcedir@\projectlibre.jar" />
+			</Component>
+			<Component Id="PROJECTLIBRE.EXE" DiskId="1"
+				Guid="73D9D08E-FE6E-4E09-8431-92EE35066CB9">
+				<File Id="PROJECTLIBRE.EXE" Name="projectlibre.exe" Source="@resourcedir@\projectlibre.exe" />
+                <ProgId Id='ProjectLibrePOD' Description='ProjectLibre POD Project' Advertise="yes" Icon='projectlibre.ico'>
+                    <Extension Id='pod' Advertise="yes">
+                        <Verb Id='open' Command='Open' Argument='"%1"' Sequence="1"/>
+                    </Extension>
+                </ProgId>
+                <!--ProgId Id='ProjectLibreMPP' Description='Microsoft Project MPP' Advertise="yes" Icon='projectlibre.ico'>
+                    <Extension Id='mpp' Advertise="yes">
+                        <Verb Id='open' Command='Open' Argument='"%1"' Sequence="1"/>
+                    </Extension>
+                </ProgId-->
+            </Component>
+			<Component Id="README.HTML" DiskId="1"
+				Guid="A27C2FF7-BC56-4AE0-A365-EC66D7D41B4E">
+				<File Id="README.HTML" Name="readme.html" Source="@resourcedir@\readme.html" />
+			</Component>
+			<Directory Id="LIB" Name="lib">
+				<Component Id="OPENPROJ_CONTRIB.JAR" DiskId="1"
+					Guid="4E1A0CB9-86DB-4834-AD53-214A123573FB">
+					<File Id="OPENPROJ_CONTRIB.JAR" Name="openproj-contrib.jar"
+						Source="@resourcedir@\lib\openproj-contrib.jar" />
+				</Component>
+				<Component Id="OPENPROJ_REPORTS.JAR" DiskId="1"
+					Guid="52A4DE99-5236-42EB-A793-615EE488528C">
+					<File Id="OPENPROJ_REPORTS.JAR" Name="openproj-reports.jar"
+						Source="@resourcedir@\lib\openproj-reports.jar" />
+				</Component>
+				<Component Id="OPENPROJ_SCRIPT.JAR" DiskId="1"
+					Guid="947A3AC5-C490-4AAF-A2BA-6C8C21AC258C">
+					<File Id="OPENPROJ_SCRIPT.JAR" Name="openproj-script.jar"
+						Source="@resourcedir@\lib\openproj-script.jar" />
+				</Component>
+			</Directory>
+			<Directory Id="LICENSE" Name="license">
+				<Component Id="INDEX.HTML" DiskId="1"
+					Guid="6EF0A2BE-CC5C-4B79-9FFF-E9B24BD4A9BA">
+					<File Id="INDEX.HTML" Name="index.html"
+						Source="@resourcedir@\license\index.html" />
+				</Component>
+				<Directory Id="THIRD_PARTY" Name="third-party">
+					<Component Id="ANTLR.TXT" DiskId="1"
+						Guid="8089444A-E073-4CB1-8A15-4357F0E720A4">
+						<File Id="ANTLR.TXT" Name="antlr.txt"
+							Source="@resourcedir@\license\third-party\antlr.txt" />
+					</Component>
+					<Component Id="APACHE_LICENSE_2.0.TXT" DiskId="1"
+						Guid="293FD040-D63F-4D2C-862A-29004B666E02">
+						<File Id="APACHE_LICENSE_2.0.TXT" Name="Apache-LICENSE-2.0.txt"
+							Source="@resourcedir@\license\third-party\Apache-LICENSE-2.0.txt" />
+					</Component>
+					<Component Id="APPLE.TXT" DiskId="1"
+						Guid="B958767A-5EA8-47E7-B1E1-7DF5801033FF">
+						<File Id="APPLE.TXT" Name="apple.txt"
+							Source="@resourcedir@\license\third-party\apple.txt" />
+					</Component>
+					<Component Id="BSD_GENERIC.TXT" DiskId="1"
+						Guid="9AAF2437-789F-4BD9-8332-65B5494F430C">
+						<File Id="BSD_GENERIC.TXT" Name="bsd-generic.txt"
+							Source="@resourcedir@\license\third-party\bsd-generic.txt" />
+					</Component>
+					<Component Id="CDDL.TXT" DiskId="1"
+						Guid="643AF98F-5D6F-4AF0-8E87-1DDD48865EE3">
+						<File Id="CDDL.TXT" Name="CDDL.txt"
+							Source="@resourcedir@\license\third-party\CDDL.txt" />
+					</Component>
+					<Component Id="CPL_1.0.TXT" DiskId="1"
+						Guid="D9088AE3-84C9-4C43-B3A3-98EEFE6B63C2">
+						<File Id="CPL_1.0.TXT" Name="cpl-1.0.txt"
+							Source="@resourcedir@\license\third-party\cpl-1.0.txt" />
+					</Component>
+					<Component Id="GROOVY.TXT" DiskId="1"
+						Guid="D6EB1A16-60AA-4867-B18B-F8C8068CF341">
+						<File Id="GROOVY.TXT" Name="groovy.txt"
+							Source="@resourcedir@\license\third-party\groovy.txt" />
+					</Component>
+					<Component Id="ICAL4J.TXT" DiskId="1"
+						Guid="626A9563-2272-45D6-83BE-9573E38493B8">
+						<File Id="ICAL4J.TXT" Name="iCal4j.txt"
+							Source="@resourcedir@\license\third-party\iCal4j.txt" />
+					</Component>
+					<Component Id="INDEX.HTML_1" DiskId="1"
+						Guid="14EEDF96-AC25-479D-A989-9F5B7DF6510D">
+						<File Id="INDEX.HTML_1" Name="index.html"
+							Source="@resourcedir@\license\third-party\index.html" />
+					</Component>
+					<Component Id="JASPER_LGPL.TXT" DiskId="1"
+						Guid="9159864B-5CD2-475F-85C1-0E0423EBA1FE">
+						<File Id="JASPER_LGPL.TXT" Name="Jasper-LGPL.txt"
+							Source="@resourcedir@\license\third-party\Jasper-LGPL.txt" />
+					</Component>
+					<Component Id="JGOODIES_FORMS.TXT" DiskId="1"
+						Guid="223A7A57-BF22-4663-87A6-F774D150692B">
+						<File Id="JGOODIES_FORMS.TXT" Name="jgoodies-forms.txt"
+							Source="@resourcedir@\license\third-party\jgoodies-forms.txt" />
+					</Component>
+					<Component Id="LGPL_2.1.TXT" DiskId="1"
+						Guid="6C06725B-D414-4F22-BCBE-E3E2ADC172AE">
+						<File Id="LGPL_2.1.TXT" Name="lgpl-2.1.txt"
+							Source="@resourcedir@\license\third-party\lgpl-2.1.txt" />
+					</Component>
+					<Component Id="OSX_ADAPTER.TXT" DiskId="1"
+						Guid="81055435-A896-4687-A94A-42A437FA96D3">
+						<File Id="OSX_ADAPTER.TXT" Name="osx-adapter.txt"
+							Source="@resourcedir@\license\third-party\osx-adapter.txt" />
+					</Component>
+					<Component Id="SUN_JWSDP.TXT" DiskId="1"
+						Guid="12512A5C-3B7B-4DDD-B5AD-50AFE2E8D956">
+						<File Id="SUN_JWSDP.TXT" Name="sun-jwsdp.txt"
+							Source="@resourcedir@\license\third-party\sun-jwsdp.txt" />
+					</Component>
+					<Component Id="SUN.TXT" DiskId="1"
+						Guid="471C501E-6E61-474D-BD4B-B396503E77F9">
+						<File Id="SUN.TXT" Name="sun.txt"
+							Source="@resourcedir@\license\third-party\sun.txt" />
+					</Component>
+					<Component Id="THIRD_PARTY_LICENSES_WITH_BUILD_LIBS.HTML"
+						DiskId="1" Guid="1AEC3E45-8DE7-4FE3-9EDD-75C6D9B0049B">
+						<File Id="THIRD_PARTY_LICENSES_WITH_BUILD_LIBS.HTML" Name="third-party-licenses-with-build-libs.html"
+							Source="@resourcedir@\license\third-party\third-party-licenses-with-build-libs.html" />
+					</Component>
+					<Component Id="XSTREAM.TXT" DiskId="1"
+						Guid="F54316D7-9063-4125-BABD-0C632E778928">
+						<File Id="XSTREAM.TXT" Name="xstream.txt"
+							Source="@resourcedir@\license\third-party\xstream.txt" />
+					</Component>
+				</Directory>
+			</Directory>
+            <Directory Id="JRE" Name="jre">
+                <Component Id="COPYRIGHT" DiskId="1" Guid="F8BFBCC7-1C5B-4882-8C17-3C251FC1B9D2">
+                    <File Id="COPYRIGHT" Name="COPYRIGHT" Source="@resourcedir@\jre\COPYRIGHT" />
+                </Component>
+                <Component Id="LICENSE" DiskId="1" Guid="2E5C17FE-B518-40C5-94F4-EDA9E5E30572">
+                    <File Id="LICENSE" Name="LICENSE" Source="@resourcedir@\jre\LICENSE" />
+                </Component>
+                <Component Id="README.TXT" DiskId="1" Guid="92CD27B6-172C-41DE-82F0-F306C4F875BC">
+                    <File Id="README.TXT" Name="README.txt" Source="@resourcedir@\jre\README.txt" />
+                </Component>
+                <Component Id="RELEASE" DiskId="1" Guid="F0CC14E9-DEF9-493D-98D9-ED9012CD3B49">
+                    <File Id="RELEASE" Name="release" Source="@resourcedir@\jre\release" />
+                </Component>
+                <Component Id="THIRDPARTYLICENSEREADME_JAVAFX.TXT" DiskId="1" Guid="C34479C0-F421-4017-9381-BFB98BA35AA3">
+                    <File Id="THIRDPARTYLICENSEREADME_JAVAFX.TXT" Name="THIRDPARTYLICENSEREADME-JAVAFX.txt" Source="@resourcedir@\jre\THIRDPARTYLICENSEREADME-JAVAFX.txt" />
+                </Component>
+                <Component Id="THIRDPARTYLICENSEREADME.TXT" DiskId="1" Guid="444B8E32-4C93-4969-A8CF-3382AD7D4CFD">
+                    <File Id="THIRDPARTYLICENSEREADME.TXT" Name="THIRDPARTYLICENSEREADME.txt" Source="@resourcedir@\jre\THIRDPARTYLICENSEREADME.txt" />
+                </Component>
+                <Component Id="WELCOME.HTML" DiskId="1" Guid="5D42A297-8102-4F4C-8F54-2EB588CA97E7">
+                    <File Id="WELCOME.HTML" Name="Welcome.html" Source="@resourcedir@\jre\Welcome.html" />
+                </Component>
+                <Directory Id="BIN" Name="bin">
+                    <Component Id="AWT.DLL" DiskId="1" Guid="2B15F504-9180-4E57-9E5F-7749FC53D921">
+                        <File Id="AWT.DLL" Name="awt.dll" Source="@resourcedir@\jre\bin\awt.dll" />
+                    </Component>
+                    <Component Id="BCI.DLL" DiskId="1" Guid="FC7E719F-430A-4B6E-A23D-463F2A480AB1">
+                        <File Id="BCI.DLL" Name="bci.dll" Source="@resourcedir@\jre\bin\bci.dll" />
+                    </Component>
+                    <Component Id="DCPR.DLL" DiskId="1" Guid="83AEEF47-F97D-4AB6-A447-944E5C8C3B32">
+                        <File Id="DCPR.DLL" Name="dcpr.dll" Source="@resourcedir@\jre\bin\dcpr.dll" />
+                    </Component>
+                    <Component Id="DECORA_SSE.DLL" DiskId="1" Guid="526FB25F-933F-436C-BBB2-565D5BCED85E">
+                        <File Id="DECORA_SSE.DLL" Name="decora_sse.dll" Source="@resourcedir@\jre\bin\decora_sse.dll" />
+                    </Component>
+                    <Component Id="DEPLOY.DLL" DiskId="1" Guid="EDF5F661-A5DE-4560-B121-1D6D858EBEB1">
+                        <File Id="DEPLOY.DLL" Name="deploy.dll" Source="@resourcedir@\jre\bin\deploy.dll" />
+                    </Component>
+                    <Component Id="DT_SHMEM.DLL" DiskId="1" Guid="EB2F84F7-814E-4769-8F74-7A52F7A91342">
+                        <File Id="DT_SHMEM.DLL" Name="dt_shmem.dll" Source="@resourcedir@\jre\bin\dt_shmem.dll" />
+                    </Component>
+                    <Component Id="DT_SOCKET.DLL" DiskId="1" Guid="D8604B5A-F0F9-4E87-A6EA-7C78EDA3C5A9">
+                        <File Id="DT_SOCKET.DLL" Name="dt_socket.dll" Source="@resourcedir@\jre\bin\dt_socket.dll" />
+                    </Component>
+                    <Component Id="EULA.DLL" DiskId="1" Guid="928C57D5-E4F3-460B-8275-AE63EAB6A477">
+                        <File Id="EULA.DLL" Name="eula.dll" Source="@resourcedir@\jre\bin\eula.dll" />
+                    </Component>
+                    <Component Id="FONTMANAGER.DLL" DiskId="1" Guid="F9CEB0AC-197F-4831-9DC5-5D4845DC0202">
+                        <File Id="FONTMANAGER.DLL" Name="fontmanager.dll" Source="@resourcedir@\jre\bin\fontmanager.dll" />
+                    </Component>
+                    <Component Id="FXPLUGINS.DLL" DiskId="1" Guid="B31B0863-CE81-41F2-8EA9-EFAD75DF6355">
+                        <File Id="FXPLUGINS.DLL" Name="fxplugins.dll" Source="@resourcedir@\jre\bin\fxplugins.dll" />
+                    </Component>
+                    <Component Id="GLASS.DLL" DiskId="1" Guid="2B0951B7-AD3C-49B9-AB67-09287F788719">
+                        <File Id="GLASS.DLL" Name="glass.dll" Source="@resourcedir@\jre\bin\glass.dll" />
+                    </Component>
+                    <Component Id="GLIB_LITE.DLL" DiskId="1" Guid="C6BDCECC-3DF0-4F17-93D7-30331946627B">
+                        <File Id="GLIB_LITE.DLL" Name="glib-lite.dll" Source="@resourcedir@\jre\bin\glib-lite.dll" />
+                    </Component>
+                    <Component Id="GSTREAMER_LITE.DLL" DiskId="1" Guid="EF95227E-7484-4BB1-B8DF-BBD47998F421">
+                        <File Id="GSTREAMER_LITE.DLL" Name="gstreamer-lite.dll" Source="@resourcedir@\jre\bin\gstreamer-lite.dll" />
+                    </Component>
+                    <Component Id="HPROF.DLL" DiskId="1" Guid="B766D24E-66CA-46C8-8B3D-2064630CFFD4">
+                        <File Id="HPROF.DLL" Name="hprof.dll" Source="@resourcedir@\jre\bin\hprof.dll" />
+                    </Component>
+                    <Component Id="INSTRUMENT.DLL" DiskId="1" Guid="78314F9C-F4A6-4218-8D3D-1E84C6D7C609">
+                        <File Id="INSTRUMENT.DLL" Name="instrument.dll" Source="@resourcedir@\jre\bin\instrument.dll" />
+                    </Component>
+                    <Component Id="J2PCSC.DLL" DiskId="1" Guid="6C22D7A4-7315-4C78-9787-9F5033F59F28">
+                        <File Id="J2PCSC.DLL" Name="j2pcsc.dll" Source="@resourcedir@\jre\bin\j2pcsc.dll" />
+                    </Component>
+                    <Component Id="J2PKCS11.DLL" DiskId="1" Guid="C8FEC588-9740-4FB0-87AE-7A98B697DD7E">
+                        <File Id="J2PKCS11.DLL" Name="j2pkcs11.dll" Source="@resourcedir@\jre\bin\j2pkcs11.dll" />
+                    </Component>
+                    <Component Id="JAAS_NT.DLL" DiskId="1" Guid="41976289-F808-45E5-B2F3-A88556150DD0">
+                        <File Id="JAAS_NT.DLL" Name="jaas_nt.dll" Source="@resourcedir@\jre\bin\jaas_nt.dll" />
+                    </Component>
+                    <Component Id="JABSWITCH.EXE" DiskId="1" Guid="62F28D15-17E4-44C8-977B-57C25B061373">
+                        <File Id="JABSWITCH.EXE" Name="jabswitch.exe" Source="@resourcedir@\jre\bin\jabswitch.exe" />
+                    </Component>
+                    <Component Id="JAVA_RMI.EXE" DiskId="1" Guid="A655D6F0-159A-4495-B5F6-9B390F582910">
+                        <File Id="JAVA_RMI.EXE" Name="java-rmi.exe" Source="@resourcedir@\jre\bin\java-rmi.exe" />
+                    </Component>
+                    <Component Id="JAVA.DLL" DiskId="1" Guid="82F596A3-50EF-4C8E-969A-F720AD2E8677">
+                        <File Id="JAVA.DLL" Name="java.dll" Source="@resourcedir@\jre\bin\java.dll" />
+                    </Component>
+                    <Component Id="JAVA.EXE" DiskId="1" Guid="5D95CFF6-E438-4C69-B098-8895C9719641">
+                        <File Id="JAVA.EXE" Name="java.exe" Source="@resourcedir@\jre\bin\java.exe" />
+                    </Component>
+                    <Component Id="JAVAACCESSBRIDGE_32.DLL" DiskId="1" Guid="E6022638-E9B4-4CA6-BE44-5F4A1997EB9D">
+                        <File Id="JAVAACCESSBRIDGE_32.DLL" Name="JavaAccessBridge-32.dll" Source="@resourcedir@\jre\bin\JavaAccessBridge-32.dll" />
+                    </Component>
+                    <Component Id="JAVAACCESSBRIDGE.DLL" DiskId="1" Guid="30F3B389-8AFB-48D5-A459-5CA2731AB1CF">
+                        <File Id="JAVAACCESSBRIDGE.DLL" Name="JavaAccessBridge.dll" Source="@resourcedir@\jre\bin\JavaAccessBridge.dll" />
+                    </Component>
+                    <Component Id="JAVACPL.CPL" DiskId="1" Guid="2ED88275-E91F-4829-88E8-7884DB7ECA4D">
+                        <File Id="JAVACPL.CPL" Name="javacpl.cpl" Source="@resourcedir@\jre\bin\javacpl.cpl" />
+                    </Component>
+                    <Component Id="JAVACPL.EXE" DiskId="1" Guid="899B9370-27C0-4EF7-B145-9DECB3E4B07F">
+                        <File Id="JAVACPL.EXE" Name="javacpl.exe" Source="@resourcedir@\jre\bin\javacpl.exe" />
+                    </Component>
+                    <Component Id="JAVAFX_FONT.DLL" DiskId="1" Guid="97119C2E-268B-4810-B98D-039FFE685EEF">
+                        <File Id="JAVAFX_FONT.DLL" Name="javafx_font.dll" Source="@resourcedir@\jre\bin\javafx_font.dll" />
+                    </Component>
+                    <Component Id="JAVAFX_FONT_T2K.DLL" DiskId="1" Guid="68F452B3-A34A-46F9-9B23-84E39675F008">
+                        <File Id="JAVAFX_FONT_T2K.DLL" Name="javafx_font_t2k.dll" Source="@resourcedir@\jre\bin\javafx_font_t2k.dll" />
+                    </Component>
+                    <Component Id="JAVAFX_IIO.DLL" DiskId="1" Guid="F7C13027-1EB5-49DC-97E2-6E17054E271C">
+                        <File Id="JAVAFX_IIO.DLL" Name="javafx_iio.dll" Source="@resourcedir@\jre\bin\javafx_iio.dll" />
+                    </Component>
+                    <Component Id="JAVAW.EXE" DiskId="1" Guid="568255A1-7836-4428-8569-96A35E0613B4">
+                        <File Id="JAVAW.EXE" Name="javaw.exe" Source="@resourcedir@\jre\bin\javaw.exe" />
+                    </Component>
+                    <Component Id="JAVAWS.EXE" DiskId="1" Guid="F1752289-E31B-4AB1-B10F-477FFFF2056A">
+                        <File Id="JAVAWS.EXE" Name="javaws.exe" Source="@resourcedir@\jre\bin\javaws.exe" />
+                    </Component>
+                    <Component Id="JAVA_CRW_DEMO.DLL" DiskId="1" Guid="8B4C9FF1-A1C8-4388-9CC6-83F416C30E82">
+                        <File Id="JAVA_CRW_DEMO.DLL" Name="java_crw_demo.dll" Source="@resourcedir@\jre\bin\java_crw_demo.dll" />
+                    </Component>
+                    <Component Id="JAWT.DLL" DiskId="1" Guid="AC098CB7-1CC2-4C26-8B67-AD0590F5D4CF">
+                        <File Id="JAWT.DLL" Name="jawt.dll" Source="@resourcedir@\jre\bin\jawt.dll" />
+                    </Component>
+                    <Component Id="JAWTACCESSBRIDGE_32.DLL" DiskId="1" Guid="61806F7B-2AA3-4A34-BEE6-788E831FAC8E">
+                        <File Id="JAWTACCESSBRIDGE_32.DLL" Name="JAWTAccessBridge-32.dll" Source="@resourcedir@\jre\bin\JAWTAccessBridge-32.dll" />
+                    </Component>
+                    <Component Id="JAWTACCESSBRIDGE.DLL" DiskId="1" Guid="8EFB3115-399B-41D2-B32E-96F16BA02CE5">
+                        <File Id="JAWTACCESSBRIDGE.DLL" Name="JAWTAccessBridge.dll" Source="@resourcedir@\jre\bin\JAWTAccessBridge.dll" />
+                    </Component>
+                    <Component Id="JDWP.DLL" DiskId="1" Guid="85A56757-61ED-4BD8-B568-86A60AAE5069">
+                        <File Id="JDWP.DLL" Name="jdwp.dll" Source="@resourcedir@\jre\bin\jdwp.dll" />
+                    </Component>
+                    <Component Id="JFR.DLL" DiskId="1" Guid="62B76C17-D46E-4F0C-BDEB-A7B39231289F">
+                        <File Id="JFR.DLL" Name="jfr.dll" Source="@resourcedir@\jre\bin\jfr.dll" />
+                    </Component>
+                    <Component Id="JFXMEDIA.DLL" DiskId="1" Guid="8193C091-288A-4CC0-B95F-1963895C22CA">
+                        <File Id="JFXMEDIA.DLL" Name="jfxmedia.dll" Source="@resourcedir@\jre\bin\jfxmedia.dll" />
+                    </Component>
+                    <Component Id="JFXWEBKIT.DLL" DiskId="1" Guid="5026F5D7-1C2E-4D6F-B9E5-3B2A4DE14928">
+                        <File Id="JFXWEBKIT.DLL" Name="jfxwebkit.dll" Source="@resourcedir@\jre\bin\jfxwebkit.dll" />
+                    </Component>
+                    <Component Id="JJS.EXE" DiskId="1" Guid="C3974DED-072D-4704-A459-AB4BF0A2405A">
+                        <File Id="JJS.EXE" Name="jjs.exe" Source="@resourcedir@\jre\bin\jjs.exe" />
+                    </Component>
+                    <Component Id="JLI.DLL" DiskId="1" Guid="948D8B7E-C2A0-4E0C-A3DE-DB11855283E3">
+                        <File Id="JLI.DLL" Name="jli.dll" Source="@resourcedir@\jre\bin\jli.dll" />
+                    </Component>
+                    <Component Id="JP2IEXP.DLL" DiskId="1" Guid="848B046F-EE87-4D1B-A1AF-B8E01314263C">
+                        <File Id="JP2IEXP.DLL" Name="jp2iexp.dll" Source="@resourcedir@\jre\bin\jp2iexp.dll" />
+                    </Component>
+                    <Component Id="JP2LAUNCHER.EXE" DiskId="1" Guid="62113C8A-9693-4718-8D88-BF1D088D4E08">
+                        <File Id="JP2LAUNCHER.EXE" Name="jp2launcher.exe" Source="@resourcedir@\jre\bin\jp2launcher.exe" />
+                    </Component>
+                    <Component Id="JP2NATIVE.DLL" DiskId="1" Guid="E83B86A4-E086-4530-B60A-6A049E586EC6">
+                        <File Id="JP2NATIVE.DLL" Name="jp2native.dll" Source="@resourcedir@\jre\bin\jp2native.dll" />
+                    </Component>
+                    <Component Id="JP2SSV.DLL" DiskId="1" Guid="86747AE5-1E14-43DF-8F1C-CC55B48A5EF8">
+                        <File Id="JP2SSV.DLL" Name="jp2ssv.dll" Source="@resourcedir@\jre\bin\jp2ssv.dll" />
+                    </Component>
+                    <Component Id="JPEG.DLL" DiskId="1" Guid="B84021F5-DE04-420B-8314-F07DE7F6AEB0">
+                        <File Id="JPEG.DLL" Name="jpeg.dll" Source="@resourcedir@\jre\bin\jpeg.dll" />
+                    </Component>
+                    <Component Id="JSDT.DLL" DiskId="1" Guid="27A6AC18-E4DF-418E-85EB-A72352FA841D">
+                        <File Id="JSDT.DLL" Name="jsdt.dll" Source="@resourcedir@\jre\bin\jsdt.dll" />
+                    </Component>
+                    <Component Id="JSOUND.DLL" DiskId="1" Guid="97028C43-3CA3-4FC2-9CA6-4BA2285D447E">
+                        <File Id="JSOUND.DLL" Name="jsound.dll" Source="@resourcedir@\jre\bin\jsound.dll" />
+                    </Component>
+                    <Component Id="JSOUNDDS.DLL" DiskId="1" Guid="910D75C5-EDC3-439A-8498-811F938ADB2C">
+                        <File Id="JSOUNDDS.DLL" Name="jsoundds.dll" Source="@resourcedir@\jre\bin\jsoundds.dll" />
+                    </Component>
+                    <Component Id="KCMS.DLL" DiskId="1" Guid="58258692-12D5-47A9-9F71-A3FAD1ACD851">
+                        <File Id="KCMS.DLL" Name="kcms.dll" Source="@resourcedir@\jre\bin\kcms.dll" />
+                    </Component>
+                    <Component Id="KEYTOOL.EXE" DiskId="1" Guid="2F000022-FD1B-46A7-8906-25EE6F3449B5">
+                        <File Id="KEYTOOL.EXE" Name="keytool.exe" Source="@resourcedir@\jre\bin\keytool.exe" />
+                    </Component>
+                    <Component Id="KINIT.EXE" DiskId="1" Guid="0D27D018-A08D-4F22-8210-2E1CB5ABA54F">
+                        <File Id="KINIT.EXE" Name="kinit.exe" Source="@resourcedir@\jre\bin\kinit.exe" />
+                    </Component>
+                    <Component Id="KLIST.EXE" DiskId="1" Guid="E3401F24-CC9A-4700-ADDA-B4851E917C3B">
+                        <File Id="KLIST.EXE" Name="klist.exe" Source="@resourcedir@\jre\bin\klist.exe" />
+                    </Component>
+                    <Component Id="KTAB.EXE" DiskId="1" Guid="538C6FFF-808E-4D49-8459-107FDC464BCE">
+                        <File Id="KTAB.EXE" Name="ktab.exe" Source="@resourcedir@\jre\bin\ktab.exe" />
+                    </Component>
+                    <Component Id="LCMS.DLL" DiskId="1" Guid="38C73673-5EB1-47C8-9B2D-11E861AA63E5">
+                        <File Id="LCMS.DLL" Name="lcms.dll" Source="@resourcedir@\jre\bin\lcms.dll" />
+                    </Component>
+                    <Component Id="MANAGEMENT.DLL" DiskId="1" Guid="4A1BE451-AAE6-48AE-981A-5DBD525644D6">
+                        <File Id="MANAGEMENT.DLL" Name="management.dll" Source="@resourcedir@\jre\bin\management.dll" />
+                    </Component>
+                    <Component Id="MLIB_IMAGE.DLL" DiskId="1" Guid="0DED8C31-6021-4729-97B3-15CB003F2CAC">
+                        <File Id="MLIB_IMAGE.DLL" Name="mlib_image.dll" Source="@resourcedir@\jre\bin\mlib_image.dll" />
+                    </Component>
+                    <Component Id="MSVCP120.DLL" DiskId="1" Guid="AAF6E2FC-A976-469E-871F-B007690FD57A">
+                        <File Id="MSVCP120.DLL" Name="msvcp120.dll" Source="@resourcedir@\jre\bin\msvcp120.dll" />
+                    </Component>
+                    <Component Id="MSVCR100.DLL" DiskId="1" Guid="38E27ACA-C321-483A-B1C5-5C858ABC015D">
+                        <File Id="MSVCR100.DLL" Name="msvcr100.dll" Source="@resourcedir@\jre\bin\msvcr100.dll" />
+                    </Component>
+                    <Component Id="MSVCR120.DLL" DiskId="1" Guid="657606FE-B7EF-4218-9E3A-02E605DA7BE6">
+                        <File Id="MSVCR120.DLL" Name="msvcr120.dll" Source="@resourcedir@\jre\bin\msvcr120.dll" />
+                    </Component>
+                    <Component Id="NET.DLL" DiskId="1" Guid="F51EEC37-D50D-4749-AC9F-1E82D5970056">
+                        <File Id="NET.DLL" Name="net.dll" Source="@resourcedir@\jre\bin\net.dll" />
+                    </Component>
+                    <Component Id="NIO.DLL" DiskId="1" Guid="B7875198-A4DC-41C1-BB1D-BF56BAC6B3C9">
+                        <File Id="NIO.DLL" Name="nio.dll" Source="@resourcedir@\jre\bin\nio.dll" />
+                    </Component>
+                    <Component Id="NPT.DLL" DiskId="1" Guid="17C06C94-3906-47D4-AE4F-A459BF2036C3">
+                        <File Id="NPT.DLL" Name="npt.dll" Source="@resourcedir@\jre\bin\npt.dll" />
+                    </Component>
+                    <Component Id="ORBD.EXE" DiskId="1" Guid="17575485-6F67-4B06-A2E9-DBD3FB4C5BCE">
+                        <File Id="ORBD.EXE" Name="orbd.exe" Source="@resourcedir@\jre\bin\orbd.exe" />
+                    </Component>
+                    <Component Id="PACK200.EXE" DiskId="1" Guid="49F3D753-111D-4596-95FF-45E0E1385386">
+                        <File Id="PACK200.EXE" Name="pack200.exe" Source="@resourcedir@\jre\bin\pack200.exe" />
+                    </Component>
+                    <Component Id="POLICYTOOL.EXE" DiskId="1" Guid="A915FCBE-E737-4C3A-959F-76E9F88AB7AE">
+                        <File Id="POLICYTOOL.EXE" Name="policytool.exe" Source="@resourcedir@\jre\bin\policytool.exe" />
+                    </Component>
+                    <Component Id="PRISM_COMMON.DLL" DiskId="1" Guid="6D2BBF3E-B303-4196-8BAA-FEEC34E23D9C">
+                        <File Id="PRISM_COMMON.DLL" Name="prism_common.dll" Source="@resourcedir@\jre\bin\prism_common.dll" />
+                    </Component>
+                    <Component Id="PRISM_D3D.DLL" DiskId="1" Guid="DD56F98D-98F0-41C2-9872-DE6CAE38E524">
+                        <File Id="PRISM_D3D.DLL" Name="prism_d3d.dll" Source="@resourcedir@\jre\bin\prism_d3d.dll" />
+                    </Component>
+                    <Component Id="PRISM_SW.DLL" DiskId="1" Guid="CF382D4D-F9CB-485F-8628-2F289300D22A">
+                        <File Id="PRISM_SW.DLL" Name="prism_sw.dll" Source="@resourcedir@\jre\bin\prism_sw.dll" />
+                    </Component>
+                    <Component Id="RESOURCE.DLL" DiskId="1" Guid="08EFF45D-C067-4113-8CD6-76C0FBA02B8E">
+                        <File Id="RESOURCE.DLL" Name="resource.dll" Source="@resourcedir@\jre\bin\resource.dll" />
+                    </Component>
+                    <Component Id="RMID.EXE" DiskId="1" Guid="7F58F051-FBB5-424C-8A46-4E8F1761305F">
+                        <File Id="RMID.EXE" Name="rmid.exe" Source="@resourcedir@\jre\bin\rmid.exe" />
+                    </Component>
+                    <Component Id="RMIREGISTRY.EXE" DiskId="1" Guid="9EE3BB59-C144-46AF-9565-247CAC092945">
+                        <File Id="RMIREGISTRY.EXE" Name="rmiregistry.exe" Source="@resourcedir@\jre\bin\rmiregistry.exe" />
+                    </Component>
+                    <Component Id="SERVERTOOL.EXE" DiskId="1" Guid="EAD83128-5649-4E0C-8D29-78D3CCD3124D">
+                        <File Id="SERVERTOOL.EXE" Name="servertool.exe" Source="@resourcedir@\jre\bin\servertool.exe" />
+                    </Component>
+                    <Component Id="SPLASHSCREEN.DLL" DiskId="1" Guid="16BA355F-AEDE-4202-9CF1-D8D42EE9A67C">
+                        <File Id="SPLASHSCREEN.DLL" Name="splashscreen.dll" Source="@resourcedir@\jre\bin\splashscreen.dll" />
+                    </Component>
+                    <Component Id="SSV.DLL" DiskId="1" Guid="D24D4799-2BAA-4060-B11E-81227D16A5C7">
+                        <File Id="SSV.DLL" Name="ssv.dll" Source="@resourcedir@\jre\bin\ssv.dll" />
+                    </Component>
+                    <Component Id="SSVAGENT.EXE" DiskId="1" Guid="B50A5F8A-4929-4442-B466-8D8E194D8033">
+                        <File Id="SSVAGENT.EXE" Name="ssvagent.exe" Source="@resourcedir@\jre\bin\ssvagent.exe" />
+                    </Component>
+                    <Component Id="SUNEC.DLL" DiskId="1" Guid="FEB4699E-EFDD-45C6-BDD6-78D14F4DE8C1">
+                        <File Id="SUNEC.DLL" Name="sunec.dll" Source="@resourcedir@\jre\bin\sunec.dll" />
+                    </Component>
+                    <Component Id="SUNMSCAPI.DLL" DiskId="1" Guid="0E7657D8-4EA0-485E-BE20-765B191C8308">
+                        <File Id="SUNMSCAPI.DLL" Name="sunmscapi.dll" Source="@resourcedir@\jre\bin\sunmscapi.dll" />
+                    </Component>
+                    <Component Id="T2K.DLL" DiskId="1" Guid="EB5E8676-5ACA-4ACE-A227-3B9FE999FC4A">
+                        <File Id="T2K.DLL" Name="t2k.dll" Source="@resourcedir@\jre\bin\t2k.dll" />
+                    </Component>
+                    <Component Id="TNAMESERV.EXE" DiskId="1" Guid="DD815BCB-AF27-42E2-9E4B-49AA975EACE9">
+                        <File Id="TNAMESERV.EXE" Name="tnameserv.exe" Source="@resourcedir@\jre\bin\tnameserv.exe" />
+                    </Component>
+                    <Component Id="UNPACK.DLL" DiskId="1" Guid="07440347-C4B2-452C-8AE1-C89AD9D02F2B">
+                        <File Id="UNPACK.DLL" Name="unpack.dll" Source="@resourcedir@\jre\bin\unpack.dll" />
+                    </Component>
+                    <Component Id="UNPACK200.EXE" DiskId="1" Guid="89927802-6342-4027-A1FE-3FBD55F1C00E">
+                        <File Id="UNPACK200.EXE" Name="unpack200.exe" Source="@resourcedir@\jre\bin\unpack200.exe" />
+                    </Component>
+                    <Component Id="VERIFY.DLL" DiskId="1" Guid="F482F74D-8679-4A81-9FA3-50EF09C1F97D">
+                        <File Id="VERIFY.DLL" Name="verify.dll" Source="@resourcedir@\jre\bin\verify.dll" />
+                    </Component>
+                    <Component Id="W2K_LSA_AUTH.DLL" DiskId="1" Guid="93464F26-CA16-4F50-8097-78DF4B685869">
+                        <File Id="W2K_LSA_AUTH.DLL" Name="w2k_lsa_auth.dll" Source="@resourcedir@\jre\bin\w2k_lsa_auth.dll" />
+                    </Component>
+                    <Component Id="WINDOWSACCESSBRIDGE_32.DLL" DiskId="1" Guid="8DB91AA3-D69D-4E5D-AD9F-CCB379B9C6C8">
+                        <File Id="WINDOWSACCESSBRIDGE_32.DLL" Name="WindowsAccessBridge-32.dll" Source="@resourcedir@\jre\bin\WindowsAccessBridge-32.dll" />
+                    </Component>
+                    <Component Id="WINDOWSACCESSBRIDGE.DLL" DiskId="1" Guid="C8C0F84D-A9E9-4729-ADA3-8DFA745D2D41">
+                        <File Id="WINDOWSACCESSBRIDGE.DLL" Name="WindowsAccessBridge.dll" Source="@resourcedir@\jre\bin\WindowsAccessBridge.dll" />
+                    </Component>
+                    <Component Id="WSDETECT.DLL" DiskId="1" Guid="FB0320AA-1A3B-473D-B2B7-D7539A5963EA">
+                        <File Id="WSDETECT.DLL" Name="wsdetect.dll" Source="@resourcedir@\jre\bin\wsdetect.dll" />
+                    </Component>
+                    <Component Id="ZIP.DLL" DiskId="1" Guid="3E7D3B5B-C10C-4C3D-BF64-81E1E429D158">
+                        <File Id="ZIP.DLL" Name="zip.dll" Source="@resourcedir@\jre\bin\zip.dll" />
+                    </Component>
+                    <Directory Id="CLIENT" Name="client">
+                        <Component Id="JVM.DLL" DiskId="1" Guid="EED05B04-F97F-4650-B885-721E46145C2C">
+                            <File Id="JVM.DLL" Name="jvm.dll" Source="@resourcedir@\jre\bin\client\jvm.dll" />
+                        </Component>
+                        <Component Id="XUSAGE.TXT" DiskId="1" Guid="4B8B4B11-FBB7-4A7F-B193-F99216C4E929">
+                            <File Id="XUSAGE.TXT" Name="Xusage.txt" Source="@resourcedir@\jre\bin\client\Xusage.txt" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="DTPLUGIN" Name="dtplugin">
+                        <Component Id="DEPLOYJAVA1.DLL" DiskId="1" Guid="FD86E4EA-10BB-439A-85E6-F5A203CF9ABC">
+                            <File Id="DEPLOYJAVA1.DLL" Name="deployJava1.dll" Source="@resourcedir@\jre\bin\dtplugin\deployJava1.dll" />
+                        </Component>
+                        <Component Id="NPDEPLOYJAVA1.DLL" DiskId="1" Guid="4B3B97E9-B8E6-496D-AE35-6D72BFF068D2">
+                            <File Id="NPDEPLOYJAVA1.DLL" Name="npdeployJava1.dll" Source="@resourcedir@\jre\bin\dtplugin\npdeployJava1.dll" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="PLUGIN2" Name="plugin2">
+                        <Component Id="MSVCR100.DLL_1" DiskId="1" Guid="CEC17A33-23BF-414A-9444-7A19351434B0">
+                            <File Id="MSVCR100.DLL_1" Name="msvcr100.dll" Source="@resourcedir@\jre\bin\plugin2\msvcr100.dll" />
+                        </Component>
+                        <Component Id="NPJP2.DLL" DiskId="1" Guid="20595253-F4AF-4291-90F6-C200FBE515D6">
+                            <File Id="NPJP2.DLL" Name="npjp2.dll" Source="@resourcedir@\jre\bin\plugin2\npjp2.dll" />
+                        </Component>
+                    </Directory>
+                </Directory>
+                <Directory Id="LIB_1" Name="lib">
+                    <Component Id="ACCESSIBILITY.PROPERTIES" DiskId="1" Guid="5E75D1DE-3E67-4500-B8D6-53782D7E4797">
+                        <File Id="ACCESSIBILITY.PROPERTIES" Name="accessibility.properties" Source="@resourcedir@\jre\lib\accessibility.properties" />
+                    </Component>
+                    <Component Id="CALENDARS.PROPERTIES" DiskId="1" Guid="18891035-B4C9-4D82-A4E3-03D87D5A3772">
+                        <File Id="CALENDARS.PROPERTIES" Name="calendars.properties" Source="@resourcedir@\jre\lib\calendars.properties" />
+                    </Component>
+                    <Component Id="CHARSETS.JAR" DiskId="1" Guid="55D575C0-2C2C-4FE3-AA19-E14E870305F9">
+                        <File Id="CHARSETS.JAR" Name="charsets.jar" Source="@resourcedir@\jre\lib\charsets.jar" />
+                    </Component>
+                    <Component Id="CLASSLIST" DiskId="1" Guid="4BF5164C-44BC-4044-B5F9-2DAEC33BE189">
+                        <File Id="CLASSLIST" Name="classlist" Source="@resourcedir@\jre\lib\classlist" />
+                    </Component>
+                    <Component Id="CONTENT_TYPES.PROPERTIES" DiskId="1" Guid="45A5D009-E7D2-4F6A-A66F-6D62416CA063">
+                        <File Id="CONTENT_TYPES.PROPERTIES" Name="content-types.properties" Source="@resourcedir@\jre\lib\content-types.properties" />
+                    </Component>
+                    <Component Id="CURRENCY.DATA" DiskId="1" Guid="30238191-CAA6-426D-9F4A-AC219105E9BC">
+                        <File Id="CURRENCY.DATA" Name="currency.data" Source="@resourcedir@\jre\lib\currency.data" />
+                    </Component>
+                    <Component Id="DEPLOY.JAR" DiskId="1" Guid="C96B0F75-DA87-414A-BCBA-4E11B4A1D587">
+                        <File Id="DEPLOY.JAR" Name="deploy.jar" Source="@resourcedir@\jre\lib\deploy.jar" />
+                    </Component>
+                    <Component Id="FLAVORMAP.PROPERTIES" DiskId="1" Guid="EDE5AF8A-CEA7-46D2-9590-FDC465594EC2">
+                        <File Id="FLAVORMAP.PROPERTIES" Name="flavormap.properties" Source="@resourcedir@\jre\lib\flavormap.properties" />
+                    </Component>
+                    <Component Id="FONTCONFIG.BFC" DiskId="1" Guid="293F33B0-FEA2-431B-B633-F0E5602E43D0">
+                        <File Id="FONTCONFIG.BFC" Name="fontconfig.bfc" Source="@resourcedir@\jre\lib\fontconfig.bfc" />
+                    </Component>
+                    <Component Id="FONTCONFIG.PROPERTIES.SRC" DiskId="1" Guid="2E107C26-9328-4DA7-A87C-C73C7C27A9AC">
+                        <File Id="FONTCONFIG.PROPERTIES.SRC" Name="fontconfig.properties.src" Source="@resourcedir@\jre\lib\fontconfig.properties.src" />
+                    </Component>
+                    <Component Id="HIJRAH_CONFIG_UMALQURA.PROPERTIES" DiskId="1" Guid="B694566C-BCE5-4469-AD63-415A24472D6C">
+                        <File Id="HIJRAH_CONFIG_UMALQURA.PROPERTIES" Name="hijrah-config-umalqura.properties" Source="@resourcedir@\jre\lib\hijrah-config-umalqura.properties" />
+                    </Component>
+                    <Component Id="JAVAFX.PROPERTIES" DiskId="1" Guid="9906DDAC-628B-4AFF-AAE9-A611736B46B0">
+                        <File Id="JAVAFX.PROPERTIES" Name="javafx.properties" Source="@resourcedir@\jre\lib\javafx.properties" />
+                    </Component>
+                    <Component Id="JAVAWS.JAR" DiskId="1" Guid="B06170E9-6723-4BF8-BEE1-62FD0657A5B8">
+                        <File Id="JAVAWS.JAR" Name="javaws.jar" Source="@resourcedir@\jre\lib\javaws.jar" />
+                    </Component>
+                    <Component Id="JCE.JAR" DiskId="1" Guid="00F68291-52F7-4828-8515-84BF7A53B807">
+                        <File Id="JCE.JAR" Name="jce.jar" Source="@resourcedir@\jre\lib\jce.jar" />
+                    </Component>
+                    <Component Id="JFR.JAR" DiskId="1" Guid="DC93BFF5-6620-4A0B-A40A-B54A45C35AC4">
+                        <File Id="JFR.JAR" Name="jfr.jar" Source="@resourcedir@\jre\lib\jfr.jar" />
+                    </Component>
+                    <Component Id="JFXSWT.JAR" DiskId="1" Guid="7DE22018-1C90-411B-A98E-312EC8A6BC89">
+                        <File Id="JFXSWT.JAR" Name="jfxswt.jar" Source="@resourcedir@\jre\lib\jfxswt.jar" />
+                    </Component>
+                    <Component Id="JSSE.JAR" DiskId="1" Guid="F0923941-5CF5-4E47-9E84-1F2423FD5F70">
+                        <File Id="JSSE.JAR" Name="jsse.jar" Source="@resourcedir@\jre\lib\jsse.jar" />
+                    </Component>
+                    <Component Id="JVM.HPROF.TXT" DiskId="1" Guid="23A47196-E40E-4122-BC16-6FB257E68A49">
+                        <File Id="JVM.HPROF.TXT" Name="jvm.hprof.txt" Source="@resourcedir@\jre\lib\jvm.hprof.txt" />
+                    </Component>
+                    <Component Id="LOGGING.PROPERTIES" DiskId="1" Guid="30C397A4-3FE5-4916-B233-4478297E6D2E">
+                        <File Id="LOGGING.PROPERTIES" Name="logging.properties" Source="@resourcedir@\jre\lib\logging.properties" />
+                    </Component>
+                    <Component Id="MANAGEMENT_AGENT.JAR" DiskId="1" Guid="F6B7D453-064C-4428-B48C-BC54541F37A6">
+                        <File Id="MANAGEMENT_AGENT.JAR" Name="management-agent.jar" Source="@resourcedir@\jre\lib\management-agent.jar" />
+                    </Component>
+                    <Component Id="META_INDEX" DiskId="1" Guid="0E5F4D30-CFD7-42B7-BBE9-C4D79B0B1033">
+                        <File Id="META_INDEX" Name="meta-index" Source="@resourcedir@\jre\lib\meta-index" />
+                    </Component>
+                    <Component Id="NET.PROPERTIES" DiskId="1" Guid="CCD45A68-5E3D-4FB7-9C59-5769EBB831A4">
+                        <File Id="NET.PROPERTIES" Name="net.properties" Source="@resourcedir@\jre\lib\net.properties" />
+                    </Component>
+                    <Component Id="PLUGIN.JAR" DiskId="1" Guid="D0C6DF80-3091-4379-9EDE-A53C9E3B3AA1">
+                        <File Id="PLUGIN.JAR" Name="plugin.jar" Source="@resourcedir@\jre\lib\plugin.jar" />
+                    </Component>
+                    <Component Id="PSFONT.PROPERTIES.JA" DiskId="1" Guid="DD127AE8-2A05-418E-BD0C-6584DC62CE75">
+                        <File Id="PSFONT.PROPERTIES.JA" Name="psfont.properties.ja" Source="@resourcedir@\jre\lib\psfont.properties.ja" />
+                    </Component>
+                    <Component Id="PSFONTJ2D.PROPERTIES" DiskId="1" Guid="57F2CC41-9C40-4015-A2E9-D451BFB4AE42">
+                        <File Id="PSFONTJ2D.PROPERTIES" Name="psfontj2d.properties" Source="@resourcedir@\jre\lib\psfontj2d.properties" />
+                    </Component>
+                    <Component Id="RESOURCES.JAR" DiskId="1" Guid="CEC5CC57-4181-44C3-822B-39CCE3D1DB97">
+                        <File Id="RESOURCES.JAR" Name="resources.jar" Source="@resourcedir@\jre\lib\resources.jar" />
+                    </Component>
+                    <Component Id="RT.JAR" DiskId="1" Guid="00B35B6B-F7A6-4939-BEE6-5328B30E68C3">
+                        <File Id="RT.JAR" Name="rt.jar" Source="@resourcedir@\jre\lib\rt.jar" />
+                    </Component>
+                    <Component Id="SOUND.PROPERTIES" DiskId="1" Guid="42CD273C-D25F-4952-B25F-F0FE6FF2730E">
+                        <File Id="SOUND.PROPERTIES" Name="sound.properties" Source="@resourcedir@\jre\lib\sound.properties" />
+                    </Component>
+                    <Component Id="TZDB.DAT" DiskId="1" Guid="6103A736-242B-4B58-8C7C-37B522981416">
+                        <File Id="TZDB.DAT" Name="tzdb.dat" Source="@resourcedir@\jre\lib\tzdb.dat" />
+                    </Component>
+                    <Component Id="TZMAPPINGS" DiskId="1" Guid="6E92614F-FE98-459F-8ED4-6B6898FBDDBD">
+                        <File Id="TZMAPPINGS" Name="tzmappings" Source="@resourcedir@\jre\lib\tzmappings" />
+                    </Component>
+                    <Directory Id="APPLET" Name="applet" />
+                    <Directory Id="CMM" Name="cmm">
+                        <Component Id="CIEXYZ.PF" DiskId="1" Guid="08A1DB34-51F8-425E-869F-0477911FEC41">
+                            <File Id="CIEXYZ.PF" Name="CIEXYZ.pf" Source="@resourcedir@\jre\lib\cmm\CIEXYZ.pf" />
+                        </Component>
+                        <Component Id="GRAY.PF" DiskId="1" Guid="9D4F6C7A-13E0-4462-9EF6-E1A1438D7353">
+                            <File Id="GRAY.PF" Name="GRAY.pf" Source="@resourcedir@\jre\lib\cmm\GRAY.pf" />
+                        </Component>
+                        <Component Id="LINEAR_RGB.PF" DiskId="1" Guid="0B5EC0DC-8087-4BFC-BBA4-C1EA9C36CFF8">
+                            <File Id="LINEAR_RGB.PF" Name="LINEAR_RGB.pf" Source="@resourcedir@\jre\lib\cmm\LINEAR_RGB.pf" />
+                        </Component>
+                        <Component Id="PYCC.PF" DiskId="1" Guid="A0AD124D-5D6D-48EE-99B0-1EE45B4660BC">
+                            <File Id="PYCC.PF" Name="PYCC.pf" Source="@resourcedir@\jre\lib\cmm\PYCC.pf" />
+                        </Component>
+                        <Component Id="SRGB.PF" DiskId="1" Guid="1CCA7458-32DA-4799-87F9-F9819BDDD506">
+                            <File Id="SRGB.PF" Name="sRGB.pf" Source="@resourcedir@\jre\lib\cmm\sRGB.pf" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="DEPLOY" Name="deploy">
+                        <Component Id="FFJCEXT.ZIP" DiskId="1" Guid="1B4C1F49-8E81-4ADF-8818-43B540E15FF1">
+                            <File Id="FFJCEXT.ZIP" Name="ffjcext.zip" Source="@resourcedir@\jre\lib\deploy\ffjcext.zip" />
+                        </Component>
+                        <Component Id="MESSAGES.PROPERTIES" DiskId="1" Guid="689B4E1A-5C2A-45A6-B7C5-4314BDA4D7E8">
+                            <File Id="MESSAGES.PROPERTIES" Name="messages.properties" Source="@resourcedir@\jre\lib\deploy\messages.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_DE.PROPERTIES" DiskId="1" Guid="24ED5BE7-6824-42D2-B6A3-A19DD7FB7E65">
+                            <File Id="MESSAGES_DE.PROPERTIES" Name="messages_de.properties" Source="@resourcedir@\jre\lib\deploy\messages_de.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_ES.PROPERTIES" DiskId="1" Guid="B139ECAE-37B8-4D67-9C5C-EB6B674C0725">
+                            <File Id="MESSAGES_ES.PROPERTIES" Name="messages_es.properties" Source="@resourcedir@\jre\lib\deploy\messages_es.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_FR.PROPERTIES" DiskId="1" Guid="D26E31C1-E634-4FD6-9776-DB61332691AF">
+                            <File Id="MESSAGES_FR.PROPERTIES" Name="messages_fr.properties" Source="@resourcedir@\jre\lib\deploy\messages_fr.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_IT.PROPERTIES" DiskId="1" Guid="0687C9A8-632C-4B25-A109-E5557546D3FB">
+                            <File Id="MESSAGES_IT.PROPERTIES" Name="messages_it.properties" Source="@resourcedir@\jre\lib\deploy\messages_it.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_JA.PROPERTIES" DiskId="1" Guid="1F92B5EA-B7E8-45EC-AB8F-15A917A7E2C9">
+                            <File Id="MESSAGES_JA.PROPERTIES" Name="messages_ja.properties" Source="@resourcedir@\jre\lib\deploy\messages_ja.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_KO.PROPERTIES" DiskId="1" Guid="3C263D96-C6B3-4DDB-9DAD-E5476601F853">
+                            <File Id="MESSAGES_KO.PROPERTIES" Name="messages_ko.properties" Source="@resourcedir@\jre\lib\deploy\messages_ko.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_PT_BR.PROPERTIES" DiskId="1" Guid="C316800C-8F50-4B74-9E02-DBA1B336C533">
+                            <File Id="MESSAGES_PT_BR.PROPERTIES" Name="messages_pt_BR.properties" Source="@resourcedir@\jre\lib\deploy\messages_pt_BR.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_SV.PROPERTIES" DiskId="1" Guid="2418D1AE-8523-4FD4-A476-749E0E8571DA">
+                            <File Id="MESSAGES_SV.PROPERTIES" Name="messages_sv.properties" Source="@resourcedir@\jre\lib\deploy\messages_sv.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_ZH_CN.PROPERTIES" DiskId="1" Guid="62B90F3B-7E8B-4A98-BAE1-B4A0F6B01F27">
+                            <File Id="MESSAGES_ZH_CN.PROPERTIES" Name="messages_zh_CN.properties" Source="@resourcedir@\jre\lib\deploy\messages_zh_CN.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_ZH_HK.PROPERTIES" DiskId="1" Guid="A733EF58-2D5F-4B82-9AE0-2A0E16751BF0">
+                            <File Id="MESSAGES_ZH_HK.PROPERTIES" Name="messages_zh_HK.properties" Source="@resourcedir@\jre\lib\deploy\messages_zh_HK.properties" />
+                        </Component>
+                        <Component Id="MESSAGES_ZH_TW.PROPERTIES" DiskId="1" Guid="66E5C7EE-0A18-4817-AD37-CB582B30C691">
+                            <File Id="MESSAGES_ZH_TW.PROPERTIES" Name="messages_zh_TW.properties" Source="@resourcedir@\jre\lib\deploy\messages_zh_TW.properties" />
+                        </Component>
+                        <Component Id="SPLASH.GIF" DiskId="1" Guid="24E20A2F-93F7-41F6-B912-9D25E6D20C57">
+                            <File Id="SPLASH.GIF" Name="splash.gif" Source="@resourcedir@\jre\lib\deploy\splash.gif" />
+                        </Component>
+                        <Component Id="SPLASH_2X.GIF" DiskId="1" Guid="BD73DBDA-0F28-4820-B0A6-B8E7EC90BE90">
+                            <File Id="SPLASH_2X.GIF" Name="splash@2x.gif" Source="@resourcedir@\jre\lib\deploy\splash@2x.gif" />
+                        </Component>
+                        <Component Id="SPLASH_11_LIC.GIF" DiskId="1" Guid="B30D0A28-7E2D-4DD3-AD23-7D4D30664D46">
+                            <File Id="SPLASH_11_LIC.GIF" Name="splash_11-lic.gif" Source="@resourcedir@\jre\lib\deploy\splash_11-lic.gif" />
+                        </Component>
+                        <Component Id="SPLASH_11_2X_LIC.GIF" DiskId="1" Guid="04C7BC49-A10C-4291-B733-CF6FF5A54E64">
+                            <File Id="SPLASH_11_2X_LIC.GIF" Name="splash_11@2x-lic.gif" Source="@resourcedir@\jre\lib\deploy\splash_11@2x-lic.gif" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="EXT" Name="ext">
+                        <Component Id="ACCESS_BRIDGE_32.JAR" DiskId="1" Guid="E0655E04-3A62-4199-98F8-CFC09E5FB1E6">
+                            <File Id="ACCESS_BRIDGE_32.JAR" Name="access-bridge-32.jar" Source="@resourcedir@\jre\lib\ext\access-bridge-32.jar" />
+                        </Component>
+                        <Component Id="ACCESS_BRIDGE.JAR" DiskId="1" Guid="2D21CF58-BBE4-448A-8B70-8814612C69A9">
+                            <File Id="ACCESS_BRIDGE.JAR" Name="access-bridge.jar" Source="@resourcedir@\jre\lib\ext\access-bridge.jar" />
+                        </Component>
+                        <Component Id="CLDRDATA.JAR" DiskId="1" Guid="02761D9E-AA14-4600-9A27-9B680D02D1C5">
+                            <File Id="CLDRDATA.JAR" Name="cldrdata.jar" Source="@resourcedir@\jre\lib\ext\cldrdata.jar" />
+                        </Component>
+                        <Component Id="DNSNS.JAR" DiskId="1" Guid="7CED681A-CA3A-42E4-BFA9-27B2361529E9">
+                            <File Id="DNSNS.JAR" Name="dnsns.jar" Source="@resourcedir@\jre\lib\ext\dnsns.jar" />
+                        </Component>
+                        <Component Id="JACCESS.JAR" DiskId="1" Guid="78D17F0C-364D-435B-BE52-4EA25DD1D1DC">
+                            <File Id="JACCESS.JAR" Name="jaccess.jar" Source="@resourcedir@\jre\lib\ext\jaccess.jar" />
+                        </Component>
+                        <Component Id="JFXRT.JAR" DiskId="1" Guid="D84A2F98-4046-4222-9429-07E36CD31F8D">
+                            <File Id="JFXRT.JAR" Name="jfxrt.jar" Source="@resourcedir@\jre\lib\ext\jfxrt.jar" />
+                        </Component>
+                        <Component Id="LOCALEDATA.JAR" DiskId="1" Guid="5FA760BD-0074-424A-9F1E-07DE5C72EEDC">
+                            <File Id="LOCALEDATA.JAR" Name="localedata.jar" Source="@resourcedir@\jre\lib\ext\localedata.jar" />
+                        </Component>
+                        <Component Id="META_INDEX_1" DiskId="1" Guid="3B09152C-856D-49AC-91D2-CFF10D5306AC">
+                            <File Id="META_INDEX_1" Name="meta-index" Source="@resourcedir@\jre\lib\ext\meta-index" />
+                        </Component>
+                        <Component Id="NASHORN.JAR" DiskId="1" Guid="03B06984-F87E-4E69-8B5A-5C4760D40C3E">
+                            <File Id="NASHORN.JAR" Name="nashorn.jar" Source="@resourcedir@\jre\lib\ext\nashorn.jar" />
+                        </Component>
+                        <Component Id="SUNEC.JAR" DiskId="1" Guid="27BADDE2-8A76-4573-BFFA-E675507F1643">
+                            <File Id="SUNEC.JAR" Name="sunec.jar" Source="@resourcedir@\jre\lib\ext\sunec.jar" />
+                        </Component>
+                        <Component Id="SUNJCE_PROVIDER.JAR" DiskId="1" Guid="229DD30D-4261-4D10-A494-9901F1AAA737">
+                            <File Id="SUNJCE_PROVIDER.JAR" Name="sunjce_provider.jar" Source="@resourcedir@\jre\lib\ext\sunjce_provider.jar" />
+                        </Component>
+                        <Component Id="SUNMSCAPI.JAR" DiskId="1" Guid="C6928966-6709-4825-A0B9-E26E92E49620">
+                            <File Id="SUNMSCAPI.JAR" Name="sunmscapi.jar" Source="@resourcedir@\jre\lib\ext\sunmscapi.jar" />
+                        </Component>
+                        <Component Id="SUNPKCS11.JAR" DiskId="1" Guid="3F71B02A-E63A-40E4-8C03-2EE2B9F226D8">
+                            <File Id="SUNPKCS11.JAR" Name="sunpkcs11.jar" Source="@resourcedir@\jre\lib\ext\sunpkcs11.jar" />
+                        </Component>
+                        <Component Id="ZIPFS.JAR" DiskId="1" Guid="E30D6358-8E33-4615-A34D-F3C6300B968C">
+                            <File Id="ZIPFS.JAR" Name="zipfs.jar" Source="@resourcedir@\jre\lib\ext\zipfs.jar" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="FONTS" Name="fonts">
+                        <Component Id="LUCIDABRIGHTDEMIBOLD.TTF" DiskId="1" Guid="4409F2E6-30C2-4264-B94A-EEFD8AD6580D">
+                            <File Id="LUCIDABRIGHTDEMIBOLD.TTF" Name="LucidaBrightDemiBold.ttf" Source="@resourcedir@\jre\lib\fonts\LucidaBrightDemiBold.ttf" />
+                        </Component>
+                        <Component Id="LUCIDABRIGHTDEMIITALIC.TTF" DiskId="1" Guid="5C2F9A33-BA16-4932-9763-B69A525223C8">
+                            <File Id="LUCIDABRIGHTDEMIITALIC.TTF" Name="LucidaBrightDemiItalic.ttf" Source="@resourcedir@\jre\lib\fonts\LucidaBrightDemiItalic.ttf" />
+                        </Component>
+                        <Component Id="LUCIDABRIGHTITALIC.TTF" DiskId="1" Guid="0C5CDC02-C106-449E-A546-D3C8B9D82D60">
+                            <File Id="LUCIDABRIGHTITALIC.TTF" Name="LucidaBrightItalic.ttf" Source="@resourcedir@\jre\lib\fonts\LucidaBrightItalic.ttf" />
+                        </Component>
+                        <Component Id="LUCIDABRIGHTREGULAR.TTF" DiskId="1" Guid="EE46DF57-7D2F-4CDF-A574-C0AB56490597">
+                            <File Id="LUCIDABRIGHTREGULAR.TTF" Name="LucidaBrightRegular.ttf" Source="@resourcedir@\jre\lib\fonts\LucidaBrightRegular.ttf" />
+                        </Component>
+                        <Component Id="LUCIDASANSDEMIBOLD.TTF" DiskId="1" Guid="DFC3BAB7-752C-4BC4-9490-96E38F65D5A8">
+                            <File Id="LUCIDASANSDEMIBOLD.TTF" Name="LucidaSansDemiBold.ttf" Source="@resourcedir@\jre\lib\fonts\LucidaSansDemiBold.ttf" />
+                        </Component>
+                        <Component Id="LUCIDASANSREGULAR.TTF" DiskId="1" Guid="C2957CA3-900E-4236-ACA8-C1784D78F0F7">
+                            <File Id="LUCIDASANSREGULAR.TTF" Name="LucidaSansRegular.ttf" Source="@resourcedir@\jre\lib\fonts\LucidaSansRegular.ttf" />
+                        </Component>
+                        <Component Id="LUCIDATYPEWRITERBOLD.TTF" DiskId="1" Guid="A4E25A82-F5E5-423E-AE57-AAF1AC8A5730">
+                            <File Id="LUCIDATYPEWRITERBOLD.TTF" Name="LucidaTypewriterBold.ttf" Source="@resourcedir@\jre\lib\fonts\LucidaTypewriterBold.ttf" />
+                        </Component>
+                        <Component Id="LUCIDATYPEWRITERREGULAR.TTF" DiskId="1" Guid="6992DDA6-5BCB-42D4-9832-D0D8C0A57E5B">
+                            <File Id="LUCIDATYPEWRITERREGULAR.TTF" Name="LucidaTypewriterRegular.ttf" Source="@resourcedir@\jre\lib\fonts\LucidaTypewriterRegular.ttf" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="I386" Name="i386">
+                        <Component Id="JVM.CFG" DiskId="1" Guid="8EE22650-CD25-450A-A597-34C7AB8579E2">
+                            <File Id="JVM.CFG" Name="jvm.cfg" Source="@resourcedir@\jre\lib\i386\jvm.cfg" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="IMAGES" Name="images">
+                        <Directory Id="CURSORS" Name="cursors">
+                            <Component Id="CURSORS.PROPERTIES" DiskId="1" Guid="E6E60D9E-CFC7-4E2B-8990-F28F942951F3">
+                                <File Id="CURSORS.PROPERTIES" Name="cursors.properties" Source="@resourcedir@\jre\lib\images\cursors\cursors.properties" />
+                            </Component>
+                            <Component Id="INVALID32X32.GIF" DiskId="1" Guid="ABF2A16C-B15A-4028-A333-614359E09FBD">
+                                <File Id="INVALID32X32.GIF" Name="invalid32x32.gif" Source="@resourcedir@\jre\lib\images\cursors\invalid32x32.gif" />
+                            </Component>
+                            <Component Id="WIN32_COPYDROP32X32.GIF" DiskId="1" Guid="065A8F0C-ADA2-4805-8B7E-5D8B892489FA">
+                                <File Id="WIN32_COPYDROP32X32.GIF" Name="win32_CopyDrop32x32.gif" Source="@resourcedir@\jre\lib\images\cursors\win32_CopyDrop32x32.gif" />
+                            </Component>
+                            <Component Id="WIN32_COPYNODROP32X32.GIF" DiskId="1" Guid="9A772061-0267-4AE6-BCA9-B07B09EBD93B">
+                                <File Id="WIN32_COPYNODROP32X32.GIF" Name="win32_CopyNoDrop32x32.gif" Source="@resourcedir@\jre\lib\images\cursors\win32_CopyNoDrop32x32.gif" />
+                            </Component>
+                            <Component Id="WIN32_LINKDROP32X32.GIF" DiskId="1" Guid="2F0385BD-116B-4924-84CB-0CDF96763F4A">
+                                <File Id="WIN32_LINKDROP32X32.GIF" Name="win32_LinkDrop32x32.gif" Source="@resourcedir@\jre\lib\images\cursors\win32_LinkDrop32x32.gif" />
+                            </Component>
+                            <Component Id="WIN32_LINKNODROP32X32.GIF" DiskId="1" Guid="04BCADE5-8D2B-4482-8615-295161CC12A8">
+                                <File Id="WIN32_LINKNODROP32X32.GIF" Name="win32_LinkNoDrop32x32.gif" Source="@resourcedir@\jre\lib\images\cursors\win32_LinkNoDrop32x32.gif" />
+                            </Component>
+                            <Component Id="WIN32_MOVEDROP32X32.GIF" DiskId="1" Guid="C39C49CD-5091-484F-B5B7-CE5852A9A1BA">
+                                <File Id="WIN32_MOVEDROP32X32.GIF" Name="win32_MoveDrop32x32.gif" Source="@resourcedir@\jre\lib\images\cursors\win32_MoveDrop32x32.gif" />
+                            </Component>
+                            <Component Id="WIN32_MOVENODROP32X32.GIF" DiskId="1" Guid="6ADF5848-EAEF-43F1-8C78-85A5A1248C8C">
+                                <File Id="WIN32_MOVENODROP32X32.GIF" Name="win32_MoveNoDrop32x32.gif" Source="@resourcedir@\jre\lib\images\cursors\win32_MoveNoDrop32x32.gif" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                    <Directory Id="JFR" Name="jfr">
+                        <Component Id="DEFAULT.JFC" DiskId="1" Guid="E1A6B7C0-C577-4D2C-B4B9-D708ECDD1BCC">
+                            <File Id="DEFAULT.JFC" Name="default.jfc" Source="@resourcedir@\jre\lib\jfr\default.jfc" />
+                        </Component>
+                        <Component Id="PROFILE.JFC" DiskId="1" Guid="9064AEA4-A18A-405E-8453-378E1614A699">
+                            <File Id="PROFILE.JFC" Name="profile.jfc" Source="@resourcedir@\jre\lib\jfr\profile.jfc" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="MANAGEMENT" Name="management">
+                        <Component Id="JMXREMOTE.ACCESS" DiskId="1" Guid="056DC5F8-0CE2-4015-B32A-58FF43D1AF5A">
+                            <File Id="JMXREMOTE.ACCESS" Name="jmxremote.access" Source="@resourcedir@\jre\lib\management\jmxremote.access" />
+                        </Component>
+                        <Component Id="JMXREMOTE.PASSWORD.TEMPLATE" DiskId="1" Guid="7DBF2A48-E52D-4455-8D54-E24D8B47B43E">
+                            <File Id="JMXREMOTE.PASSWORD.TEMPLATE" Name="jmxremote.password.template" Source="@resourcedir@\jre\lib\management\jmxremote.password.template" />
+                        </Component>
+                        <Component Id="MANAGEMENT.PROPERTIES" DiskId="1" Guid="3F02E5FD-44AC-440B-B17D-C0FACB3692D2">
+                            <File Id="MANAGEMENT.PROPERTIES" Name="management.properties" Source="@resourcedir@\jre\lib\management\management.properties" />
+                        </Component>
+                        <Component Id="SNMP.ACL.TEMPLATE" DiskId="1" Guid="A2CBD111-B843-4DC5-8600-7B6C82D2339F">
+                            <File Id="SNMP.ACL.TEMPLATE" Name="snmp.acl.template" Source="@resourcedir@\jre\lib\management\snmp.acl.template" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="SECURITY" Name="security">
+                        <Component Id="BLACKLIST" DiskId="1" Guid="E24D666E-69D6-4D8C-9790-00570F711F98">
+                            <File Id="BLACKLIST" Name="blacklist" Source="@resourcedir@\jre\lib\security\blacklist" />
+                        </Component>
+                        <Component Id="BLACKLISTED.CERTS" DiskId="1" Guid="F54A3C4B-C1C9-471F-BFAF-EDD686E91497">
+                            <File Id="BLACKLISTED.CERTS" Name="blacklisted.certs" Source="@resourcedir@\jre\lib\security\blacklisted.certs" />
+                        </Component>
+                        <Component Id="CACERTS" DiskId="1" Guid="4D123F38-654E-4D43-891D-CF92080B3C66">
+                            <File Id="CACERTS" Name="cacerts" Source="@resourcedir@\jre\lib\security\cacerts" />
+                        </Component>
+                        <Component Id="JAVA.POLICY" DiskId="1" Guid="A4E1AE8E-2F52-4925-AAA7-4DB068693EC9">
+                            <File Id="JAVA.POLICY" Name="java.policy" Source="@resourcedir@\jre\lib\security\java.policy" />
+                        </Component>
+                        <Component Id="JAVA.SECURITY" DiskId="1" Guid="2974904B-273D-40E8-A9F3-C50ADC08B806">
+                            <File Id="JAVA.SECURITY" Name="java.security" Source="@resourcedir@\jre\lib\security\java.security" />
+                        </Component>
+                        <Component Id="JAVAWS.POLICY" DiskId="1" Guid="8172FFC1-640B-47F6-9C22-DDC4CC3CA4AB">
+                            <File Id="JAVAWS.POLICY" Name="javaws.policy" Source="@resourcedir@\jre\lib\security\javaws.policy" />
+                        </Component>
+                        <Component Id="LOCAL_POLICY.JAR" DiskId="1" Guid="E932AC24-74A3-4BD0-ADD9-505DEA45226F">
+                            <File Id="LOCAL_POLICY.JAR" Name="local_policy.jar" Source="@resourcedir@\jre\lib\security\local_policy.jar" />
+                        </Component>
+                        <Component Id="TRUSTED.LIBRARIES" DiskId="1" Guid="064E23AC-1383-4FE6-A7E9-6DF1CF581677">
+                            <File Id="TRUSTED.LIBRARIES" Name="trusted.libraries" Source="@resourcedir@\jre\lib\security\trusted.libraries" />
+                        </Component>
+                        <Component Id="US_EXPORT_POLICY.JAR" DiskId="1" Guid="D66A34D8-AE7D-496F-99F2-74EDE9D55278">
+                            <File Id="US_EXPORT_POLICY.JAR" Name="US_export_policy.jar" Source="@resourcedir@\jre\lib\security\US_export_policy.jar" />
+                        </Component>
+                    </Directory>
+                </Directory>
+            </Directory>
+        </DirectoryRef>
+        
+        <DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Id="ApplicationShortcut" Guid="51C5EB84-32BB-4D70-96BC-3FAE2CAB7F34">
+                <Shortcut Id="ApplicationStartMenuShortcut" Name="ProjectLibre"
+                Description="ProjectLibre is an open source project management application"
+                Target="[APPLICATIONROOTDIRECTORY]projectlibre.exe" WorkingDirectory="APPLICATIONROOTDIRECTORY" Icon ="projectlibre.ico" Show="normal"/>
+                <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\ProjectLibre"
+                Name="installed" Type="integer" Value="1" KeyPath="yes" />
+			</Component>
+		</DirectoryRef>
+
+		<Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+            <ComponentRef Id="ApplicationFiles" />
+            <ComponentRef Id="PROJECTLIBRE.JAR" />
+            <ComponentRef Id="PROJECTLIBRE.EXE" />
+            <ComponentRef Id="README.HTML" />
+            <ComponentRef Id="OPENPROJ_CONTRIB.JAR" />
+            <ComponentRef Id="OPENPROJ_REPORTS.JAR" />
+            <ComponentRef Id="OPENPROJ_SCRIPT.JAR" />
+            <ComponentRef Id="INDEX.HTML" />
+            <ComponentRef Id="ANTLR.TXT" />
+            <ComponentRef Id="APACHE_LICENSE_2.0.TXT" />
+            <ComponentRef Id="APPLE.TXT" />
+            <ComponentRef Id="BSD_GENERIC.TXT" />
+            <ComponentRef Id="CDDL.TXT" />
+            <ComponentRef Id="CPL_1.0.TXT" />
+            <ComponentRef Id="GROOVY.TXT" />
+            <ComponentRef Id="ICAL4J.TXT" />
+            <ComponentRef Id="INDEX.HTML_1" />
+            <ComponentRef Id="JASPER_LGPL.TXT" />
+            <ComponentRef Id="JGOODIES_FORMS.TXT" />
+            <ComponentRef Id="LGPL_2.1.TXT" />
+            <ComponentRef Id="OSX_ADAPTER.TXT" />
+            <ComponentRef Id="SUN_JWSDP.TXT" />
+            <ComponentRef Id="SUN.TXT" />
+            <ComponentRef Id="THIRD_PARTY_LICENSES_WITH_BUILD_LIBS.HTML" />
+            <ComponentRef Id="XSTREAM.TXT" />
+            <ComponentRef Id="COPYRIGHT" />
+            <ComponentRef Id="LICENSE" />
+            <ComponentRef Id="README.TXT" />
+            <ComponentRef Id="RELEASE" />
+            <ComponentRef Id="THIRDPARTYLICENSEREADME_JAVAFX.TXT" />
+            <ComponentRef Id="THIRDPARTYLICENSEREADME.TXT" />
+            <ComponentRef Id="WELCOME.HTML" />
+            <ComponentRef Id="AWT.DLL" />
+            <ComponentRef Id="BCI.DLL" />
+            <ComponentRef Id="DCPR.DLL" />
+            <ComponentRef Id="DECORA_SSE.DLL" />
+            <ComponentRef Id="DEPLOY.DLL" />
+            <ComponentRef Id="DT_SHMEM.DLL" />
+            <ComponentRef Id="DT_SOCKET.DLL" />
+            <ComponentRef Id="EULA.DLL" />
+            <ComponentRef Id="FONTMANAGER.DLL" />
+            <ComponentRef Id="FXPLUGINS.DLL" />
+            <ComponentRef Id="GLASS.DLL" />
+            <ComponentRef Id="GLIB_LITE.DLL" />
+            <ComponentRef Id="GSTREAMER_LITE.DLL" />
+            <ComponentRef Id="HPROF.DLL" />
+            <ComponentRef Id="INSTRUMENT.DLL" />
+            <ComponentRef Id="J2PCSC.DLL" />
+            <ComponentRef Id="J2PKCS11.DLL" />
+            <ComponentRef Id="JAAS_NT.DLL" />
+            <ComponentRef Id="JABSWITCH.EXE" />
+            <ComponentRef Id="JAVA_RMI.EXE" />
+            <ComponentRef Id="JAVA.DLL" />
+            <ComponentRef Id="JAVA.EXE" />
+            <ComponentRef Id="JAVAACCESSBRIDGE_32.DLL" />
+            <ComponentRef Id="JAVAACCESSBRIDGE.DLL" />
+            <ComponentRef Id="JAVACPL.CPL" />
+            <ComponentRef Id="JAVACPL.EXE" />
+            <ComponentRef Id="JAVAFX_FONT.DLL" />
+            <ComponentRef Id="JAVAFX_FONT_T2K.DLL" />
+            <ComponentRef Id="JAVAFX_IIO.DLL" />
+            <ComponentRef Id="JAVAW.EXE" />
+            <ComponentRef Id="JAVAWS.EXE" />
+            <ComponentRef Id="JAVA_CRW_DEMO.DLL" />
+            <ComponentRef Id="JAWT.DLL" />
+            <ComponentRef Id="JAWTACCESSBRIDGE_32.DLL" />
+            <ComponentRef Id="JAWTACCESSBRIDGE.DLL" />
+            <ComponentRef Id="JDWP.DLL" />
+            <ComponentRef Id="JFR.DLL" />
+            <ComponentRef Id="JFXMEDIA.DLL" />
+            <ComponentRef Id="JFXWEBKIT.DLL" />
+            <ComponentRef Id="JJS.EXE" />
+            <ComponentRef Id="JLI.DLL" />
+            <ComponentRef Id="JP2IEXP.DLL" />
+            <ComponentRef Id="JP2LAUNCHER.EXE" />
+            <ComponentRef Id="JP2NATIVE.DLL" />
+            <ComponentRef Id="JP2SSV.DLL" />
+            <ComponentRef Id="JPEG.DLL" />
+            <ComponentRef Id="JSDT.DLL" />
+            <ComponentRef Id="JSOUND.DLL" />
+            <ComponentRef Id="JSOUNDDS.DLL" />
+            <ComponentRef Id="KCMS.DLL" />
+            <ComponentRef Id="KEYTOOL.EXE" />
+            <ComponentRef Id="KINIT.EXE" />
+            <ComponentRef Id="KLIST.EXE" />
+            <ComponentRef Id="KTAB.EXE" />
+            <ComponentRef Id="LCMS.DLL" />
+            <ComponentRef Id="MANAGEMENT.DLL" />
+            <ComponentRef Id="MLIB_IMAGE.DLL" />
+            <ComponentRef Id="MSVCP120.DLL" />
+            <ComponentRef Id="MSVCR100.DLL" />
+            <ComponentRef Id="MSVCR120.DLL" />
+            <ComponentRef Id="NET.DLL" />
+            <ComponentRef Id="NIO.DLL" />
+            <ComponentRef Id="NPT.DLL" />
+            <ComponentRef Id="ORBD.EXE" />
+            <ComponentRef Id="PACK200.EXE" />
+            <ComponentRef Id="POLICYTOOL.EXE" />
+            <ComponentRef Id="PRISM_COMMON.DLL" />
+            <ComponentRef Id="PRISM_D3D.DLL" />
+            <ComponentRef Id="PRISM_SW.DLL" />
+            <ComponentRef Id="RESOURCE.DLL" />
+            <ComponentRef Id="RMID.EXE" />
+            <ComponentRef Id="RMIREGISTRY.EXE" />
+            <ComponentRef Id="SERVERTOOL.EXE" />
+            <ComponentRef Id="SPLASHSCREEN.DLL" />
+            <ComponentRef Id="SSV.DLL" />
+            <ComponentRef Id="SSVAGENT.EXE" />
+            <ComponentRef Id="SUNEC.DLL" />
+            <ComponentRef Id="SUNMSCAPI.DLL" />
+            <ComponentRef Id="T2K.DLL" />
+            <ComponentRef Id="TNAMESERV.EXE" />
+            <ComponentRef Id="UNPACK.DLL" />
+            <ComponentRef Id="UNPACK200.EXE" />
+            <ComponentRef Id="VERIFY.DLL" />
+            <ComponentRef Id="W2K_LSA_AUTH.DLL" />
+            <ComponentRef Id="WINDOWSACCESSBRIDGE_32.DLL" />
+            <ComponentRef Id="WINDOWSACCESSBRIDGE.DLL" />
+            <ComponentRef Id="WSDETECT.DLL" />
+            <ComponentRef Id="ZIP.DLL" />
+            <ComponentRef Id="JVM.DLL" />
+            <ComponentRef Id="XUSAGE.TXT" />
+            <ComponentRef Id="DEPLOYJAVA1.DLL" />
+            <ComponentRef Id="NPDEPLOYJAVA1.DLL" />
+            <ComponentRef Id="MSVCR100.DLL_1" />
+            <ComponentRef Id="NPJP2.DLL" />
+            <ComponentRef Id="ACCESSIBILITY.PROPERTIES" />
+            <ComponentRef Id="CALENDARS.PROPERTIES" />
+            <ComponentRef Id="CHARSETS.JAR" />
+            <ComponentRef Id="CLASSLIST" />
+            <ComponentRef Id="CONTENT_TYPES.PROPERTIES" />
+            <ComponentRef Id="CURRENCY.DATA" />
+            <ComponentRef Id="DEPLOY.JAR" />
+            <ComponentRef Id="FLAVORMAP.PROPERTIES" />
+            <ComponentRef Id="FONTCONFIG.BFC" />
+            <ComponentRef Id="FONTCONFIG.PROPERTIES.SRC" />
+            <ComponentRef Id="HIJRAH_CONFIG_UMALQURA.PROPERTIES" />
+            <ComponentRef Id="JAVAFX.PROPERTIES" />
+            <ComponentRef Id="JAVAWS.JAR" />
+            <ComponentRef Id="JCE.JAR" />
+            <ComponentRef Id="JFR.JAR" />
+            <ComponentRef Id="JFXSWT.JAR" />
+            <ComponentRef Id="JSSE.JAR" />
+            <ComponentRef Id="JVM.HPROF.TXT" />
+            <ComponentRef Id="LOGGING.PROPERTIES" />
+            <ComponentRef Id="MANAGEMENT_AGENT.JAR" />
+            <ComponentRef Id="META_INDEX" />
+            <ComponentRef Id="NET.PROPERTIES" />
+            <ComponentRef Id="PLUGIN.JAR" />
+            <ComponentRef Id="PSFONT.PROPERTIES.JA" />
+            <ComponentRef Id="PSFONTJ2D.PROPERTIES" />
+            <ComponentRef Id="RESOURCES.JAR" />
+            <ComponentRef Id="RT.JAR" />
+            <ComponentRef Id="SOUND.PROPERTIES" />
+            <ComponentRef Id="TZDB.DAT" />
+            <ComponentRef Id="TZMAPPINGS" />
+            <ComponentRef Id="CIEXYZ.PF" />
+            <ComponentRef Id="GRAY.PF" />
+            <ComponentRef Id="LINEAR_RGB.PF" />
+            <ComponentRef Id="PYCC.PF" />
+            <ComponentRef Id="SRGB.PF" />
+            <ComponentRef Id="FFJCEXT.ZIP" />
+            <ComponentRef Id="MESSAGES.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_DE.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_ES.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_FR.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_IT.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_JA.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_KO.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_PT_BR.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_SV.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_ZH_CN.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_ZH_HK.PROPERTIES" />
+            <ComponentRef Id="MESSAGES_ZH_TW.PROPERTIES" />
+            <ComponentRef Id="SPLASH.GIF" />
+            <ComponentRef Id="SPLASH_2X.GIF" />
+            <ComponentRef Id="SPLASH_11_LIC.GIF" />
+            <ComponentRef Id="SPLASH_11_2X_LIC.GIF" />
+            <ComponentRef Id="ACCESS_BRIDGE_32.JAR" />
+            <ComponentRef Id="ACCESS_BRIDGE.JAR" />
+            <ComponentRef Id="CLDRDATA.JAR" />
+            <ComponentRef Id="DNSNS.JAR" />
+            <ComponentRef Id="JACCESS.JAR" />
+            <ComponentRef Id="JFXRT.JAR" />
+            <ComponentRef Id="LOCALEDATA.JAR" />
+            <ComponentRef Id="META_INDEX_1" />
+            <ComponentRef Id="NASHORN.JAR" />
+            <ComponentRef Id="SUNEC.JAR" />
+            <ComponentRef Id="SUNJCE_PROVIDER.JAR" />
+            <ComponentRef Id="SUNMSCAPI.JAR" />
+            <ComponentRef Id="SUNPKCS11.JAR" />
+            <ComponentRef Id="ZIPFS.JAR" />
+            <ComponentRef Id="LUCIDABRIGHTDEMIBOLD.TTF" />
+            <ComponentRef Id="LUCIDABRIGHTDEMIITALIC.TTF" />
+            <ComponentRef Id="LUCIDABRIGHTITALIC.TTF" />
+            <ComponentRef Id="LUCIDABRIGHTREGULAR.TTF" />
+            <ComponentRef Id="LUCIDASANSDEMIBOLD.TTF" />
+            <ComponentRef Id="LUCIDASANSREGULAR.TTF" />
+            <ComponentRef Id="LUCIDATYPEWRITERBOLD.TTF" />
+            <ComponentRef Id="LUCIDATYPEWRITERREGULAR.TTF" />
+            <ComponentRef Id="JVM.CFG" />
+            <ComponentRef Id="CURSORS.PROPERTIES" />
+            <ComponentRef Id="INVALID32X32.GIF" />
+            <ComponentRef Id="WIN32_COPYDROP32X32.GIF" />
+            <ComponentRef Id="WIN32_COPYNODROP32X32.GIF" />
+            <ComponentRef Id="WIN32_LINKDROP32X32.GIF" />
+            <ComponentRef Id="WIN32_LINKNODROP32X32.GIF" />
+            <ComponentRef Id="WIN32_MOVEDROP32X32.GIF" />
+            <ComponentRef Id="WIN32_MOVENODROP32X32.GIF" />
+            <ComponentRef Id="DEFAULT.JFC" />
+            <ComponentRef Id="PROFILE.JFC" />
+            <ComponentRef Id="JMXREMOTE.ACCESS" />
+            <ComponentRef Id="JMXREMOTE.PASSWORD.TEMPLATE" />
+            <ComponentRef Id="MANAGEMENT.PROPERTIES" />
+            <ComponentRef Id="SNMP.ACL.TEMPLATE" />
+            <ComponentRef Id="BLACKLIST" />
+            <ComponentRef Id="BLACKLISTED.CERTS" />
+            <ComponentRef Id="CACERTS" />
+            <ComponentRef Id="JAVA.POLICY" />
+            <ComponentRef Id="JAVA.SECURITY" />
+            <ComponentRef Id="JAVAWS.POLICY" />
+            <ComponentRef Id="LOCAL_POLICY.JAR" />
+            <ComponentRef Id="TRUSTED.LIBRARIES" />
+            <ComponentRef Id="US_EXPORT_POLICY.JAR" />
+            <ComponentRef Id="ApplicationShortcut" />
+        </Feature>
+        
+        <WixVariable Id="WixUILicenseRtf" Value="projectlibre\license\License.rtf" />
+        <WixVariable Id="WixUIExclamationIco" Value="projectlibre\msi_images\projectlibre.ico" />
+        <WixVariable Id="WixUIInfoIco" Value="projectlibre\msi_images\projectlibre.ico" />
+        <WixVariable Id="WixUINewIco" Value="projectlibre\msi_images\projectlibre.ico" />
+        <WixVariable Id="WixUIUpIco" Value="projectlibre\msi_images\projectlibre.ico" />
+        <WixVariable Id="WixUIBannerBmp" Value="projectlibre\msi_images\projectlibre_msi_banner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="projectlibre\msi_images\projectlibre_msi_splash.bmp" />
+
+        <UI>
+            <UIRef Id="WixUI_Minimal" />
+            <!--Publish Dialog="ExitDialog"
+                Control="Finish"
+                Event="DoAction"
+                Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish-->
+        </UI>
+        
+        <!--Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch ProjectLibre" />
+        
+        <Property Id="WixShellExecTarget" Value="[#PROJECTLIBRE.EXE]" />
+        <CustomAction Id="LaunchApplication" Property="CA1_PROP"
+        DllEntry="WixShellExec"
+        Impersonate="yes" /-->
+	</Product>
+</Wix>
