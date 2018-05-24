@@ -26,8 +26,8 @@
 			classpathref="compile.class.path"
 			debug="off"
 			nowarn="on"
-			source="1.5"
-			target="1.5">
+			source="1.6"
+			target="1.6">
 				<src path="src" />
 				<include name="**/*" />
 		</javac>
@@ -97,6 +97,8 @@
 				<zipgroupfileset file="lib/itext.jar" /> 
 				<zipgroupfileset file="lib/trident-6.2.jar" /> 
 				<zipgroupfileset file="lib/exchange/jakarta-poi.jar" /> 
+				<zipgroupfileset file="lib/exchange/commons-collections4.jar" /> 
+				<zipgroupfileset file="lib/exchange/rtfparserkit.jar" /> 
 			</jar>
 		</else>
 	  </if>

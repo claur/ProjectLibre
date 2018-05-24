@@ -78,8 +78,6 @@ package com.projectlibre.core.pm.exchange.converters.mpx;
 
 import java.util.List;
 
-import net.sf.mpxj.mspdi.schema.TimephasedDataType;
-
 import com.projectlibre.core.fields.FieldUtil;
 import com.projectlibre.core.nodes.NodeId;
 import com.projectlibre.core.time.DefaultTimephasedValues;
@@ -89,6 +87,8 @@ import com.projectlibre.core.time.WorkContour;
 import com.projectlibre.pm.resources.Resource;
 import com.projectlibre.pm.tasks.Assignment;
 import com.projectlibre.pm.tasks.SnapshotList;
+
+import net.sf.mpxj.mspdi.schema.TimephasedDataType;
 
 /**
  * @author Laurent Chretienneau

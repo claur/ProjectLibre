@@ -57,13 +57,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
-import net.sf.mpxj.ProjectCalendar;
-import net.sf.mpxj.ProjectFile;
-import net.sf.mpxj.ProjectProperties;
-import net.sf.mpxj.Relation;
-import net.sf.mpxj.RelationType;
-import net.sf.mpxj.ResourceAssignment;
-
 import com.projity.association.AssociationList;
 import com.projity.configuration.Settings;
 import com.projity.exchange.ImportedCalendarService;
@@ -89,6 +82,13 @@ import com.projity.server.data.linker.TaskLinker;
 import com.projity.server.data.mspdi.ModifiedMSPDIWriter;
 import com.projity.strings.Messages;
 import com.projity.util.Alert;
+
+import net.sf.mpxj.ProjectCalendar;
+import net.sf.mpxj.ProjectFile;
+import net.sf.mpxj.ProjectProperties;
+import net.sf.mpxj.Relation;
+import net.sf.mpxj.RelationType;
+import net.sf.mpxj.ResourceAssignment;
 
 /**
  *

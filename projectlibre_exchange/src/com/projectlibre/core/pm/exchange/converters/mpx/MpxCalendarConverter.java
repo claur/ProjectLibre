@@ -76,17 +76,17 @@ back to http://www.projity.com.
 */
 package com.projectlibre.core.pm.exchange.converters.mpx;
 
-import net.sf.mpxj.Day;
-import net.sf.mpxj.ProjectCalendar;
-import net.sf.mpxj.ProjectCalendarException;
-import net.sf.mpxj.ProjectCalendarHours;
-
 import com.projectlibre.pm.calendar.CalendarId;
 import com.projectlibre.pm.calendar.DayType;
 import com.projectlibre.pm.calendar.WorkCalendar;
 import com.projectlibre.pm.calendar.WorkCalendarException;
 import com.projectlibre.pm.calendar.WorkDay;
 import com.projectlibre.pm.calendar.WorkWeek;
+
+import net.sf.mpxj.Day;
+import net.sf.mpxj.ProjectCalendar;
+import net.sf.mpxj.ProjectCalendarException;
+import net.sf.mpxj.ProjectCalendarHours;
 
 /**
  * @author Laurent Chretienneau

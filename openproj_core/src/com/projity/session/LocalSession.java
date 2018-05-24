@@ -186,9 +186,10 @@ public class LocalSession extends AbstractSession{
 				jobQueue.endCriticalSection(job);
 			}
         });
-        FileImporter importer=getImporter(opt.getImporter());
-		importer.setJobQueue(jobQueue);
-		importer.setProjectFactory(ProjectFactory.getInstance());//used?
+        //claur
+//        FileImporter importer=getImporter(opt.getImporter());
+//		importer.setJobQueue(jobQueue);
+//		importer.setProjectFactory(ProjectFactory.getInstance());//used?
 		int count=projs.size();
 		int i=0;
 		for (final Project project : projs) {
@@ -199,6 +200,23 @@ public class LocalSession extends AbstractSession{
 			}
 			final String fileName=fileN;
 			if (fileName==null) continue;
+			
+			//claur saving mpp as pod was selecting xml exporter
+			if (fileName.endsWith(".pod")){ //$NON-NLS-1$
+				opt.setFileName(fileName);
+				opt.setImporter(LocalSession.LOCAL_PROJECT_IMPORTER);
+			}
+			else{
+				opt.setFileName(fileName/*+((fileName.endsWith(".xml"))?"":".xml")*/);
+				opt.setImporter(LocalSession.MICROSOFT_PROJECT_IMPORTER);
+
+			}
+	        FileImporter importer=getImporter(opt.getImporter());
+			importer.setJobQueue(jobQueue);
+			importer.setProjectFactory(ProjectFactory.getInstance());//used?
+
+			
+			
 			importer.setFileName(fileName);
 			importer.setProject(project);
 			if (opt.getPreSaving() != null)

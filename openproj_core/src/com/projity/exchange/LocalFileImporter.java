@@ -82,6 +82,7 @@ import com.projity.util.Alert;
 public class LocalFileImporter extends FileImporter {
 	public static final String VERSION="1.0.0"; //$NON-NLS-1$
 	private static final String PROJECT_LIBRE_FILE_SEPARATOR="@@@@@@@@@@ProjectLibreSeparator_MSXML@@@@@@@@@@";
+	private static final String XML_FILE_START="<?xml";
 	/**
 	 *
 	 */
@@ -138,6 +139,7 @@ public class LocalFileImporter extends FileImporter {
 				System.out.println("Trying to recover with XML...");
 				fin=new FileInputStream(f);
 				byte[] keyBuf=PROJECT_LIBRE_FILE_SEPARATOR.getBytes();
+				byte[] startXmlKeyBuf=XML_FILE_START.getBytes();
 				int bufSize=100;
 				if (bufSize<keyBuf.length) bufSize=keyBuf.length;
 				byte[] buf= new byte[bufSize];
@@ -147,8 +149,24 @@ public class LocalFileImporter extends FileImporter {
 				int n;
 //				int pos=0;
 				boolean found=false;
+				boolean xmlStartFound=false;
+				boolean first=true;
 				in.mark(bufSize);
 				while ( (n=in.read( buf, 0, bufSize )) != -1 ){
+					// testing if it's xml without PROJECT_LIBRE_FILE_SEPARATOR
+					if (first && n>startXmlKeyBuf.length) {
+						 for (int i=0; i<startXmlKeyBuf.length; i++ ){
+							 if (startXmlKeyBuf[i]!=buf[i]) {
+								 first=false;
+								 break;								 
+							 }
+						 }
+						 if (first) {
+							 xmlStartFound=true;
+							 break;
+						 }
+					}
+						
 				    for (int i=0; i<n; i++ ){
 				    	if (keyBuf[keyPos]==buf[i]){
 				    		if (keyPos==keyBuf.length-1){
@@ -167,7 +185,20 @@ public class LocalFileImporter extends FileImporter {
 //				    pos+=n;
 				}
 				
-				if (found) {
+				if (xmlStartFound) {
+					if (in!=null){
+						try {
+							in.close();
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					fin=new FileInputStream(f);
+					in=new BufferedInputStream(fin);
+					
+				}
+				if (found || xmlStartFound) {
 					//xml found
 					System.out.println("XML found");
 					FileImporter importer=LocalSession.getImporter("com.projity.exchange.MicrosoftImporter");

@@ -1,4 +1,4 @@
-<project name="projectlibre" default="dist" basedir=".">
+<project name="projectlibre" default="dist" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
 
 	<property file="build-override.properties"/>
 	<property file="build.properties"/>
@@ -44,8 +44,8 @@
 					classpathref="compile.class.path"
 					debug="off"
 					nowarn="on"
-					source="1.5"
-					target="1.5">
+					source="1.6"
+					target="1.6">
 						<src path="${src_pl_core}" />
 						<src path="${src_core}" />
 						<src path="${src_ui}" />
@@ -63,8 +63,8 @@
 					classpathref="compile-no_contrib_built.class.path"
 					debug="off"
 					nowarn="on"
-					source="1.5"
-					target="1.5">
+					source="1.6"
+					target="1.6">
 						<src path="${src_pl_core}" />
 						<src path="${src_core}" />
 						<src path="${src_ui}" />
@@ -419,6 +419,25 @@
 		</exec>
 
 	</target>
+	<target name="deb-test">
+
+		<exec executable="echo">
+			<arg value="${dpkg_deb}"/>
+			<arg value="--build"/>
+			<arg value="${basedir}/${deb}"/>
+			<arg value="${basedir}/${debroot}/projectlibre_${deb_version}-${deb_revision}.deb"/>
+		</exec>
+
+		<exec executable="echo"> <!-- dpkg-deb package with wheel group on Mac OS X is causing check issues on Ubuntu. Workaround to put numeric owner group in tars. requires GNU tar -->
+			<arg value="sh"/>
+			<arg value="resources/deb/cleandeb.sh"/>
+			<arg value="${gnu_tar}"/>
+			<arg value="${basedir}/${debroot}"/>
+			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
+			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
+		</exec>
+	</target>
+
 	<target name="deb-create">
 		 <!-- need 0/0 -->
 		<!--exec executable="sudo">
@@ -641,6 +660,150 @@
 
 
 	</target>
+	
+    <target name="fxwindows" depends="build">
+        <!-- Requires Inno Setup 5 -->
+                <property environment="env"/>
+                <var name="bundled_jdk" value="${bundled_jdk_windows}"/>
+                <if>
+                        <equals arg1="${bundled_jdk}" arg2="" />
+                        <then>
+                                <var name="bundled_jdk" value="${env.JAVA_HOME}"/>
+                        </then>
+                </if>
+        <echo>Fx using java_home: ${bundled_jdk}</echo>
+
+        <path id="fxant">
+                        <filelist>
+                        <file name="resources/fx"/>
+                <file name="C:\Program Files\Java\jdk1.8.0_172\lib\ant-javafx.jar"/>
+                 </filelist>
+        </path>
+
+        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
+                 uri="javafx:com.sun.javafx.tools.ant"
+                        classpathref="fxant"/>
+
+        <delete dir="${packages}/fxwindows"/>
+                <mkdir dir="${packages}/fxwindows"/>
+
+        <fx:deploy width="1000" height="700"
+                   nativeBundles="exe"
+                   outdir="${packages}/fxwindows" outfile="projectlibre"
+                verbose="true">
+            <fx:application name="ProjectLibre"
+                mainClass="com.projity.main.Main"
+                toolkit="swing"
+                version="${version}"/>
+            <fx:resources>
+                <fx:fileset dir="${dist}" includes="**/*"/>
+                        <fx:fileset dir="." includes="license/**"/>
+                <fx:fileset type="license" dir="license" includes="license2.rtf"/>
+            </fx:resources>
+            <fx:info title="ProjectLibre"
+                vendor="ProjectLibre"
+                copyright="2012-2018 ProjectLibre Inc."
+                license="CPAL">
+                <fx:icon href="${resources}/wix/msi_images/projectlibre.ico"/>
+                <fx:association extension="pod" mimetype="application/projectlibre" description="ProjectLibre" icon="projectlibre.ico"/>
+                <fx:association extension="mpp" mimetype="application/vnd.ms-project" description="ProjectLibre" icon="projectlibre.ico"/>
+                <fx:association extension="xml" mimetype="application/xml" description="ProjectLibre" icon="projectlibre.ico"/>
+        </fx:info>
+                <fx:preferences shortcut="true"
+                        menu="true"
+                    install="true" />
+                <fx:platform j2se="6.0"/>
+            <!--fx:platform>
+                <fx:jvmuserarg name="-Xms" value="512m"/>
+                <fx:jvmuserarg name="-Xmx" value="1024m"/>
+            </fx:platform-->
+        </fx:deploy>
+        </target>
+
+
+
+    <target name="fxmac" depends="build">
+   		<property environment="env"/>
+		<var name="bundled_jdk" value="${bundled_jdk_mac}"/>
+		<if>
+			<equals arg1="${bundled_jdk}" arg2="" />
+			<then>
+				<var name="bundled_jdk" value="${env.JAVA_HOME}"/>
+			</then>
+		</if>
+     	<echo>Fx using java_home: ${bundled_jdk}</echo>
+ 
+    	<path id="fxant">
+    	  		<filelist>
+  	    		<file name="resources/fx"/>
+    	    	<file name="${bundled_jdk_mac}/lib/ant-javafx.jar"/>
+     	 	 </filelist>
+    	</path>
+     	
+        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
+                 uri="javafx:com.sun.javafx.tools.ant"
+        		classpathref="fxant"/>
+    	
+    	<delete dir="${packages}/fxmac"/>
+		<mkdir dir="${packages}/fxmac"/>
+
+    		<unjar dest="${packages}/fxmac/contrib_build">
+    	  		<fileset dir="../openproj_contrib/" includes="*.jar" />
+    		</unjar>
+  				<fx:jar destfile="${packages}/fxmac/projectlibre.jar">
+  					 <fx:application name="ProjectLibre"
+  		    	    	mainClass="com.projity.main.Main"
+  		    	    	toolkit="swing"
+  		    	    	version="${version}"/>
+					<fileset dir="${packages}/fxmac/contrib_build" >
+ 						<include name="**/*" />
+ 					</fileset>
+ 					<fileset dir="${build}" >
+ 						<include name="**/*" />
+ 					</fileset>
+  					<fileset dir="." >
+ 						<include name="license/**" />
+ 					</fileset>
+					<!--fx:fileset dir="../openproj_contrib/" includes="*.jar"/>
+					<fx:resources>
+ 						<fx:fileset dir="../openproj_contrib/" includes="*.jar"/>
+					</fx:resources-->
+ 					<!--manifest>
+ 						<attribute name="Class-Path" value="lib/openproj-contrib.jar lib/openproj-script.jar lib/openproj-reports.jar"/>
+ 					</manifest-->
+  				</fx:jar>
+    	
+
+    	<fx:deploy width="1000" height="700"
+    	           nativeBundles="dmg"
+    	           outdir="${packages}/fxmac/deploy" outfile="projectlibre"
+    			verbose="true">
+    	    <fx:application name="ProjectLibre"
+    	    	mainClass="com.projity.main.Main"
+    	    	toolkit="swing"
+    	    	version="${version}"/>
+    	    <fx:resources>
+    	        <fx:fileset dir="${packages}/fxmac/" includes="projectlibre.jar"/>
+    			<fx:fileset dir="." includes="license/**"/>
+    	    	<fx:fileset type="license" dir="license" includes="license.txt"/>
+    	    </fx:resources>
+    	    <fx:info title="ProjectLibre"
+    	    	vendor="ProjectLibre"
+    	    	copyright="2012-2018 ProjectLibre Inc."
+    	    	license="CPAL">
+    	    	<fx:icon href="${resources}/mac/projectlibre.icns"/>
+    	    	<fx:association extension="pod" description="ProjectLibre" icon="projectlibre.icns"/>
+    	    	<fx:association extension="mpp" description="ProjectLibre" icon="projectlibre.icns"/>
+	    		<fx:association extension="xml" description="ProjectLibre" icon="projectlibre.icns"/>
+    	    </fx:info>
+    		<fx:platform basedir="${bundled_jdk_mac}"/>
+           <!--fx:platform>
+                <fx:jvmuserarg name="-Xms" value="512m"/>
+                <fx:jvmuserarg name="-Xmx" value="1024m"/>
+            </fx:platform-->
+    	</fx:deploy>
+    </target>
+
 
 	<target name="mac-tar" depends="mac-old">
 		<exec executable="tar"> <!-- to preserve permissions -->
