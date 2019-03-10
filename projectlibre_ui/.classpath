@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/itext.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/trident-6.2.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/projectlibre_contrib"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/projectlibre_core"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/projectlibre_exchange"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/projectlibre_reports"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-collections.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/jdnc-0_7-all.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/forms.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/jasperreports/jasperreports.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/nachocalendar.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/jfreechart.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/jcommon.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/l2fprod-common-totd.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

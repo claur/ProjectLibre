@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+build:
+	if [ ! -f "projectlibre_contrib/projectlibre-reports.jar" ]; then \
+	cd projectlibre_contrib; \
+	ant -Dbuild.compiler.warnings=false build-contrib build-script build-reports; \
+	java -Xmx128m -jar ant-lib/proguard.jar @projectlibre_contrib.conf; \
+	java -Xmx128m -jar ant-lib/proguard.jar @projectlibre_script.conf; \
+	java -Xmx128m -jar ant-lib/proguard.jar @projectlibre_reports.conf; \
+	fi
+	cd projectlibre_build; \
+	ant -Dbuild.compiler.warnings=false -Dbuild_contrib=false
+
+clean:
+	cd projectlibre_contrib; \
+	ant clean
+	cd projectlibre_build; \
+	ant clean
+	rm -rf debian/tmp
+
+binary-indep: build
+	rm -rf debian/tmp
+	cd projectlibre_build; \
+	ant -Dbuild.compiler.warnings=false -Dbuild_contrib=false -Ddeb=../debian/tmp deb-binary
+	chown -R root.root debian/tmp
+	dpkg --build debian/tmp ..
+	
+binary-arch: build
+
+binary: binary-indep binary-arch
+

@@ -1,0 +1,16 @@
+projectlibre (1.6); urgency=low
+
+  * Import/Export improvements
+  * Minor bug fixes
+
+ -- Laurent Chretienneau <lchretienneau@projectlibre.org> Sun, 21 Jun 2015 00:00:00 +0200
+
+projectlibre (1.5); urgency=low
+
+  * Compatibility with Microsoft Project 2010
+  * New Ribbon User Interface
+  * PDF feature
+  * Major bug fixes
+
+ -- Laurent Chretienneau <lchretienneau@projectlibre.org> Mon, 10 Sep 2012 00:00:00 +0200
+ 

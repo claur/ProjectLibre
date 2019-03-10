@@ -2,5 +2,32 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/projectlibre_contrib"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/ant-1.6.5.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/antlr.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/asm-analysis.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/asm-attrs.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/asm-tree.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/asm-util.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/asm.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/bsf-2.3.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/commons-cli-1.0.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/groovy.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/groovy/xstream-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-collections.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-digester.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-logging-api.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-pool.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/forms.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/jcommon.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/jdnc-0_7-all.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/jfreechart.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/jlfgr.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/junit.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/l2fprod-common-totd.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/nachocalendar.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

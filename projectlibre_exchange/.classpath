@@ -3,8 +3,12 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/projectlibre_core"/>
-	<classpathentry kind="lib" path="/openproj_contrib/lib/exchange/jakarta-poi.jar"/>
-	<classpathentry kind="lib" path="/openproj_contrib/lib/exchange/commons-collections4.jar"/>
-	<classpathentry kind="lib" path="/openproj_contrib/lib/exchange/rtfparserkit.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/projectlibre_build"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/exchange/jakarta-poi.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/exchange/rtfparserkit.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-collections.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/projectlibre_contrib"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-lang.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

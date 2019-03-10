@@ -1,0 +1,963 @@
+<!--
+    The contents of this file are subject to the Common Public Attribution License 
+    Version 1.0 (the "License"); you may not use this file except in compliance with 
+    the License. You may obtain a copy of the License at 
+    http://www.projectlibre.com/license . The License is based on the Mozilla Public 
+    License Version 1.1 but Sections 14 and 15 have been added to cover use of 
+    software over a computer network and provide for limited attribution for the 
+    Original Developer. In addition, Exhibit A has been modified to be consistent 
+    with Exhibit B. 
+   
+    Software distributed under the License is distributed on an "AS IS" basis, 
+    WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the 
+    specific language governing rights and limitations under the License. The 
+    Original Code is ProjectLibre. The Original Developer is the Initial Developer 
+    and is ProjectLibre Inc. All portions of the code written by ProjectLibre are 
+    Copyright (c) 2012. All Rights Reserved. All portions of the code written by 
+    ProjectLibre are Copyright (c) 2012. All Rights Reserved. Contributor 
+    ProjectLibre, Inc.
+   
+    Alternatively, the contents of this file may be used under the terms of the 
+    ProjectLibre End-User License Agreement (the ProjectLibre License) in which case 
+    the provisions of the ProjectLibre License are applicable instead of those above. 
+    If you wish to allow use of your version of this file only under the terms of the 
+    ProjectLibre License and not to allow others to use your version of this file 
+    under the CPAL, indicate your decision by deleting the provisions above and 
+    replace them with the notice and other provisions required by the ProjectLibre 
+    License. If you do not delete the provisions above, a recipient may use your 
+    version of this file under either the CPAL or the ProjectLibre Licenses. 
+   
+   
+    [NOTE: The text of this Exhibit A may differ slightly from the text of the notices 
+    in the Source Code files of the Original Code. You should use the text of this 
+    Exhibit A rather than the text found in the Original Code Source Code for Your 
+    Modifications.] 
+   
+    EXHIBIT B. Attribution Information for ProjectLibre required
+   
+    Attribution Copyright Notice: Copyright (c) 2012, ProjectLibre, Inc.
+    Attribution Phrase (not exceeding 10 words): 
+    ProjectLibre, open source project management software.
+    Attribution URL: http://www.projectlibre.com
+    Graphic Image as provided in the Covered Code as file: projectlibre-logo.png with 
+    alternatives listed on http://www.projectlibre.com/logo 
+   
+    Display of Attribution Information is required in Larger Works which are defined 
+    in the CPAL as a work which combines Covered Code or portions thereof with code 
+    not governed by the terms of the CPAL. However, in addition to the other notice 
+    obligations, all copies of the Covered Code in Executable and Source Code form 
+    distributed must, as a form of attribution of the original author, include on 
+    each user interface screen the "ProjectLibre" logo visible to all users. 
+    The ProjectLibre logo should be located horizontally aligned with the menu bar 
+    and left justified on the top left of the screen adjacent to the File menu. The 
+    logo must be at least 144 x 31 pixels. When users click on the "ProjectLibre" 
+    logo it must direct them back to http://www.projectlibre.com. 
+ -->
+<project name="projectlibre" default="dist" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
+
+	<property file="build-override.properties"/>
+	<property file="build.properties"/>
+
+	<path id="compile.class.path">
+		<fileset dir="../projectlibre_contrib">
+			<include name="projectlibre-contrib.jar" />
+			<include name="projectlibre-script.jar" />
+			<!--include name="projectlibre-exchange.jar" /-->
+			<include name="projectlibre-reports.jar" />
+		</fileset>
+	</path>
+	
+	<path id="compile-no_contrib_built.class.path">
+		<fileset dir="../projectlibre_contrib/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+ 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="../projectlibre_contrib/ant-lib/ant-contrib-1.jar"/>
+	
+
+	<target name="contrib">
+		<if>
+		 <equals arg1="${build_contrib}" arg2="true" />
+		 <then>
+			<ant antfile="../projectlibre_contrib/build.xml" target="dist" inheritAll="false"/>
+		</then>
+	  </if>
+	</target>
+
+	<target name="prepare">
+		<mkdir dir="${build}"/>
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${packages}"/>
+	</target>
+
+	<target name="compile" depends="prepare,contrib">
+		<if>
+ 			<equals arg1="${build_contrib}" arg2="true" />
+ 			<then>
+				<javac destdir="${build}"
+					classpathref="compile.class.path"
+					debug="off"
+					nowarn="on"
+					source="1.6"
+					target="1.6">
+						<src path="${src_core}" />
+						<src path="${src_ui}" />
+						<src path="${src_reports}" />
+						<src path="${src_exchange}" />
+						<src path="${src_ext}" />
+						<include name="**/*.java" />
+						<!--exclude name="**/version.properties" / -->
+						<exclude name="test/**" />
+				</javac>
+			</then>
+ 			<else>
+				<javac destdir="${build}"
+					classpathref="compile-no_contrib_built.class.path"
+					debug="off"
+					nowarn="on"
+					source="1.6"
+					target="1.6">
+						<src path="${src_core}" />
+						<src path="${src_ui}" />
+						<src path="${src_reports}" />
+						<src path="${src_exchange}" />
+						<src path="${src_ext}" />
+						<src path="${src_contrib}" />
+						<include name="**/*.java" />
+						<!--exclude name="**/version.properties" / -->
+						<exclude name="test/**" />
+				</javac>
+			</else>
+  		</if>
+	</target>
+	
+	<target name="build" depends="compile">
+		<copy todir="${build}">
+			<fileset dir="${src_core}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${src_ui}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${src_reports}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${src_exchange}/">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<copy file="src/com/projectlibre1/version/version.properties" toFile="${build}/com/projectlibre1/version/version.properties" overwrite="true">
+		  <filterset>
+			<filter token="version" value="${version}"/>
+		  </filterset>
+		</copy>
+
+	</target>
+
+
+	<target name="lib" depends="build">
+		<if>
+ 			<equals arg1="${build_contrib}" arg2="true" />
+ 			<then>
+ 				<jar jarfile="${dist}/projectlibre.jar">
+ 					<zipfileset dir="${build}" >
+ 						<include name="**/*" />
+ 					</zipfileset>
+ 					<zipfileset dir="." >
+ 						<include name="license/**" />
+ 					</zipfileset>
+
+ 					<manifest>
+ 						<attribute name="Main-Class" value="com.projectlibre1.main.Main"/>
+ 						<attribute name="Class-Path" value="lib/projectlibre-contrib.jar lib/projectlibre-script.jar lib/projectlibre-reports.jar"/>
+ 					</manifest>
+
+ 					<metainf dir="license">
+ 						<include name="**" />
+ 					</metainf>
+ 				</jar>
+			</then>
+ 			<else>
+ 				<jar jarfile="${dist}/projectlibre.jar">
+ 					<zipfileset dir="${build}" >
+ 						<include name="**/*" />
+ 					</zipfileset>
+ 					<zipfileset dir="." >
+ 						<include name="license/**" />
+ 					</zipfileset>
+
+ 					<manifest>
+ 						<attribute name="Main-Class" value="com.projectlibre1.main.Main"/>
+ 					</manifest>
+
+ 					<metainf dir="license">
+ 						<include name="**" />
+ 					</metainf>
+ 				</jar>
+			</else>
+  		</if>
+	</target>
+
+
+	<target name="dist" depends="lib">
+		<if>
+ 			<equals arg1="${build_contrib}" arg2="true" />
+ 			<then>
+ 			 	<mkdir dir="${dist}/lib"/>
+ 				  <copy todir="${dist}/lib">
+ 				    <fileset dir="../projectlibre_contrib/">
+ 				    	<include name="*.jar" />
+ 				  	</fileset>
+ 				  </copy>
+			</then>
+  		</if>
+	</target>
+
+	<target name="dir" depends="dist">
+		<copy todir="${packages}/projectlibre-${version}">
+			<fileset dir="${dist}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${resources}">
+				<include name="projectlibre.sh"/>
+				<include name="projectlibre.bat"/>
+				<include name="sample/**"/>
+			</fileset>
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/projectlibre-${version}" file="${resources}/readme.html" >
+			<filterset>
+				<filter token="version" value="${version}"/>
+				<filter token="version_name" value="${version_name}"/>
+			</filterset>
+		</copy>
+	</target>
+
+	<target name="tar" depends="dir">
+		<exec executable="chmod"> <!-- to preserve permissions -->
+			<arg value="+x"/>
+			<arg value="${packages}/projectlibre-${version}/projectlibre.sh"/>
+		</exec>
+		<exec executable="/usr/local/bin/gtar"> <!-- to preserve permissions also add export COPYFILE_DISABLE=true -->
+			<arg value="--numeric-owner"/>
+			<arg value="--owner=0"/>
+			<arg value="--group=0"/>
+			<arg value="-czf"/>
+			<arg value="${packages}/projectlibre-${version}.tar.gz"/>
+			<arg value="-C"/>
+			<arg value="${packages}"/>
+			<arg value="projectlibre-${version}"/>
+		</exec>
+	</target>
+
+	<target name="zip" depends="dir">
+		<zip destfile="${packages}/projectlibre-${version}.zip">
+			<zipfileset prefix="projectlibre-${version}" dir="${packages}/projectlibre-${version}">
+				<include name="**"/>
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="rpm-binary" depends="dist">
+		<for list="${rpm_builds}" param="rpmbuild">
+		  <sequential>
+			<mkdir dir="${rpm}_@{rpmbuild}/RPMS" />
+			<mkdir dir="${rpm}_@{rpmbuild}/RPMS/i586" />
+			<mkdir dir="${rpm}_@{rpmbuild}/RPMS/noarch" />
+			<mkdir dir="${rpm}_@{rpmbuild}/RPMS/x86_64" />
+			<mkdir dir="${rpm}_@{rpmbuild}/SPECS" />
+			<mkdir dir="${rpm}_@{rpmbuild}/SOURCES" />
+			<mkdir dir="${rpm}_@{rpmbuild}/BUILD" />
+			<mkdir dir="${rpm}_@{rpmbuild}/SRPMS" />
+			<mkdir dir="${rpm}_@{rpmbuild}/INSTALL" />
+			<mkdir dir="${rpm}_@{rpmbuild}/tmp" />
+
+			<copy tofile="${rpm}_@{rpmbuild}/SPECS/projectlibre.spec" file="${resources}/rpm/projectlibre_@{rpmbuild}.spec">
+				<filterset>
+					<filter token="basedir" value="${basedir}"/>
+					<filter token="version" value="${rpm_version}"/>
+				    <filter token="rpm_revision" value="${rpm_revision}"/>
+				</filterset>
+			</copy>
+			<copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/projectlibre/" >
+				<fileset dir="${dist}">
+					<include name="**"/>
+				</fileset>
+				<fileset dir="${resources}">
+					<include name="samples/**"/>
+				</fileset>
+				<fileset dir=".">
+					<include name="license/**"/>
+				</fileset>
+			</copy>
+			<mkdir dir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/bin/" />
+			<exec executable="cp"> <!-- to preserve permissions -->
+				<arg value="${resources}/projectlibre"/>
+				<arg value="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/bin/projectlibre"/>
+			</exec>
+			<copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/pixmaps" >
+				<fileset dir="${resources}">
+					<include name="projectlibre.png"/>
+				</fileset>
+			</copy>
+			<copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/applications" >
+				<fileset dir="${resources}">
+					<include name="projectlibre.desktop"/>
+				</fileset>
+			</copy>
+			<copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/mime/packages" >
+				<fileset dir="${resources}">
+					<include name="projectlibre.xml"/>
+				</fileset>
+			</copy>
+
+			<exec executable="chmod">
+				<arg value="a+x"/>
+				<arg value="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/bin/projectlibre"/>
+			</exec>
+			<!--copy todir="${rpm}_@{rpmbuild}/${rpm_filesroot}${rpm_prefix}/share/apps/kdesktop/Desktop" >
+				<fileset dir="${resources}">
+					<include name="projectlibre.desktop"/>
+				</fileset>
+			</copy-->
+		  </sequential>
+		</for>
+	</target>
+	<target name="rpm" depends="rpm-binary,rpm-create">
+	</target>
+	<target name="rpm-create">
+		<for list="${rpm_builds}" param="rpmbuild">
+		  <sequential>
+			<exec executable="${rpm_rpmbuild}">
+				<arg value="-bb"/>
+				<!--arg value="- - buildroot"/-->
+				<!--arg value="${basedir}/${rpm}/INSTALL"/-->
+				<arg value="${rpm}_@{rpmbuild}/SPECS/projectlibre.spec"/>
+			</exec>
+			<move tofile="${packages}/projectlibre-${rpm_version}-${rpm_revision}.@{rpmbuild}.rpm" file="${rpm}_@{rpmbuild}/RPMS/i386/projectlibre-${rpm_version}-${rpm_revision}.i386.rpm" />
+			<delete dir="${rpm}_@{rpmbuild}"/>
+		  </sequential>
+		</for>
+		<move tofile="${packages}/projectlibre-${rpm_version}-${rpm_revision}.rpm" file="${packages}/projectlibre-${rpm_version}-${rpm_revision}.mageia.rpm" />
+	</target>
+
+	<target name="deb-prepare">
+		<mkdir dir="../debian" />
+
+		<copy todir="../debian" >
+			<fileset dir="${resources}/deb">
+				<include name="changelog"/>
+				<include name="copyright"/>
+				<include name="rules"/>
+			</fileset>
+			<filterset>
+				<filter token="version" value="${version}"/>
+			    <filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+		<copy tofile="../debian/control" file="${resources}/deb/control-build">
+			<filterset>
+				<filter token="version" value="${version}"/>
+			    <filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+		<exec executable="chmod">
+			<arg value="a+x"/>
+			<arg value="../debian/rules"/>
+		</exec>
+
+	</target>
+	<target name="deb-binary" depends="dist">
+		<mkdir dir="${deb}/DEBIAN" />
+
+		<copy todir="${deb}/DEBIAN" file="${resources}/deb/control" >
+			<filterset>
+				<filter token="version" value="${deb_version}"/>
+			    <filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+		<!-- in control Installed-Size: xxx should be calculated each with something like:
+		du -sx - - exclude DEBIAN deb/projectlibre/ -->
+		<copy todir="${deb}/DEBIAN" >
+			<fileset dir="${resources}/deb/">
+				<include name="postinst"/>
+				<include name="postrm"/>
+			</fileset>
+		</copy>
+		<copy todir="${deb}/usr/share/projectlibre/" >
+			<fileset dir="${dist}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${resources}">
+				<include name="samples/**"/>
+			</fileset>
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${deb}/usr/share/doc/projectlibre" >
+			<fileset dir="${resources}/deb">
+				<include name="copyright"/>
+			</fileset>
+			<filterset>
+				<filter token="version" value="${deb_version}"/>
+			    <filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+		<copy todir="${deb}/usr/share/doc/projectlibre" >
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<exec executable="sh"> <!-- not enough compression with gzip ant task, lintian warning -->
+			<arg value="${resources}/deb/gzip.sh"/>
+			<arg value="${resources}/deb/changelog"/>
+			<arg value="${deb}/usr/share/doc/projectlibre/changelog.gz"/>
+		</exec>
+		<exec executable="sh"> <!-- not enough compression with gzip ant task, lintian warning -->
+			<arg value="${resources}/deb/gzip.sh"/>
+			<arg value="${resources}/deb/changelog"/>
+			<arg value="${deb}/usr/share/doc/projectlibre/changelog.Debian.gz"/>
+		</exec>
+		<mkdir dir="${deb}/usr/bin/" />
+		<exec executable="cp"> <!-- to preserve permissions -->
+			<arg value="${resources}/projectlibre"/>
+			<arg value="${deb}/usr/bin/projectlibre"/>
+		</exec>
+		<copy todir="${deb}/usr/share/pixmaps" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.png"/>
+			</fileset>
+		</copy>
+		<copy todir="${deb}/usr/share/applications" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.desktop"/>
+			</fileset>
+		</copy>
+		<copy todir="${deb}/usr/share/mime/packages" >
+			<fileset dir="${resources}">
+				<include name="projectlibre.xml"/>
+			</fileset>
+		</copy>
+
+		<exec executable="chmod">
+			<arg value="-R"/>
+			<arg value="a+x"/>
+			<arg value="${deb}/DEBIAN/postinst"/>
+			<arg value="${deb}/DEBIAN/postrm"/>
+			<arg value="${deb}/usr/bin/projectlibre"/>
+		</exec>
+
+		<exec executable="chmod"> <!-- remove group write permissions -->
+			<arg value="-R"/>
+			<arg value="g-w"/>
+			<arg value="${deb}"/>
+		</exec>
+
+	</target>
+	<target name="deb-test">
+
+		<exec executable="echo">
+			<arg value="${dpkg_deb}"/>
+			<arg value="--build"/>
+			<arg value="${basedir}/${deb}"/>
+			<arg value="${basedir}/${debroot}/projectlibre_${deb_version}-${deb_revision}.deb"/>
+		</exec>
+
+		<exec executable="echo"> <!-- dpkg-deb package with wheel group on Mac OS X is causing check issues on Ubuntu. Workaround to put numeric owner group in tars. requires GNU tar -->
+			<arg value="sh"/>
+			<arg value="resources/deb/cleandeb.sh"/>
+			<arg value="${gnu_tar}"/>
+			<arg value="${basedir}/${debroot}"/>
+			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
+			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
+		</exec>
+	</target>
+
+	<target name="deb-create">
+		 <!-- need 0/0 -->
+		<!--exec executable="sudo">
+			<arg value="chown"/>
+			<arg value="-R"/>
+			<arg value="root:wheel"/>
+			<arg value="${deb}"/>
+		</exec-->
+
+		<exec executable="${dpkg_deb}">
+			<arg value="--build"/>
+			<arg value="${basedir}/${deb}"/>
+			<arg value="${basedir}/${debroot}/projectlibre_${deb_version}-${deb_revision}.deb"/>
+		</exec>
+
+		<!--exec executable="sudo">
+			<arg value="chown"/>
+			<arg value="-R"/>
+			<arg value="${user.name}"/>
+			<arg value="${debroot}"/>
+		</exec-->
+		<exec executable="sh"> <!-- dpkg-deb package with wheel group on Mac OS X is causing check issues on Ubuntu. Workaround to put numeric owner group in tars. requires GNU tar -->
+			<arg value="resources/deb/cleandeb.sh"/>
+			<arg value="${gnu_tar}"/>
+			<arg value="${basedir}/${debroot}"/>
+			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
+			<arg value="projectlibre_${deb_version}-${deb_revision}.deb"/>
+		</exec>
+
+		<move todir="${packages}" file="${debroot}/projectlibre_${deb_version}-${deb_revision}.deb" />
+		<delete dir="${debroot}"/>
+
+	</target>
+	<target name="deb" depends="deb-binary,deb-create"/>
+	<!-- ant rpm-package then rpmbuild -bb - -buildroot /root/rpm/INSTALL /root/rpm/SPECS/projectlibre.spec can be also used -->
+
+<!--
+    The contents of this file are subject to the Common Public Attribution License 
+    Version 1.0 (the "License"); you may not use this file except in compliance with 
+    the License. You may obtain a copy of the License at 
+    http://www.projectlibre.com/license . The License is based on the Mozilla Public 
+    License Version 1.1 but Sections 14 and 15 have been added to cover use of 
+    software over a computer network and provide for limited attribution for the 
+    Original Developer. In addition, Exhibit A has been modified to be consistent 
+    with Exhibit B. 
+   
+    Software distributed under the License is distributed on an "AS IS" basis, 
+    WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the 
+    specific language governing rights and limitations under the License. The 
+    Original Code is ProjectLibre. The Original Developer is the Initial Developer 
+    and is ProjectLibre Inc. All portions of the code written by ProjectLibre are 
+    Copyright (c) 2012. All Rights Reserved. All portions of the code written by 
+    ProjectLibre are Copyright (c) 2012. All Rights Reserved. Contributor 
+    ProjectLibre, Inc.
+   
+    Alternatively, the contents of this file may be used under the terms of the 
+    ProjectLibre End-User License Agreement (the ProjectLibre License) in which case 
+    the provisions of the ProjectLibre License are applicable instead of those above. 
+    If you wish to allow use of your version of this file only under the terms of the 
+    ProjectLibre License and not to allow others to use your version of this file 
+    under the CPAL, indicate your decision by deleting the provisions above and 
+    replace them with the notice and other provisions required by the ProjectLibre 
+    License. If you do not delete the provisions above, a recipient may use your 
+    version of this file under either the CPAL or the ProjectLibre Licenses. 
+   
+   
+    [NOTE: The text of this Exhibit A may differ slightly from the text of the notices 
+    in the Source Code files of the Original Code. You should use the text of this 
+    Exhibit A rather than the text found in the Original Code Source Code for Your 
+    Modifications.] 
+   
+    EXHIBIT B. Attribution Information for ProjectLibre required
+   
+    Attribution Copyright Notice: Copyright (c) 2012, ProjectLibre, Inc.
+    Attribution Phrase (not exceeding 10 words): 
+    ProjectLibre, open source project management software.
+    Attribution URL: http://www.projectlibre.com
+    Graphic Image as provided in the Covered Code as file: projectlibre-logo.png with 
+    alternatives listed on http://www.projectlibre.com/logo 
+   
+    Display of Attribution Information is required in Larger Works which are defined 
+    in the CPAL as a work which combines Covered Code or portions thereof with code 
+    not governed by the terms of the CPAL. However, in addition to the other notice 
+    obligations, all copies of the Covered Code in Executable and Source Code form 
+    distributed must, as a form of attribution of the original author, include on 
+    each user interface screen the "ProjectLibre" logo visible to all users. 
+    The ProjectLibre logo should be located horizontally aligned with the menu bar 
+    and left justified on the top left of the screen adjacent to the File menu. The 
+    logo must be at least 144 x 31 pixels. When users click on the "ProjectLibre" 
+    logo it must direct them back to http://www.projectlibre.com. 
+ -->
+	
+	<target name="mac-embedded" depends="dist">
+		<mkdir dir="${packages}/mac-embedded/${macapp}" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/MacOS" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Resources" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Java" />
+
+		<copy todir="${packages}/mac-embedded/${macapp}/Contents" file="${resources}/mac/new/Info.plist" >
+			<filterset>
+				<filter token="version" value="${numericVersion3}"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/mac-embedded/${macapp}/Contents" file="${resources}/mac/new/PkgInfo" />
+		<copy todir="${packages}/mac-embedded/${macapp}/Contents/Resources" >
+			<fileset dir="${resources}/mac">
+				<include name="projectlibre.icns"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/mac-embedded/${macapp}/Contents/Java" >
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+			<fileset dir="${dist}">
+				<include name="projectlibre.jar"/>
+				<include name="lib/*.jar"/>
+			</fileset>
+		</copy>
+		 <!-- to preserve permissions -->
+		<exec executable="cp">
+			<arg value="${resources}/mac/JavaAppLauncher"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/MacOS"/>
+		</exec>
+		
+		
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Plugins" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents" />
+		<mkdir dir="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home" />
+		<exec executable="cp">
+			<arg value="-a"/>
+			<arg value="/Library/Java/JavaVirtualMachines/${jvm_name}/Contents/Info.plist"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/"/>
+		</exec>
+		<exec executable="cp">
+			<arg value="-a"/>
+			<arg value="/Library/Java/JavaVirtualMachines/${jvm_name}/Contents/Home/jre"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/"/>
+		</exec>
+		<exec executable="rm">
+			<arg value="-rf"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/bin"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/applet"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/deploy"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/deploy.jar"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/javaws.jar"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/libdeploy.dylib"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/libnpjp2.dylib"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/plugin.jar"/>
+			<arg value="${packages}/mac-embedded/${macapp}/Contents/Plugins/${jvm_name}/Contents/Home/jre/lib/security/javaws.policy"/>
+		</exec>
+			
+
+		<exec executable="chmod"> <!-- remove group write permissions -->
+			<arg value="-R"/>
+			<arg value="g-w"/>
+			<arg value="${packages}/mac-embedded/${macapp}"/>
+		</exec>
+
+
+	</target>
+	
+
+	<target name="mac-old" depends="dist">
+		<mkdir dir="${packages}/mac-old/${macapp}" />
+		<mkdir dir="${packages}/mac-old/${macapp}/Contents" />
+		<mkdir dir="${packages}/mac-old/${macapp}/Contents/MacOS" />
+		<mkdir dir="${packages}/mac-old/${macapp}/Contents/Resources" />
+		<mkdir dir="${packages}/mac-old/${macapp}/Contents/Resources/Java" />
+
+		<copy todir="${packages}/mac-old/${macapp}/Contents" file="${resources}/mac/old/Info.plist" >
+			<filterset>
+				<filter token="version" value="${numericVersion3}"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/mac-old/${macapp}/Contents" file="${resources}/mac/PkgInfo" />
+		<copy todir="${packages}/mac-old/${macapp}/Contents/Resources" >
+			<fileset dir="${resources}/mac">
+				<include name="projectlibre.icns"/>
+			</fileset>
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/mac-old/${macapp}/Contents/Resources/Java" >
+			<fileset dir="${dist}">
+				<include name="projectlibre.jar"/>
+				<include name="lib/*.jar"/>
+			</fileset>
+		</copy>
+		 <!-- to preserve permissions -->
+		<exec executable="cp">
+			<arg value="${resources}/mac/JavaApplicationStub"/>
+			<arg value="${packages}/mac-old/${macapp}/Contents/MacOS"/>
+		</exec>
+		<!--exec executable="ln">
+			<arg value="-s"/>
+			<arg value="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub"/>
+			<arg value="${packages}/${macapp}/Contents/MacOS/projectlibre"/>
+		</exec-->
+
+
+		<exec executable="chmod"> <!-- remove group write permissions -->
+			<arg value="-R"/>
+			<arg value="g-w"/>
+			<arg value="${packages}/mac-old/${macapp}"/>
+		</exec>
+
+
+	</target>
+
+	<target name="mac-new" depends="dist">
+		<mkdir dir="${packages}/mac-new/${macapp}" />
+		<mkdir dir="${packages}/mac-new/${macapp}/Contents" />
+		<mkdir dir="${packages}/mac-new/${macapp}/Contents/MacOS" />
+		<mkdir dir="${packages}/mac-new/${macapp}/Contents/Resources" />
+		<mkdir dir="${packages}/mac-new/${macapp}/Contents/Java" />
+
+		<copy todir="${packages}/mac-new/${macapp}/Contents" file="${resources}/mac/new/Info.plist" >
+			<filterset>
+				<filter token="version" value="${numericVersion3}"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/mac-new/${macapp}/Contents" file="${resources}/mac/new/PkgInfo" />
+		<copy todir="${packages}/mac-new/${macapp}/Contents/Resources" >
+			<fileset dir="${resources}/mac">
+				<include name="projectlibre.icns"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/mac-new/${macapp}/Contents/Java" >
+			<fileset dir=".">
+				<include name="license/**"/>
+			</fileset>
+			<fileset dir="${dist}">
+				<include name="projectlibre.jar"/>
+				<include name="lib/*.jar"/>
+			</fileset>
+		</copy>
+		 <!-- to preserve permissions -->
+		<exec executable="cp">
+			<arg value="${resources}/mac/JavaAppLauncher"/>
+			<arg value="${packages}/mac-new/${macapp}/Contents/MacOS"/>
+		</exec>
+
+
+		<exec executable="chmod"> <!-- remove group write permissions -->
+			<arg value="-R"/>
+			<arg value="g-w"/>
+			<arg value="${packages}/mac-new/${macapp}"/>
+		</exec>
+
+
+	</target>
+	
+    <target name="fxwindows" depends="build">
+        <!-- Requires Inno Setup 5 -->
+                <property environment="env"/>
+                <var name="bundled_jdk" value="${bundled_jdk_windows}"/>
+                <if>
+                        <equals arg1="${bundled_jdk}" arg2="" />
+                        <then>
+                                <var name="bundled_jdk" value="${env.JAVA_HOME}"/>
+                        </then>
+                </if>
+        <echo>Fx using java_home: ${bundled_jdk}</echo>
+
+        <path id="fxant">
+                        <filelist>
+                        <file name="resources/fx"/>
+                <file name="C:\Program Files\Java\jdk1.8.0_202\lib\ant-javafx.jar"/>
+                 </filelist>
+        </path>
+
+        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
+                 uri="javafx:com.sun.javafx.tools.ant"
+                        classpathref="fxant"/>
+
+        <delete dir="${packages}/fxwindows"/>
+                <mkdir dir="${packages}/fxwindows"/>
+
+        <fx:deploy width="1000" height="700"
+                   nativeBundles="exe"
+                   outdir="${packages}/fxwindows" outfile="projectlibre"
+                verbose="true">
+            <fx:application name="ProjectLibre"
+                mainClass="com.projectlibre1.main.Main"
+                toolkit="swing"
+                version="${version}"/>
+            <fx:resources>
+                <fx:fileset dir="${dist}" includes="**/*"/>
+                        <fx:fileset dir="." includes="license/**"/>
+                <fx:fileset type="license" dir="license" includes="license2.rtf"/>
+            </fx:resources>
+            <fx:info title="ProjectLibre"
+                vendor="ProjectLibre"
+                copyright="2012-2018 ProjectLibre Inc."
+                license="CPAL">
+                <fx:icon href="${resources}/wix/msi_images/projectlibre.ico"/>
+                <fx:association extension="pod" mimetype="application/projectlibre" description="ProjectLibre" icon="projectlibre.ico"/>
+                <fx:association extension="mpp" mimetype="application/vnd.ms-project" description="ProjectLibre" icon="projectlibre.ico"/>
+                <fx:association extension="xml" mimetype="application/xml" description="ProjectLibre" icon="projectlibre.ico"/>
+        </fx:info>
+                <fx:preferences shortcut="true"
+                        menu="true"
+                    install="true" />
+                <fx:platform j2se="6.0"/>
+            <!--fx:platform>
+                <fx:jvmuserarg name="-Xms" value="512m"/>
+                <fx:jvmuserarg name="-Xmx" value="1024m"/>
+            </fx:platform-->
+        </fx:deploy>
+        </target>
+
+
+
+    <target name="fxmac" depends="build">
+   		<property environment="env"/>
+		<var name="bundled_jdk" value="${bundled_jdk_mac}"/>
+		<if>
+			<equals arg1="${bundled_jdk}" arg2="" />
+			<then>
+				<var name="bundled_jdk" value="${env.JAVA_HOME}"/>
+			</then>
+		</if>
+     	<echo>Fx using java_home: ${bundled_jdk}</echo>
+ 
+    	<path id="fxant">
+    	  		<filelist>
+  	    		<file name="resources/fx"/>
+    	    	<file name="${bundled_jdk_mac}/lib/ant-javafx.jar"/>
+     	 	 </filelist>
+    	</path>
+     	
+        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
+                 uri="javafx:com.sun.javafx.tools.ant"
+        		classpathref="fxant"/>
+    	
+    	<delete dir="${packages}/fxmac"/>
+		<mkdir dir="${packages}/fxmac"/>
+
+    		<unjar dest="${packages}/fxmac/contrib_build">
+    	  		<fileset dir="../projectlibre_contrib/" includes="*.jar" />
+    		</unjar>
+  				<fx:jar destfile="${packages}/fxmac/projectlibre.jar">
+  					 <fx:application name="ProjectLibre"
+  		    	    	mainClass="com.projectlibre1.main.Main"
+  		    	    	toolkit="swing"
+  		    	    	version="${version}"/>
+					<fileset dir="${packages}/fxmac/contrib_build" >
+ 						<include name="**/*" />
+ 					</fileset>
+ 					<fileset dir="${build}" >
+ 						<include name="**/*" />
+ 					</fileset>
+  					<fileset dir="." >
+ 						<include name="license/**" />
+ 					</fileset>
+					<!--fx:fileset dir="../projectlibre_contrib/" includes="*.jar"/>
+					<fx:resources>
+ 						<fx:fileset dir="../projectlibre_contrib/" includes="*.jar"/>
+					</fx:resources-->
+ 					<!--manifest>
+ 						<attribute name="Class-Path" value="lib/projectlibre-contrib.jar lib/projectlibre-script.jar lib/projectlibre-reports.jar"/>
+ 					</manifest-->
+  				</fx:jar>
+    	
+
+    	<fx:deploy width="1000" height="700"
+    	           nativeBundles="dmg"
+    	           outdir="${packages}/fxmac/deploy" outfile="projectlibre"
+    			verbose="true">
+    	    <fx:application name="ProjectLibre"
+    	    	mainClass="com.projectlibre1.main.Main"
+    	    	toolkit="swing"
+    	    	version="${version}"/>
+    	    <fx:resources>
+    	        <fx:fileset dir="${packages}/fxmac/" includes="projectlibre.jar"/>
+    			<fx:fileset dir="." includes="license/**"/>
+    	    	<fx:fileset type="license" dir="license" includes="license.txt"/>
+    	    </fx:resources>
+    	    <fx:info title="ProjectLibre"
+    	    	vendor="ProjectLibre"
+    	    	copyright="2012-2018 ProjectLibre Inc."
+    	    	license="CPAL">
+    	    	<fx:icon href="${resources}/mac/projectlibre.icns"/>
+    	    	<fx:association extension="pod" description="ProjectLibre" icon="projectlibre.icns"/>
+    	    	<fx:association extension="mpp" description="ProjectLibre" icon="projectlibre.icns"/>
+	    		<fx:association extension="xml" description="ProjectLibre" icon="projectlibre.icns"/>
+    	    </fx:info>
+    		<fx:platform basedir="${bundled_jdk_mac}"/>
+           <!--fx:platform>
+                <fx:jvmuserarg name="-Xms" value="512m"/>
+                <fx:jvmuserarg name="-Xmx" value="1024m"/>
+            </fx:platform-->
+    	</fx:deploy>
+    </target>
+
+
+	<target name="mac-tar" depends="mac-old">
+		<exec executable="tar"> <!-- to preserve permissions -->
+			<arg value="--numeric-owner"/>
+			<arg value="--owner=0"/>
+			<arg value="--group=0"/>
+			<arg value="-czf"/>
+			<arg value="${packages}/${macapp}-${version}.tar.gz"/>
+			<arg value="-C"/>
+			<arg value="${packages}"/>
+			<arg value="${macapp}"/>
+		</exec>
+	</target>
+	
+	
+	
+    <target name="wix" depends="dir">
+		<mkdir dir="${packages}/${wixbuild}-${version}"/>
+		<mkdir dir="${packages}/${wixbuild}-${version}/projectlibre"/>
+
+		<copy todir="${packages}/${wixbuild}-${version}" file="${resources}/wix/projectlibre.wxs" >
+			<filterset>
+				<filter token="version" value="${numericVersion4}"/>
+				<filter token="resourcedir" value="projectlibre"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/${wixbuild}-${version}" file="${resources}/wix/projectlibre-x86.wxs" >
+			<filterset>
+				<filter token="version" value="${numericVersion4}"/>
+				<filter token="resourcedir" value="projectlibre"/>
+			</filterset>
+		</copy>
+		<copy todir="${packages}/${wixbuild}-${version}" file="${resources}/wix/projectlibre.nsi" />
+		<copy todir="${packages}/${wixbuild}-${version}/projectlibre">
+			<fileset dir="${packages}/projectlibre-${version}">
+				<include name="**"/>
+				<exclude name="projectlibre.sh"/>
+			</fileset>
+		</copy>
+		<copy todir="${packages}/${wixbuild}-${version}/projectlibre" >
+			<fileset dir="${resources}/wix">
+				<include name="msi_images/**"/>
+				<include name="projectlibre.exe"/>
+			</fileset>
+		</copy>
+
+    </target>
+
+	<target name="readme">
+		<copy tofile="${packages}/README.txt" file="${resources}/README_SF.txt" >
+			<filterset>
+				<filter token="version" value="${version}"/>
+				<filter token="rpm_version" value="${rpm_version}"/>
+				<filter token="rpm_revision" value="${rpm_revision}"/>
+				<filter token="deb_version" value="${deb_version}"/>
+				<filter token="deb_revision" value="${deb_revision}"/>
+			</filterset>
+		</copy>
+	</target>
+	
+	
+
+	<target name="all" depends="dir,tar,zip,mac-embedded,mac-new,mac-old,wix,readme,rpm,deb">
+	</target>
+
+
+
+	<target name="clean">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+		<delete dir="${debroot}"/>
+		<delete dir="${packages}"/>
+		<for list="${rpm_builds}" param="rpmbuild">
+		  <sequential>
+			<delete dir="${rpm}_@{rpmbuild}"/>
+		  </sequential>
+		</for>
+	</target>
+	
+
+
+</project>

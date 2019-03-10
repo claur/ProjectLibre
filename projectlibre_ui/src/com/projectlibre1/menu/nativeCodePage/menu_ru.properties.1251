@@ -1,0 +1,1241 @@
+###############################################################################
+# The contents of this file are subject to the Common Public Attribution License 
+# Version 1.0 (the "License"); you may not use this file except in compliance with 
+# the License. You may obtain a copy of the License at 
+# http://www.projectlibre.com/license . The License is based on the Mozilla Public 
+# License Version 1.1 but Sections 14 and 15 have been added to cover use of 
+# software over a computer network and provide for limited attribution for the 
+# Original Developer. In addition, Exhibit A has been modified to be consistent 
+# with Exhibit B. 
+#
+# Software distributed under the License is distributed on an "AS IS" basis, 
+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the 
+# specific language governing rights and limitations under the License. The 
+# Original Code is ProjectLibre. The Original Developer is the Initial Developer 
+# and is ProjectLibre Inc. All portions of the code written by ProjectLibre are 
+# Copyright (c) 2012-2019. All Rights Reserved. All portions of the code written by 
+# ProjectLibre are Copyright (c) 2012-2019. All Rights Reserved. Contributor 
+# ProjectLibre, Inc.
+#
+# Alternatively, the contents of this file may be used under the terms of the 
+# ProjectLibre End-User License Agreement (the ProjectLibre License) in which case 
+# the provisions of the ProjectLibre License are applicable instead of those above. 
+# If you wish to allow use of your version of this file only under the terms of the 
+# ProjectLibre License and not to allow others to use your version of this file 
+# under the CPAL, indicate your decision by deleting the provisions above and 
+# replace them with the notice and other provisions required by the ProjectLibre 
+# License. If you do not delete the provisions above, a recipient may use your 
+# version of this file under either the CPAL or the ProjectLibre Licenses. 
+#
+#
+# [NOTE: The text of this Exhibit A may differ slightly from the text of the notices 
+# in the Source Code files of the Original Code. You should use the text of this 
+# Exhibit A rather than the text found in the Original Code Source Code for Your 
+# Modifications.] 
+#
+# EXHIBIT B. Attribution Information for ProjectLibre required
+#
+# Attribution Copyright Notice: Copyright (c) 2012-2019, ProjectLibre, Inc.
+# Attribution Phrase (not exceeding 10 words): 
+# ProjectLibre, open source project management software.
+# Attribution URL: http://www.projectlibre.com
+# Graphic Image as provided in the Covered Code as file: projectlibre-logo.png with 
+# alternatives listed on http://www.projectlibre.com/logo 
+#
+# Display of Attribution Information is required in Larger Works which are defined 
+# in the CPAL as a work which combines Covered Code or portions thereof with code 
+# not governed by the terms of the CPAL. However, in addition to the other notice 
+# obligations, all copies of the Covered Code in Executable and Source Code form 
+# distributed must, as a form of attribution of the original author, include on 
+# each user interface screen the "ProjectLibre" logo visible to all users. 
+# The ProjectLibre logo should be located horizontally aligned with the menu bar 
+# and left justified on the top left of the screen adjacent to the File menu. The 
+# logo must be at least 144 x 31 pixels. When users click on the "ProjectLibre" 
+# logo it must direct them back to http://www.projectlibre.com. 
+###############################################################################
+
+##########################################################
+##########################################################
+##########################################################
+#This file is in codepage 1251. It is useful for the translator wishing to modify the text
+##########################################################
+##########################################################
+##########################################################
+
+##########################################################
+#A big thank you to Marat Latypov for the Russian translation                                         #
+##########################################################
+
+# The lines to change have the following suffixes
+# .text
+# .tooltip
+# .tip
+# .mnemonic
+# .accelerator
+# Other lines must not be changed
+# Note that the mnemonic should correspond to the first letter of the text, and the accelerator should be CTRL+(first letter).  
+# The ... after some text items should be preserved in the translation.
+# All comments should be kept as is. Comments are lines starting with #
+ 
+PaletteMenu = Palette LookAndFeel FullScreen
+Palette.type        = ITEM
+Palette.text   = ������ ������������...
+Palette.icon        = menu24.palette
+Palette.action      = PaletteAction
+
+LookAndFeel.type        = ITEM
+LookAndFeel.text   = ���...
+LookAndFeel.icon        = menu24.palette
+LookAndFeel.action      = LookAndFeelAction
+
+FullScreen.type        = ITEM
+FullScreen.text   = ������� ����� ���� �������� �� ������ �����
+FullScreen.icon        = menu24.fullScreen
+FullScreen.action      = FullScreenAction
+
+Refresh.type        = ITEM
+Refresh.text   = ��������
+Refresh.icon        = menu24.refresh
+Refresh.action      = RefreshAction
+
+
+StandardMenuBar =  ProjectLibre File Edit View Insert Tools Project Help
+ServerStandardMenuBar = ServerFile Edit View ServerInsert ServerTools Project Help
+SFMenuBar = SFTracking
+
+# File menu ################
+File = NewProject OpenProject CloseProject - SaveProject SaveProjectAs - Print PrintPreview - Exit
+File.type = MENU
+File.text = ����
+File.mnemonic = F
+
+ServerFile = NewProject OpenProject CloseProject - SaveProject SaveProjectAs - ImportMSProject ExportMSProject - Print PrintPreview - Exit
+ServerFile.type = MENU
+ServerFile.text = ����
+ServerFile.mnemonic = F
+
+NewProject.type        = ITEM
+NewProject.text        = ����� ������...
+NewProject.icon        = menu.new
+NewProject.mnemonic    = N
+NewProject.action      = NewProjectAction
+NewProject.accelerator = Ctrl+N
+
+OpenProject.type        = ITEM
+OpenProject.text        = �������...
+OpenProject.icon        = menu.open
+OpenProject.mnemonic    = O
+OpenProject.action      = OpenProjectAction
+OpenProject.accelerator = Ctrl+O
+
+ImportMSProject.type        = ITEM
+ImportMSProject.text        = ������ �� MS Project...
+ImportMSProject.mnemonic    = M
+ImportMSProject.action      = ImportMSProjectAction
+ImportMSProject.icon      = menu.import
+
+ExportMSProject.type        = ITEM
+ExportMSProject.text        = ������� � MS Project...
+ExportMSProject.mnemonic    = E
+ExportMSProject.action      = ExportMSProjectAction
+ExportMSProject.icon      = menu.export
+
+
+CloseProject.type        = ITEM
+CloseProject.text        = �������
+CloseProject.mnemonic    = C
+CloseProject.action      = CloseProjectAction
+
+ProjectLibre.type= ITEM
+ProjectLibre.text =
+ProjectLibre.action = ProjectLibreAction
+ProjectLibre.icon=logo.ProjectLibre
+ProjectLibre.tooltip=Go to projectlibre.com
+
+SaveProject.type        = ITEM
+SaveProject.text        = ���������
+SaveProject.icon        = menu.save
+SaveProject.mnemonic    = S
+SaveProject.action      = SaveProjectAction
+SaveProject.accelerator = Ctrl+S
+
+SaveProjectAs.type        = ITEM
+SaveProjectAs.text        = ��������� ���
+SaveProjectAs.icon        = menu.saveAs
+SaveProjectAs.mnemonic    = A
+SaveProjectAs.action      = SaveProjectAsAction
+SaveProjectAs.accelerator = Ctrl+A
+
+
+DelegateTasks.action      = DelegateTasksAction
+
+
+Print.type        = ITEM
+Print.text        = ������...
+Print.icon        = menu.print
+Print.mnemonic    = P
+Print.action      = PrintAction
+Print.accelerator = Ctrl+P
+
+PrintPreview.type        = ITEM
+PrintPreview.text        = ��������������� ��������
+PrintPreview.icon        = menu.printPreview
+PrintPreview.mnemonic    = V
+PrintPreview.action      = PrintPreviewAction
+
+Exit.type        = ITEM
+Exit.text        = �����
+Exit.mnemonic    = X
+Exit.action      = ExitAction
+
+
+# Edit menu ################
+Edit = Cut Copy Paste - Delete - Link Unlink - Undo Redo
+Edit.type = MENU
+Edit.text = ������
+Edit.mnemonic = E
+
+Undo.type        = ITEM
+Undo.text        = �������� ������
+Undo.icon        = menu.undo
+Undo.mnemonic    = U
+Undo.action      = UndoAction
+Undo.accelerator = Ctrl+Z
+Undo.enabled = false
+
+Redo.type        = ITEM
+Redo.text        = ������� ������
+Redo.icon        = menu.redo
+Redo.mnemonic    = Y
+Redo.action      = RedoAction
+Redo.accelerator = Ctrl+Y
+Redo.enabled = false
+
+Cut.type        = ITEM
+Cut.text        = ��������
+Cut.icon        = menu.cut
+Cut.mnemonic    = T
+Cut.action      = CutAction
+Cut.accelerator = Ctrl+X
+
+Copy.type        = ITEM
+Copy.text        = ����������
+Copy.icon        = menu.copy
+Copy.mnemonic    = C
+Copy.action      = CopyAction
+Copy.accelerator = Ctrl+C
+
+Paste.type        = ITEM
+Paste.text        = ��������
+Paste.icon        = menu.paste
+Paste.mnemonic    = P
+Paste.action      = PasteAction
+Paste.accelerator = Ctrl+V
+
+Delete.type        = ITEM
+Delete.text        = �������
+Delete.icon        = menu.delete
+Delete.mnemonic    = D
+Delete.action      = DeleteAction
+
+Link.type        = ITEM
+Link.text        = �������� ����� 
+Link.icon	= menu.link
+Link.mnemonic    = L
+Link.action      = LinkAction
+
+Unlink.type        = ITEM
+Unlink.text        = ������ �����
+Unlink.icon     = menu.unlink
+Unlink.mnemonic    = N
+Unlink.action      = UnlinkAction
+
+Split.type        = ITEM
+Split.text        = ���������
+Split.mnemonic    = K
+Split.action      = SplitAction
+
+
+# View menu ################
+View = Gantt TrackingGantt Network Resources Projects WBS RBS Report TaskUsageDetail ResourceUsageDetail - Histogram Charts TaskUsage ResourceUsage NoSubWindow - ZoomIn ZoomOut ScrollToTask
+View.type = MENU
+View.text = ���
+View.mnemonic = V
+
+Gantt.type        = RADIO
+Gantt.text        = ��������� �����
+Gantt.mnemonic    = G
+Gantt.action      = GanttAction
+Gantt.selected	  = true
+
+TrackingGantt.type        = RADIO
+TrackingGantt.text        = ��������� ����� � �������������
+#TrackingGantt.mnemonic    = B
+TrackingGantt.action      = TrackingGanttAction
+TrackingGantt.selected	  = false
+
+TaskUsageDetail.type        = RADIO
+TaskUsageDetail.text        = ����������� ������������� ������
+#TaskUsageDetail.mnemonic    = D
+TaskUsageDetail.action      = TaskUsageDetailAction
+TaskUsageDetail.selected	  = false
+
+ResourceUsageDetail.type        = RADIO
+ResourceUsageDetail.text        = ����������� ������������� ��������
+#ResourceUsageDetail.mnemonic    = D
+ResourceUsageDetail.action      = ResourceUsageDetailAction
+ResourceUsageDetail.selected	  = false
+
+Network.type        = RADIO
+Network.text        = ������� ������
+Network.mnemonic    = E
+Network.action      = NetworkAction
+Network.selected	  = false
+
+WBS.type        = RADIO
+WBS.text        = WBS 
+WBS.mnemonic    = W
+WBS.action      = WBSAction
+WBS.selected	  = false
+
+RBS.type        = RADIO
+RBS.text        = RBS 
+RBS.mnemonic    = B
+RBS.action      = RBSAction
+RBS.selected	  = false
+
+Report.type        = RADIO
+Report.text        = ������
+#Report.mnemonic    = R
+Report.action      = ReportAction
+Report.selected	  = false
+
+Resources.type        = RADIO
+Resources.text        = �������
+Resources.mnemonic    = R
+Resources.action      = ResourcesAction
+
+Projects.type        = RADIO
+Projects.text        = �������
+Projects.mnemonic    = P
+Projects.action      = ProjectsAction
+
+Histogram.type        = RADIO
+Histogram.text        = �����������
+Histogram.mnemonic    = H
+Histogram.action      = HistogramAction
+Histogram.selected	  = false
+
+Charts.type        = RADIO
+Charts.text        = �������
+Charts.mnemonic    = C
+Charts.action      = ChartsAction
+Charts.selected	  = false
+
+TaskUsage.type        = RADIO
+TaskUsage.text        = ������������� ������
+#TaskUsage.mnemonic    = T
+TaskUsage.action      = TaskUsageAction
+
+ResourceUsage.type        = RADIO
+ResourceUsage.text        = ������������� ��������
+#ResourceUsage.mnemonic    = U
+ResourceUsage.action      = ResourceUsageAction
+
+NoSubWindow.type        = RADIO
+NoSubWindow.text        = ���
+NoSubWindow.mnemonic    = N
+NoSubWindow.action      = NoSubWindowAction
+NoSubWindow.selected	  = true
+NoSubWindow.visible	  = false
+
+ZoomIn.type        = ITEM
+ZoomIn.text        = ���������
+ZoomIn.icon        = menu.zoomin
+ZoomIn.mnemonic    = I
+ZoomIn.action      = ZoomInAction
+
+ZoomOut.type        = ITEM
+ZoomOut.text        = ���������
+ZoomOut.icon        = menu.zoomout
+ZoomOut.mnemonic    = O
+ZoomOut.action      = ZoomOutAction
+
+ScrollToTask.type        = ITEM
+ScrollToTask.text        = ������ �� ������
+ScrollToTask.icon        = menu.scrollToTask
+#ScrollToTask.mnemonic    = 5
+ScrollToTask.action      = ScrollToTaskAction
+
+# Insert menu ################
+Insert = InsertTask
+Insert.type = MENU
+Insert.text = �������
+Insert.mnemonic = I
+
+ServerInsert = InsertTask InsertProject
+ServerInsert.type = MENU
+ServerInsert.text = �������
+ServerInsert.mnemonic = I
+
+
+InsertTask.type        = ITEM
+InsertTask.text        = ����� ������/������
+InsertTask.icon		   = menu.insertTask
+InsertTask.mnemonic    = N
+InsertTask.action      = InsertTaskAction
+InsertTask.accelerator = CTRL+K
+
+InsertResource.type        = ITEM
+InsertResource.text        = ����� ������
+InsertResource.mnemonic    = M
+InsertResource.action      = InsertResourceAction
+
+#not used
+InsertRecurring.type        = ITEM
+InsertRecurring.text        = ������������� ������
+InsertRecurring.mnemonic    = R
+InsertRecurring.action      = InsertRecurringAction
+
+#not used
+InsertProject.type        = ITEM
+InsertProject.text        = ������...
+InsertProject.mnemonic    = P
+InsertProject.action      = InsertProjectAction
+
+#not used
+# Format menu ################
+Format = Font Bar Timescale Gridlines - TextStyles BarStyles - Layout
+Format.type = MENU
+Format.text = ������
+Format.mnemonic = O
+
+Font.type        = ITEM
+Font.text        = �����...
+Font.mnemonic    = F
+Font.action      = FontAction
+
+Bar.type        = ITEM
+Bar.text        = �������...
+Bar.mnemonic    = B
+Bar.action      = BarAction
+
+Timescale.type        = ITEM
+Timescale.text        = ����� �������...
+Timescale.mnemonic    = M
+Timescale.action      = TimescaleAction
+
+Gridlines.type        = ITEM
+Gridlines.text        = ����� �����...
+Gridlines.mnemonic    = G
+Gridlines.action      = GridlinesAction
+
+TextStyles.type        = ITEM
+TextStyles.text        = ����� ������...
+TextStyles.mnemonic    = T
+TextStyles.action      = TextStylesAction
+
+BarStyles.type        = ITEM
+BarStyles.text        = ����� ��������...
+BarStyles.mnemonic    = S
+BarStyles.action      = BarStylesAction
+
+Layout.type        = ITEM
+Layout.text        = ������������...
+Layout.mnemonic    = L
+Layout.action      = LayoutAction
+
+# Tools menu ################
+Tools = ChangeWorkingTime - AssignResources Tracking
+Tools.type = MENU
+Tools.text = �����������
+Tools.mnemonic = T
+
+ServerTools = ChangeWorkingTime - AssignResources Tracking TeamFilter
+ServerTools.type = MENU
+ServerTools.text = �����������
+ServerTools.mnemonic = T
+
+ChangeWorkingTime.type        = ITEM
+ChangeWorkingTime.icon        = menu.changeWorkingTime
+ChangeWorkingTime.text        = �������� ����� ������...
+ChangeWorkingTime.mnemonic    = H
+ChangeWorkingTime.action      = ChangeWorkingTimeAction
+
+AssignResources.type        = ITEM
+AssignResources.icon	=menu.assignResources
+AssignResources.text        = ��������� �������...
+AssignResources.mnemonic    = U
+AssignResources.action      = AssignResourcesAction
+AssignResources.accelerator = Alt+F10
+
+#not used
+LevelResources.type        = ITEM
+LevelResources.text        = ������������ ��������...
+LevelResources.mnemonic    = L
+LevelResources.action      = LevelResourcesAction
+
+#Tracking submenu ################
+SFTracking = UpdateTasks UpdateProject - SaveBaseline ClearBaseline
+SFTracking.type = MENU
+SFTracking.text         = <html><b>�������� </b>&#8711;</html>
+SFTracking.Mnemonic = K
+#SFTracking.help=http://www.projectlibre.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#baselineproject
+SFTracking.demo=http://www.projectlibre.com/docs/tutorial_video/POD_Tracking/POD_Tracking.html
+SFTracking.tooltip=Update Progress, Manage Baselines
+
+Tracking = UpdateTasks UpdateProject - SaveBaseline ClearBaseline
+Tracking.type = MENU
+Tracking.text         = �������� 
+Tracking.Mnemonic = K
+
+TeamFilter.type = CHECK
+TeamFilter.text        = �������� ������ ������� ��������� �������
+TeamFilter.mnemonic    = R
+TeamFilter.action      = TeamFilterAction
+TeamFilter.selected	  = false
+
+
+UpdateTasks.type        = ITEM
+UpdateTasks.text        = �������� ������
+UpdateTasks.mnemonic    = T
+UpdateTasks.action      = UpdateTasksAction
+
+UpdateProject.type        = ITEM
+UpdateProject.text        = �������� ������
+UpdateProject.mnemonic    = P
+UpdateProject.action      = UpdateProjectAction
+
+SaveBaseline.type        = ITEM
+SaveBaseline.text        = ��������� ������� ���� 
+SaveBaseline.mnemonic    = S
+SaveBaseline.action      = SaveBaselineAction
+
+ClearBaseline.type        = ITEM
+ClearBaseline.text        = ������� ������� ����
+ClearBaseline.mnemonic    = C
+ClearBaseline.action      = ClearBaselineAction
+
+#not used
+Organizer.type        = ITEM
+Organizer.text        = ����������...
+Organizer.mnemonic    = G
+Organizer.action      = OrganizerAction
+
+#not used
+Customize.type        = ITEM
+Customize.text        = ��������� �����...
+Customize.mnemonic    = C
+Customize.action      = CustomizeAction
+
+#not used
+Options = ScheduleOptions CalculationOptions CalendarOptions GeneralOptions EditOptions
+Options.type        = MENU
+Options.text        = ���������...
+Options.mnemonic    = O
+
+#not used
+ScheduleOptions.type        = ITEM
+ScheduleOptions.text        = ����������
+ScheduleOptions.mnemonic    = S
+ScheduleOptions.action      = ScheduleOptions
+
+#not used
+CalculationOptions.type        = ITEM
+CalculationOptions.text        = �����������
+CalculationOptions.mnemonic    = C
+CalculationOptions.action      = CalculationOptions
+
+#not used
+CalendarOptions.type        = ITEM
+CalendarOptions.text        = ���������
+CalendarOptions.mnemonic    = R
+CalendarOptions.action      = CalendarOptions
+
+#not used
+GeneralOptions.type        = ITEM
+GeneralOptions.text        = �����
+GeneralOptions.mnemonic    = G
+GeneralOptions.action      = GeneralOptions
+
+#not used
+EditOptions.type        = ITEM
+EditOptions.text        = ������
+EditOptions.mnemonic    = E
+EditOptions.action      = EditOptions
+
+
+#Project menu ################
+Project = Information Notes - ProjectInformation Documents -
+Project.type = MENU
+Project.text         = ������
+Project.mnemonic = P
+
+#not used
+Sort.type        = ITEM
+Sort.text        = �����������...
+Sort.mnemonic    = S
+Sort.action      = SortAction
+
+#not used
+Filter.type        = ITEM
+Filter.text        = �����������...
+Filter.mnemonic    = F
+Filter.action      = FilterAction
+
+#not used
+Group.type        = ITEM
+Group.text        = �������������...
+Group.mnemonic    = G
+Group.action      = GroupAction
+
+#not used
+#Outline submenu ################
+Outline = Indent Outdent - Expand Collapse HideAssignments ShowLevel - HideOutlineSymbols
+Outline.type = MENU
+Outline.text         = ���������
+Clear.Mnemonic = O
+
+#not used
+Indent.type        = ITEM
+Indent.text        = ��������� ������
+Indent.mnemonic    = I
+Indent.action      = IndentAction
+
+#not used
+Outdent.type        = ITEM
+Outdent.text        = ��������� ������
+Outdent.mnemonic    = O
+Outdent.action      = OutdentAction
+
+#not used
+Expand.type        = ITEM
+Expand.text        = ����������
+Expand.mnemonic    = X
+Expand.action      = ExpandAction
+
+#not used
+Collapse.type        = ITEM
+Collapse.text        = ��������
+Collapse.mnemonic    = C
+Collapse.action      = ExpandAction
+
+#not used
+HideAssignments.type        = ITEM
+HideAssignments.text        = �������� ����������
+HideAssignments.mnemonic    = A
+HideAssignments.action      = HideAssignmentsAction
+
+#not used
+ShowLevel = AllChildren - Level1 Level2 Level3 Level4 Level5 Level6 Level7 Level8 Level9
+ShowLevel.type = MENU
+ShowLevel.text         = ��������
+Clear.Mnemonic = S
+
+#not used
+AllChildren.type        = ITEM
+AllChildren.text        = ���� �������� ����
+AllChildren.mnemonic    = A
+AllChildren.action      = AllChildrenAction
+
+#not used
+Level1.type        = ITEM
+Level1.text        = ������� 1
+Level1.mnemonic    = 1
+Level1.action      = Level1Action
+
+#not used
+Level2.type        = ITEM
+Level2.text        = ������� 2
+Level2.mnemonic    = 2
+Level2.action      = Level2Action
+
+#not used
+Level3.type        = ITEM
+Level3.text        = ������� 3
+Level3.mnemonic    = 3
+Level3.action      = Level3Action
+
+#not used
+Level4.type        = ITEM
+Level4.text        = ������� 4
+Level4.mnemonic    = 4
+Level4.action      = Level4Action
+
+#not used
+Level5.type        = ITEM
+Level5.text        = ������� 5
+Level5.mnemonic    = 5
+Level5.action      = Level5Action
+
+#not used
+Level6.type        = ITEM
+Level6.text        = ������� 6
+Level6.mnemonic    = 6
+Level6.action      = Level6Action
+
+#not used
+Level7.type        = ITEM
+Level7.text        = ������� 7
+Level7.mnemonic    = 7
+Level7.action      = Level7Action
+
+#not used
+Level8.type        = ITEM
+Level8.text        = ������� 8
+Level8.mnemonic    = 8
+Level8.action      = Level8Action
+
+#not used
+Level9.type        = ITEM
+Level9.text        = ������� 9
+Level9.mnemonic    = 9
+Level9.action      = Level9Action
+
+#not used
+HideOutlineSymbols.type        = ITEM
+HideOutlineSymbols.text        = �������� ������� �������
+HideOutlineSymbols.mnemonic    = U
+HideOutlineSymbols.action      = HideOutlineSymbolsAction
+
+#not used
+Codes = DefineCode Renumber
+Codes.type = MENU
+Codes.text         = ���� �������
+Codes.Mnemonic = C
+
+#not used
+DefineCode.type        = ITEM
+DefineCode.text        = ���������� ���...
+DefineCode.mnemonic    = D
+DefineCode.action      = DefineCodeAction
+
+#not used
+Renumber.type        = ITEM
+Renumber.text        = ��������������...
+Renumber.mnemonic    = R
+Renumber.action      = RenumberAction
+
+Information.type        = ITEM
+Information.text        = ���������� � ������/�������...
+Information.icon        = menu.Information
+Information.mnemonic    = I
+Information.action      = InformationAction
+Information.enabled = false
+
+Notes.type        = ITEM
+Notes.text        = ������� � ������/�������...
+Notes.mnemonic    = N
+Notes.action      = NotesAction
+Notes.enabled = false
+Notes.icon=menu.notes
+
+ProjectInformation.type        = ITEM
+ProjectInformation.text        = ���������� � �������...
+ProjectInformation.mnemonic    = P
+ProjectInformation.action      = ProjectInformationAction
+
+
+Documents.type        = ITEM
+Documents.text        = ���������...
+Documents.mnemonic    = D
+Documents.hidden = true
+Documents.action      = DocumentsAction
+
+#not used
+EnterpriseResources.type        = ITEM
+EnterpriseResources.text        = ������� �����������...
+EnterpriseResources.mnemonic    = E
+EnterpriseResources.action      = EnterpriseResourcesAction
+
+
+Help = AboutProjectLibre ProjectLibreDocumentation TipOfTheDay
+Help.type        = MENU
+Help.text        = ������
+Help.mnemonic    = H
+
+AboutProjectLibre.type        = ITEM
+AboutProjectLibre.text        = � ProjectLibre...
+AboutProjectLibre.mnemonic    = A
+AboutProjectLibre.action      = AboutProjectLibreAction
+AboutProjectLibre.icon=infomation.icon
+
+ProjectLibreDocumentation.type        = ITEM
+ProjectLibreDocumentation.text        = ������ ProjectLibre...
+ProjectLibreDocumentation.mnemonic    = H
+ProjectLibreDocumentation.action      = ProjectLibreDocumentationAction
+ProjectLibreDocumentation.icon=menu.Help
+
+TipOfTheDay.type        = ITEM
+TipOfTheDay.text        = ����� ���...
+TipOfTheDay.mnemonic    = T
+TipOfTheDay.action      = TipOfTheDayAction
+#
+# Definition of the tool bar
+#
+
+#          ToolPrint - ToolPrintPreview - \
+#        ToolCut ToolCopy ToolPaste - \
+#       ToolUndo ToolRedo - \
+
+StandardToolBar = ToolNewProject ToolOpenProject ToolSaveProject - \
+		   ToolPrint ToolPrintPreview - \
+		   ToolCut ToolCopy ToolPaste - \
+          ToolUndo ToolRedo - \
+          ToolLink ToolUnlink - \
+          ToolInformation ToolNotes ToolAssignResources ToolChangeWorkingTime - \
+          ToolZoomIn ToolZoomOut ToolScrollToTask - \
+          ToolOutdent ToolIndent
+          
+FileToolBar = ToolNewProject ToolOpenProject ToolSaveProject - \
+		   ToolImportMSProject ToolExportMSProject - \
+		   ToolPrint ToolPrintPreview 
+
+ToolNewProject.icon      = menu.new
+ToolNewProject.action    = NewProjectAction
+ToolNewProject.tooltip   = ����� ������
+
+ToolOpenProject.icon      = menu.open
+ToolOpenProject.action    = OpenProjectAction
+ToolOpenProject.tooltip   = ������� ������
+
+ToolSaveProject.icon      = menu.save
+ToolSaveProject.action    = SaveProjectAction
+ToolSaveProject.tooltip   = ��������� ������
+
+ToolPrint.icon      = menu.print
+ToolPrint.action    = PrintAction
+ToolPrint.tooltip   = ������ �������� ���������.
+
+ToolPrintPreview.icon      = menu.printPreview
+ToolPrintPreview.action    = PrintPreviewAction
+ToolPrintPreview.tooltip   = ��������������� ��������
+
+ToolCut.icon      = menu.cut
+ToolCut.action    = CutAction
+ToolCut.tooltip   = ��������
+
+ToolCopy.icon      = menu.copy
+ToolCopy.action    = CopyAction
+ToolCopy.tooltip   = ����������
+
+ToolPaste.icon      = menu.paste
+ToolPaste.action    = PasteAction
+ToolPaste.tooltip   = ��������
+
+ToolUndo.icon      = menu.undo
+ToolUndo.action    = UndoAction
+ToolUndo.tooltip   = �������� ������
+
+ToolRedo.icon      = menu.redo
+ToolRedo.action    = RedoAction
+ToolRedo.tooltip   = ������� ������
+
+ToolLink.icon=menu.link
+ToolLink.action      = LinkAction
+ToolLink.toolip=�������� �����
+
+ToolUnlink.icon=menu.unlink
+ToolUnlink.action      = UnlinkAction
+ToolUnlink.toolip=������ �����
+
+
+ToolZoomIn.icon      = menu.zoomin
+ToolZoomIn.action    = ZoomInAction
+ToolZoomIn.tooltip   = ���������
+
+ToolZoomOut.icon      = menu.zoomout
+ToolZoomOut.action    = ZoomOutAction
+ToolZoomOut.tooltip   = ���������
+
+ToolScrollToTask.icon      = menu.scrollToTask
+ToolScrollToTask.action    = ScrollToTaskAction
+ToolScrollToTask.tooltip   = ������ �� ������
+
+ToolInformation.icon =menu.taskInformation
+ToolInformation.action =InformationAction
+ToolInformation.tooltip =���������� � ������
+
+ToolNotes.icon =menu.notes
+ToolNotes.action =NotesAction
+ToolNotes.tooltip =�������
+
+ToolAssignResources.icon =menu.assignResources
+ToolAssignResources.action =AssignResourcesAction
+ToolAssignResources.tooltip=��������� �������
+ToolAssignResources.demo=http://www.projectlibre.com/docs/tutorial_video/POD_AssignResources/POD_AssignResources.html
+
+ToolChangeWorkingTime.icon =menu.changeWorkingTime
+ToolChangeWorkingTime.action =ChangeWorkingTimeAction
+ToolChangeWorkingTime.tooltip=�������� ����� ������
+
+ToolOutdent.icon		=menu.leftArrow
+ToolOutdent.action		=OutdentAction
+ToolOutdent.tooltip		=��������� ������
+
+ToolIndent.icon		=menu.rightArrow
+ToolIndent.action	=IndentAction
+ToolIndent.tooltip	=��������� ������
+
+ToolExpand.icon		=menu.expand
+ToolExpand.action	=ExpandAction
+ToolExpand.tooltip	=����������
+
+ToolCollapse.icon	=menu.collapse
+ToolCollapse.action	=CollapseAction
+ToolCollapse.tooltip	=��������
+
+ToolTeamFilter.icon		=menu.showAllResourcesSmall
+ToolTeamFilter.action	=TeamFilterAction
+ToolTeamFilter.tooltip	=<font face="Dialog" size="2"><b>������������ ����� ������� ���� ��������, � ������ ���, ������� ���� � ������� ������� (��. ��� ��������, ���� �������)<br>��� ������ �� ����: RBS, ������������� ��������, ������, ����������� � �������, � ����� ���� "��������� ������"</font></b>
+ToolTeamFilter.help=http://www.projectlibre.com/webapp/licensesAndRoles.html
+
+//These are view specific toolbars
+GanttToolBar = Tool24Indent Tool24Outdent - Tool24Link Tool24Unlink - Tool24AssignResources Tool24DelegateTasks - Tool24TaskInformation Tool24Notes - Tool24ChangeWorkingTime - Tool24InsertTask Tool24InsertProject
+TrackingGanttToolBar = Tool24Indent Tool24Outdent - Tool24Link Tool24Unlink - Tool24AssignResources Tool24DelegateTasks - Tool24TaskInformation Tool24Notes -Tool24ChangeWorkingTime -Tool24InsertTask Tool24InsertProject
+NetworkToolBar = Tool24AssignResources Tool24DelegateTasks - Tool24TaskInformation Tool24Notes - Tool24ChangeWorkingTime
+WBSToolBar = Tool24TaskInformation Tool24Notes - Tool24ChangeWorkingTime
+RBSToolBar = Tool24ResourceInformation Tool24Notes - Tool24ChangeWorkingTime
+TaskUsageDetailToolBar = Tool24Indent Tool24Outdent - Tool24Link Tool24Unlink - Tool24AssignResources Tool24DelegateTasks - Tool24TaskInformation Tool24Notes - Tool24ChangeWorkingTime - Tool24InsertTask Tool24InsertProject
+ResourceUsageDetailToolBar = Tool24Indent Tool24Outdent - Tool24ResourceInformation Tool24Notes - Tool24ChangeWorkingTime - Tool24InsertResource
+ResourceToolBar = Tool24Indent Tool24Outdent - Tool24ResourceInformation Tool24Notes - Tool24ChangeWorkingTime - Tool24InsertResource
+ReportToolBar =
+
+BigToolBar = Tool24NewProject Tool24OpenProject Tool24SaveProject Tool24SaveProjectAs Tool24CloseProject - \
+			Tool24ImportMSProject Tool24ExportMSProject - \
+		   Tool24Print Tool24PrintPreview - \
+		   Tool24Cut Tool24Copy Tool24Paste Tool24Delete - \
+          Tool24Undo Tool24Redo - \
+          Tool24ZoomIn Tool24ZoomOut Tool24ScrollToTask - \
+          Tool24ProjectInformation - \
+          Tool24TeamFilter - \
+          Tool24Help | Tool24FullScreen
+
+Tool24NewProject.icon      = menu24.new
+Tool24NewProject.action    = NewProjectAction
+Tool24NewProject.tooltip   = ����� ������
+#Tool24NewProject.help=http://www.projectlibre.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#startproject
+Tool24NewProject.demo=http://www.projectlibre.com/docs/tutorial_video/POD_enteringProject/POD_enteringProject.html
+
+Tool24OpenProject.icon      = menu24.open
+Tool24OpenProject.action    = OpenProjectAction
+
+Tool24SaveProject.icon      = menu24.save
+Tool24SaveProject.action    = SaveProjectAction
+Tool24SaveProject.tooltip   = ��������� ������
+
+Tool24SaveProjectAs.icon      = menu24.saveAs
+Tool24SaveProjectAs.action    = SaveProjectAsAction
+Tool24SaveProjectAs.tooltip   = ��������� ��� ����� ������
+
+Tool24CloseProject.icon      = menu24.closeProject
+Tool24CloseProject.action    = CloseProjectAction
+Tool24CloseProject.tooltip   = ������� ������
+
+Tool24Print.icon      = menu24.print
+Tool24Print.action    = PrintAction
+Tool24Print.tooltip   = ������ �������� ���������.
+
+Tool24PrintPreview.icon      = menu24.printPreview
+Tool24PrintPreview.action    = PrintPreviewAction
+Tool24PrintPreview.tooltip   = �������������� ��������
+
+Tool24Cut.icon      = menu24.cut
+Tool24Cut.action    = CutAction
+Tool24Cut.tooltip   = ��������
+
+Tool24Copy.icon      = menu24.copy
+Tool24Copy.action    = CopyAction
+Tool24Copy.tooltip   = ����������
+
+Tool24Paste.icon      = menu24.paste
+Tool24Paste.action    = PasteAction
+Tool24Paste.tooltip   = ��������
+
+Tool24Delete.icon      = menu24.delete
+Tool24Delete.action    = DeleteAction
+Tool24Delete.tooltip   = �������
+
+Tool24Undo.icon      = menu24.undo
+Tool24Undo.action    = UndoAction
+Tool24Undo.tooltip   = �������� ������
+
+Tool24Redo.icon      = menu24.redo
+Tool24Redo.action    = RedoAction
+Tool24Redo.tooltip   = ������� ������
+
+Tool24Link.icon=menu24.link
+Tool24Link.action      = LinkAction
+Tool24Link.tooltip=�������� �����
+#Tool24Link.help=http://www.projectlibre.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#modifyinglinks
+Tool24Link.demo=http://www.projectlibre.com/docs/tutorial_video/POD_LinkingTasks/POD_LinkingTasks.html
+
+
+
+Tool24Unlink.icon=menu24.unlink
+Tool24Unlink.action      = UnlinkAction
+Tool24Unlink.tooltip=������ �����
+#Tool24Unlink.help=http://www.projectlibre.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#modifyinglinks
+Tool24Unlink.demo=http://www.projectlibre.com/docs/tutorial_video/POD_LinkingTasks/POD_LinkingTasks.html
+
+Tool24AssignResources.icon =menu24.assignResources
+Tool24AssignResources.action =AssignResourcesAction
+Tool24AssignResources.tooltip=��������� ������
+#Tool24AssignResources.help=http://www.projectlibre.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#assignresources2tasks
+Tool24AssignResources.demo=http://www.projectlibre.com/docs/tutorial_video/POD_AssignResources/POD_AssignResources.html
+
+Tool24DelegateTasks.icon =menu24.delegateTasks
+Tool24DelegateTasks.action =DelegateTasksAction
+Tool24DelegateTasks.tooltip=�������� ������
+Tool24DelegateTasks.visible=false
+
+Tool24ZoomIn.icon      = menu24.zoomin
+Tool24ZoomIn.action    = ZoomInAction
+Tool24ZoomIn.tooltip   = ���������
+
+Tool24ZoomOut.icon      = menu24.zoomout
+Tool24ZoomOut.action    = ZoomOutAction
+Tool24ZoomOut.tooltip   = ���������
+
+Tool24ScrollToTask.icon      = menu24.scrollToTask
+Tool24ScrollToTask.action    = ScrollToTaskAction
+Tool24ScrollToTask.tooltip   = ������ �� ������
+
+Tool24ImportMSProject.icon      = menu24.import
+Tool24ImportMSProject.action      = ImportMSProjectAction
+Tool24ImportMSProject.tooltip   = ������ �� MS Project ��� Planner
+
+Tool24ExportMSProject.icon      = menu24.export
+Tool24ExportMSProject.action      = ExportMSProjectAction
+Tool24ExportMSProject.tooltip   = ������� � MS Project
+
+Tool24Help.icon      = menu24.help
+Tool24Help.action      = ProjectLibreDocumentationAction
+Tool24Help.tooltip   = ������
+
+Tool24Outdent.icon		=menu24.outdent
+Tool24Outdent.action		=OutdentAction
+Tool24Outdent.tooltip		=��������� ������ 
+#Tool24Outdent.help=http://www.projectlibre.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#createsummarylevels
+Tool24Outdent.demo=http://www.projectlibre.com/docs/tutorial_video/POD_SummaryTask/POD_SummaryTask.html
+
+Tool24Indent.icon		=menu24.indent
+Tool24Indent.action	=IndentAction
+Tool24Indent.tooltip	=��������� ������
+#Tool24Indent.help=http://www.projectlibre.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#createsummarylevels
+Tool24Indent.demo=http://www.projectlibre.com/docs/tutorial_video/POD_SummaryTask/POD_SummaryTask.html
+
+Tool24TaskInformation.icon		=menu24.taskInformation
+Tool24TaskInformation.action	=InformationAction
+Tool24TaskInformation.tooltip	=���������� � ������
+
+Tool24ResourceInformation.icon		=menu24.resourceInformation
+Tool24ResourceInformation.action	=InformationAction
+Tool24ResourceInformation.tooltip	=���������� � �������
+
+Tool24ProjectInformation.icon		=menu24.projectInformation
+Tool24ProjectInformation.action	=ProjectInformationAction
+Tool24ProjectInformation.tooltip	=���������� � �������
+
+Tool24TeamFilter.icon		=menu24.showAllResources
+Tool24TeamFilter.action	=TeamFilterAction
+Tool24TeamFilter.tooltip	=<font face="Dialog" size="2"><b>������������ ����� ������� ���� ��������, ��� ������ ���, ������� ���� � ������� ������� (��. ��� ��������, ���� �������)<br>��� ������ �� ����: RBS, ������������� ��������, ������, ����������� � �������, � ����� ���� "��������� ������"</font></b>
+Tool24TeamFilter.help=http://www.projectlibre.com/webapp/licensesAndRoles.html
+
+Tool24Notes.icon =menu24.notes
+Tool24Notes.action =NotesAction
+Tool24Notes.tooltip =�������...
+
+Tool24ChangeWorkingTime.icon =menu24.changeWorkingTime
+Tool24ChangeWorkingTime.action =ChangeWorkingTimeAction
+Tool24ChangeWorkingTime.tooltip=�������� ����� ������
+
+Tool24InsertTask.icon =menu24.insertTask
+Tool24InsertTask.action =InsertTaskAction
+Tool24InsertTask.tooltip =�������� ������
+#Tool24InsertTask.help=http://www.proijty.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm#enteringactivities
+Tool24InsertTask.demo=http://www.projectlibre.com/docs/tutorial_video/POD_AddingActivities/POD_AddingActivities.html
+
+
+Tool24InsertProject.icon =menu24.insertProject
+Tool24InsertProject.action =InsertProjectAction
+Tool24InsertProject.tooltip =�������� ���������
+
+Tool24InsertResource.icon =menu24.insertResource
+Tool24InsertResource.action =InsertResourceAction
+Tool24InsertResource.tooltip =�������� ������
+
+Tool24Palette.icon =menu24.palette
+Tool24Palette.action =PaletteAction
+Tool24Palette.tooltip =�������� ������ ������������
+
+Tool24FullScreen.icon =menu24.fullScreen
+Tool24FullScreen.action =FullScreenAction
+Tool24FullScreen.tooltip =������� � ����� ���� ��������
+
+Tool24Refresh.icon =menu24.refresh
+Tool24Refresh.action =RefreshAction
+Tool24Refresh.tooltip =��������
+
+TransformChooseBar = ChooseFilter ChooseSort ChooseGroup
+
+ChooseFilter.action = FilterAction
+ChooseFilter.tooltip   = �����������
+#ChooseFilter.help=http://hosted/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#filters
+ChooseFilter.demo=http://www.projectlibre.com/docs/tutorial_video/POD_FilterSort/POD_FilterSort.html
+
+ChooseSort.action = SortAction
+ChooseSort.tooltip   = �����������
+#ChooseSort.help=http://hosted/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#sorting
+ChooseSort.demo=http://www.projectlibre.com/docs/tutorial_video/POD_FilterSort/POD_FilterSort.html
+
+ChooseGroup.action = GroupAction
+ChooseGroup.tooltip   = ������������
+#ChooseGroup.help=http://hosted/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%204.htm#grouping
+ChooseGroup.demo=http://www.projectlibre.com/docs/tutorial_video/POD_FilterSort/POD_FilterSort.html
+
+ViewToolBarNoSubView = ToolGantt ToolTrackingGantt ToolNetwork ToolResources ToolProjects ToolWBS ToolRBS ToolReport ToolTaskUsageDetail ToolResourceUsageDetail - ToolNoSubWindow ToolHistogram ToolCharts ToolTaskUsage ToolResourceUsage 
+
+ViewToolBar = ToolGantt ToolTrackingGantt ToolNetwork ToolResources ToolProjects ToolWBS ToolRBS ToolReport ToolTaskUsageDetail ToolResourceUsageDetail - ToolHistogram ToolCharts ToolTaskUsage ToolResourceUsage 
+
+ToolGantt.icon =view.gantt
+ToolGantt.action =GanttAction
+ToolGantt.tooltip=��������� �����
+ToolGantt.type=TOGGLE
+
+ToolTrackingGantt.icon =view.trackingGantt
+ToolTrackingGantt.action =TrackingGanttAction
+ToolTrackingGantt.tooltip=��������� ����� � �������������
+ToolTrackingGantt.type=TOGGLE
+
+ToolTaskUsageDetail.icon =view.taskUsage
+ToolTaskUsageDetail.action =TaskUsageDetailAction
+ToolTaskUsageDetail.tooltip=������������� ������
+ToolTaskUsageDetail.type=TOGGLE
+
+ToolResourceUsageDetail.icon =view.resourceUsage
+ToolResourceUsageDetail.action =ResourceUsageDetailAction
+ToolResourceUsageDetail.tooltip=������������� �������
+ToolResourceUsageDetail.type=TOGGLE
+
+ToolNetwork.icon =view.network
+ToolNetwork.action =NetworkAction
+ToolNetwork.tooltip=������� ������
+ToolNetwork.type=TOGGLE
+
+ToolResources.icon =view.resources
+ToolResources.action =ResourcesAction
+ToolResources.tooltip=�������
+ToolResources.type=TOGGLE
+
+ToolProjects.icon =view.projects
+ToolProjects.action =ProjectsAction
+ToolProjects.tooltip=�������
+ToolProjects.type=TOGGLE
+
+ToolWBS.icon =view.WBS
+ToolWBS.action =WBSAction
+ToolWBS.tooltip=WBS
+ToolWBS.type=TOGGLE
+
+ToolRBS.icon =view.RBS
+ToolRBS.action =RBSAction
+ToolRBS.tooltip=RBS
+ToolRBS.type=TOGGLE
+
+ToolReport.icon =view.report
+ToolReport.action =ReportAction
+ToolReport.tooltip=������
+ToolReport.type=TOGGLE
+
+ToolHistogram.icon =view.histogram
+ToolHistogram.action =HistogramAction
+ToolHistogram.tooltip=�����������
+ToolHistogram.type=TOGGLE
+
+ToolCharts.icon =view.charts
+ToolCharts.action =ChartsAction
+ToolCharts.tooltip=�������
+ToolCharts.type=TOGGLE
+
+ToolTaskUsage.icon =view.taskUsage
+ToolTaskUsage.action =TaskUsageAction
+ToolTaskUsage.tooltip=������������� ������
+ToolTaskUsage.type=TOGGLE
+
+ToolResourceUsage.icon =view.resourceUsage
+ToolResourceUsage.action =ResourceUsageAction
+ToolResourceUsage.tooltip=������������� �������
+ToolResourceUsage.type=TOGGLE
+
+ToolNoSubWindow.icon =view.noSubWindow
+ToolNoSubWindow.action =NoSubWindowAction
+ToolNoSubWindow.tooltip=��� ���� 
+ToolNoSubWindow.type=TOGGLE
+
+ToolImportMSProject.icon      = menu.import
+ToolImportMSProject.action      = ImportMSProjectAction
+ToolImportMSProject.tip   = ������ �� MS Project ��� Planner
+
+ToolExportMSProject.icon      = menu.export
+ToolExportMSProject.action      = ExportMSProjectAction
+ToolExportMSProject.tip   = ������� � MS Project
+
+
+
+
+
+PrintPreviewToolBar = PrintPreviewFirst PrintPreviewBack PrintPreviewForward PrintPreviewUp PrintPreviewDown PrintPreviewLast - \
+		   PrintPreviewZoomIn PrintPreviewZoomReset PrintPreviewZoomOut - \
+		   PrintPreviewFormat PrintPreviewPrint
+
+PrintPreviewFirst.icon=print.first
+PrintPreviewFirst.action=PrintPreviewFirstAction
+PrintPreviewFirst.tip=������ ��������
+
+PrintPreviewBack.icon=print.back
+PrintPreviewBack.action=PrintPreviewBackAction
+PrintPreviewBack.tip=���������� ��������
+
+PrintPreviewForward.icon      = print.forward
+PrintPreviewForward.action    = PrintPreviewForwardAction
+PrintPreviewForward.tip   = ��������� ��������
+
+PrintPreviewLast.icon      = print.last
+PrintPreviewLast.action    = PrintPreviewLastAction
+PrintPreviewLast.tip   = ��������� ��������
+
+PrintPreviewDown.icon      = print.down
+PrintPreviewDown.action    = PrintPreviewDownAction
+PrintPreviewDown.tip   = ���������� ��������
+
+PrintPreviewUp.icon      = print.up
+PrintPreviewUp.action    = PrintPreviewUpAction
+PrintPreviewUp.tip   = ��������� ��������
+
+PrintPreviewZoomOut.icon      = print.zoomOut
+PrintPreviewZoomOut.action    = PrintPreviewZoomOutAction
+PrintPreviewZoomOut.tip   = ���������
+
+PrintPreviewZoomReset.icon      = print.zoomReset
+PrintPreviewZoomReset.action    = PrintPreviewZoomResetAction
+PrintPreviewZoomReset.tip   = ������������ �������
+
+PrintPreviewZoomIn.icon      = print.zoomIn
+PrintPreviewZoomIn.action    = PrintPreviewZoomInAction
+PrintPreviewZoomIn.tip   = ���������
+
+PrintPreviewFormat.icon      = print.format
+PrintPreviewFormat.action    = PrintPreviewFormatAction
+PrintPreviewFormat.tip   = ��������� ��������
+
+PrintPreviewPrint.icon      = print.print
+PrintPreviewPrint.action    = PrintPreviewPrintAction
+PrintPreviewPrint.tip   = ������
+
+manageResources.tooltip   = ��� ���������� ���������
+#manageResources.help=http://www.projectlibre.com/docs/tutorial/Project-ON-Demand%20Tutorial%20Chapter%203.htm
+manageResources.demo=http://www.projectlibre.com/docs/tutorial_video/POD_ResourcePool/POD_ResourcePool.html
+
+
+
