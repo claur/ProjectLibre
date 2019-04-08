@@ -61,34 +61,26 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 
 import org.apache.commons.collections.Closure;
 import org.projectlibre1.util.UpdateChecker;
 
-import com.projectlibre1.contrib.ClassLoaderUtils;
-import com.projectlibre1.dialog.DonateDialog;
-import com.projectlibre1.dialog.LicenseDialog;
-import com.projectlibre1.dialog.LoginDialog;
-import com.projectlibre1.dialog.LoginForm;
-import com.projectlibre1.dialog.TipOfTheDay;
-import com.projectlibre1.dialog.TryPODDialog;
-import com.projectlibre1.dialog.UserInfoDialog;
-import com.projectlibre1.main.Main;
-import com.projectlibre1.pm.graphic.laf.LafManagerImpl;
 import com.projectlibre1.company.DefaultUser;
 import com.projectlibre1.configuration.Configuration;
 import com.projectlibre1.configuration.ConfigurationReader;
 import com.projectlibre1.configuration.Dictionary;
 import com.projectlibre1.configuration.Settings;
+import com.projectlibre1.contrib.ClassLoaderUtils;
+import com.projectlibre1.dialog.LicenseDialog;
+import com.projectlibre1.dialog.LoginDialog;
+import com.projectlibre1.dialog.LoginForm;
+import com.projectlibre1.dialog.TipOfTheDay;
+import com.projectlibre1.dialog.UserInfoDialog;
+import com.projectlibre1.pm.graphic.laf.LafManagerImpl;
 import com.projectlibre1.pm.task.Project;
 import com.projectlibre1.pm.task.ProjectFactory;
 import com.projectlibre1.server.access.PartnerInfo;
@@ -455,7 +447,6 @@ public abstract class StartupFactory {
 							LicenseDialog.showDialog(gm.getFrame(),false);
 							UserInfoDialog.showDialog(gm.getFrame(),false);
 //							DonateDialog.maybeShow(gm.getFrame(),false);
-//							TryPODDialog.maybeShow(gm.getFrame(),false); //claur
 							UpdateChecker.checkForUpdateInBackground();
 						}
 						if (welcome&&!Environment.isPlugin()) {
@@ -467,19 +458,6 @@ public abstract class StartupFactory {
 									return;
 								if (!LafManagerImpl.isLafOk()) // for startup glitch - we don't want people to work until restarting.
 									return;
-
-
-//
-//								String lastVersion = Preferences.userNodeForPackage(StartupFactory.class).get("lastVersion","0");
-//								String thisVersion = VersionUtils.getVersion();
-//								System.out.println("last version " + lastVersion + " this version " + thisVersion);
-//								if (!lastVersion.equals(thisVersion)) {
-//									Preferences.userNodeForPackage(StartupFactory.class).put("lastVersion",thisVersion);
-//									String javaVersion = System.getProperty("java.version");
-//									if (javaVersion.equals("1.6.0_04") || javaVersion.equals("1.6.0_05"))
-//										Alert.warn("Project-ON-Demand has been updated.  Please close your browser completely and restart it to complete the upgrade process.");
-//									return;
-//								}
 
 							}
 							gm.doWelcomeDialog();

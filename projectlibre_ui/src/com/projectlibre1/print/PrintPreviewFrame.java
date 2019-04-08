@@ -92,7 +92,6 @@ import org.apache.batik.util.gui.resource.ActionMap;
 import org.apache.batik.util.gui.resource.MissingListenerException;
 
 import com.projectlibre1.contrib.ClassLoaderUtils;
-import com.projectlibre1.dialog.PODOnlyFeature;
 import com.projectlibre1.help.HelpUtil;
 import com.projectlibre1.menu.MenuActionConstants;
 import com.projectlibre1.menu.MenuActionsMap;
@@ -100,7 +99,6 @@ import com.projectlibre1.menu.MenuManager;
 import com.projectlibre1.pm.graphic.IconManager;
 import com.projectlibre1.strings.Messages;
 import com.projectlibre1.util.Alert;
-import com.projectlibre1.util.Environment;
 
 
 public class PrintPreviewFrame extends JFrame implements  ActionMap, MenuActionConstants{

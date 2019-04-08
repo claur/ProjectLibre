@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #*******************************************************************************
 # The contents of this file are subject to the Common Public Attribution License 
 # Version 1.0 (the "License"); you may not use this file except in compliance with 
@@ -64,7 +65,7 @@ JAVA_INSTALL_DIR2="/usr/lib/jvm"
 JAVA_INSTALL_DIR_EXE2="bin/java"
 JAVA_INSTALL_DIR3="/opt/ibm"
 JAVA_INSTALL_DIR_EXE3="jre/bin/java"
-MIN_JAVA_VERSION="1.6"
+MIN_JAVA_VERSION="6"
 
 #Default conf values
 JAVA_EXE="java"
@@ -119,7 +120,23 @@ check_java() {
 	"$JAVA_EXE" -version > "$VERSION_FILE" 2>&1 || rm -f "$VERSION_FILE"
 
 	if [ -r "$VERSION_FILE" ]; then
-		JAVA_VERSION=`cat "$VERSION_FILE" | awk '/^(java|openjdk) version/ { print substr($3, 2, length($3)-2); }'`
+		local JAVA_VERSION
+		local IFS=$'\n'		
+		local lines=`cat "$VERSION_FILE" | tr '\r' '\n'`
+		
+		for line in $lines; do
+			if [[ -z $JAVA_VERSION && $line = *"version \""* ]]
+			then
+				local version=$(echo $line | sed -e 's/.*version "\(.*\)"\(.*\)/\1/; 1q')
+				if [[ $version = "1."* ]]
+				then
+					JAVA_VERSION=$(echo $version | sed -e 's/1\.\([0-9]*\)\(.*\)/\1/; 1q')
+				else
+					JAVA_VERSION=$(echo $version | sed -e 's/\([0-9]*\)\(.*\)/\1/; 1q')
+				fi
+			fi
+		done
+
 		if [ "x$OS_NAME" = "xSunOS" ]; then
 			echo "    Java version: $JAVA_VERSION \c"
 		else
@@ -128,9 +145,6 @@ check_java() {
 
 
 		#Comparable format
-		MIN_JAVA_VERSION=`echo "$MIN_JAVA_VERSION" | sed -e 's;\.;0;g'`
-		JAVA_VERSION=`echo "$JAVA_VERSION" | awk '{ print substr($1, 1, 3); }' | sed -e 's;\.;0;g'`
-
 		if [ "$JAVA_VERSION" ]; then
 			if [ "$JAVA_VERSION" -ge "$MIN_JAVA_VERSION" ];	then
 				echo "OK"
@@ -151,7 +165,7 @@ check_java() {
                 create_run_conf
                 JAVA_OK="1"
 			else
-				echo "NOK, version < 1.6"
+				echo "NOK, version < $MIN_JAVA_VERSION"
 			fi
 		else
 			echo "NOK"

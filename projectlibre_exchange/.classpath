@@ -10,5 +10,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/projectlibre_contrib"/>
 	<classpathentry kind="lib" path="/projectlibre_contrib/lib/commons-lang.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/exchange/jaxb-api.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/exchange/jaxb-core.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/exchange/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/exchange/javax.activation-api.jar"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/exchange/commons-collections4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

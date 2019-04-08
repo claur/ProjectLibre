@@ -492,6 +492,7 @@
 
 		<exec executable="${dpkg_deb}">
 			<arg value="--build"/>
+			<arg value="--no-uniform-compression"/>
 			<arg value="${basedir}/${deb}"/>
 			<arg value="${basedir}/${debroot}/projectlibre_${deb_version}-${deb_revision}.deb"/>
 		</exec>

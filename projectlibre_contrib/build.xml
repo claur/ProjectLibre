@@ -154,6 +154,10 @@
 				<zipgroupfileset file="lib/exchange/jakarta-poi.jar" /> 
 				<zipgroupfileset file="lib/exchange/commons-collections4.jar" /> 
 				<zipgroupfileset file="lib/exchange/rtfparserkit.jar" /> 
+				<zipgroupfileset file="lib/exchange/jaxb-api.jar" /> 
+				<zipgroupfileset file="lib/exchange/jaxb-core.jar" /> 
+				<zipgroupfileset file="lib/exchange/jaxb-impl.jar" /> 
+				<zipgroupfileset file="lib/exchange/javax.activation-api.jar" /> 
 			</jar>
 		</else>
 	  </if>

@@ -75,7 +75,7 @@ import com.projectlibre1.util.ClassLoaderUtils;
  *
  */
 public class ReportUtil {
-	private static final String REPORT_ROOT = "com.projectlibre1/reports/definition/";	
+	private static final String REPORT_ROOT = "com/projectlibre1/reports/definition/";	
 	
 /*
  * 
