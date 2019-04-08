@@ -63,6 +63,7 @@ import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
+import javax.swing.UIManager;
 
 import com.projectlibre1.strings.Messages;
 import com.projectlibre1.util.Environment;
@@ -85,7 +86,8 @@ public class FileHelper {
     	if (!Environment.getStandAlone()&&save&&selectedFileName!=null&&selectedFileName.endsWith("."+DEFAULT_FILE_EXTENSION)){
     		selectedFileName=changeFileExtension(selectedFileName,save?"xml":"mpp");
     	}
-    	final JFileChooser fileChooser = getFileChooser();
+	JFileChooser fileChooser = getFileChooser();
+	fileChooser=setUpdateUI(fileChooser);
     	fileChooser.setDialogType(save?JFileChooser.SAVE_DIALOG:JFileChooser.OPEN_DIALOG);
     	fileChooser.resetChoosableFileFilters();
     	if (selectedFileName==null){
@@ -260,5 +262,52 @@ public class FileHelper {
     	return 0;
     }
 
+   public JFileChooser setUpdateUI(JFileChooser choose) {
+       UIManager.put("FileChooser.openButtonText", Messages.getString("T_OPEN_TXT"));
+       UIManager.put("FileChooser.cancelButtonText", Messages.getString("T_CANCEL"));
+       UIManager.put("FileChooser.lookInLabelText", Messages.getString("T_LOOK_IN"));
+       UIManager.put("FileChooser.fileNameLabelText", Messages.getString("T_FILE_NAME"));
+       UIManager.put("FileChooser.filesOfTypeLabelText", Messages.getString("T_FILES_OF_TYPE"));
+
+       UIManager.put("FileChooser.saveButtonText", Messages.getString("T_SAVE"));
+       UIManager.put("FileChooser.saveButtonToolTipText", Messages.getString("T_SAVE"));
+       UIManager.put("FileChooser.openButtonText", Messages.getString("T_OPEN_TXT"));
+       UIManager.put("FileChooser.openButtonToolTipText", Messages.getString("T_OPEN_TXT"));
+       UIManager.put("FileChooser.cancelButtonText", Messages.getString("T_CANCEL"));
+       UIManager.put("FileChooser.cancelButtonToolTipText", Messages.getString("T_CANCEL"));
+
+       UIManager.put("FileChooser.lookInLabelText", Messages.getString("T_LOOK_IN"));
+       UIManager.put("FileChooser.saveInLabelText", Messages.getString("T_SAVE_IN"));
+       UIManager.put("FileChooser.fileNameLabelText", Messages.getString("T_FILE_NAME"));
+       UIManager.put("FileChooser.filesOfTypeLabelText", Messages.getString("T_FILES_OF_TYPE"));
+
+       UIManager.put("FileChooser.upFolderToolTipText", Messages.getString("T_UP_FOLDER"));
+       UIManager.put("FileChooser.homeFolderToolTipText", Messages.getString("T_HOME"));
+       UIManager.put("FileChooser.newFolderToolTipText", Messages.getString("T_NEW_FOLDER"));
+       UIManager.put("FileChooser.listViewButtonToolTipText", Messages.getString("T_LIST_VIEW"));
+       UIManager.put("FileChooser.detailsViewButtonToolTipText", Messages.getString("T_DETAILS_VIEW"));
+       UIManager.put("FileChooser.fileNameHeaderText", Messages.getString("T_NAME"));
+       UIManager.put("FileChooser.fileSizeHeaderText", Messages.getString("T_FILE_SIZE"));
+       UIManager.put("FileChooser.fileTypeHeaderText", Messages.getString("T_FILE_TYPE"));
+       UIManager.put("FileChooser.fileDateHeaderText", Messages.getString("T_FILE_DATE"));
+       UIManager.put("FileChooser.fileAttrHeaderText", Messages.getString("T_FILE_ATTR"));
+
+       UIManager.put("FileChooser.acceptAllFileFilterText", Messages.getString("T_ALL_FILES"));
+
+       UIManager.put("FileChooser.openDialogTitleText", Messages.getString("T_OPEN_TXT"));
+       UIManager.put("FileChooser.saveDialogTitleText", Messages.getString("T_SAVE"));
+
+       UIManager.put("FileChooser.refreshActionLabelText", Messages.getString("T_REFRESH"));
+       UIManager.put("FileChooser.viewMenuLabelText", Messages.getString("T_VIEW"));
+       UIManager.put("FileChooser.listViewActionLabelText", Messages.getString("T_LIST_VIEW"));
+       UIManager.put("FileChooser.detailsViewActionLabelText", Messages.getString("T_DETAILS_VIEW"));
+       UIManager.put("FileChooser.newFolderActionLabelText", Messages.getString("T_NEW_FOLDER"));
+
+       UIManager.put("FileChooser.directoryOpenButtonText", Messages.getString("T_OPEN_TXT"));
+       UIManager.put("FileChooser.directoryOpenButtonToolTipText", Messages.getString("T_OPEN_TXT"));
+
+       choose.updateUI();
+       return choose;
+   }
     
 }
