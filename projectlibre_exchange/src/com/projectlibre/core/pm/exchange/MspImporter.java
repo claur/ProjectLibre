@@ -148,7 +148,8 @@ public class MspImporter {
 	
 	public void parseProject(InputStream in, String extension) throws Exception {
 		try {
-			if (extension.equals("xml")){
+			if (extension.equals("xml") 
+					|| extension.equals("pod")){
 				reader=new ImprovedMSPDIReader();
 				state.setMspdi(true);
 			} else if (extension.equals("mpp"))

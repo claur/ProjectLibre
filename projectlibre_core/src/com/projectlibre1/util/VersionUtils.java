@@ -115,7 +115,7 @@ public class VersionUtils {
 		String localVersion = pref.get("PODVersion","0");
 		boolean updated = !localVersion.equals(version);
 		String javaVersion = System.getProperty("java.version");
-		System.out.println("POD Version: "+version + " local version " + localVersion + " updated=" + updated + " java version=" + javaVersion);
+		System.out.println("ProjectLibre Version: "+version + " local version " + localVersion + " updated=" + updated + " java version=" + javaVersion);
 
 
 		pref.put("JavaVersion",javaVersion);

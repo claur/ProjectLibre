@@ -69,6 +69,7 @@ import com.projectlibre1.pm.task.ProjectFactory;
 public abstract class FileImporter /*implements Runnable*/ {
 	protected JobQueue jobQueue=null;
 	protected String fileName;
+	protected InputStream fileInputStream;
 	protected Project project;
 	protected ResourceMappingForm resourceMapping;
 	protected ProjectFactory projectFactory=null;
@@ -135,6 +136,14 @@ public abstract class FileImporter /*implements Runnable*/ {
 
 	public void setResourceMapping(ResourceMappingForm resourceMapping) {
 		this.resourceMapping = resourceMapping;
+	}
+
+	public InputStream getFileInputStream() {
+		return fileInputStream;
+	}
+
+	public void setFileInputStream(InputStream fileInputStream) {
+		this.fileInputStream = fileInputStream;
 	}
 	
 	

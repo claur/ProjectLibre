@@ -230,13 +230,22 @@ public class MicrosoftImporter extends ServerFileImporter{
 		
 		
 		MspImporter plImporter=new MspImporter();
-		plProject=plImporter.importProject(fileName, new MspImporter.ProgressClosure() {
+		if (fileInputStream==null)
+			plProject=plImporter.importProject(fileName, new MspImporter.ProgressClosure() {
+				@Override
+				public void updateProgress(float progress, String label) {
+					setProgress(progress*0.1f);
+					
+				}
+			});
+		else plProject=plImporter.importProject(fileInputStream, "xml", new MspImporter.ProgressClosure() {
 			@Override
 			public void updateProgress(float progress, String label) {
 				setProgress(progress*0.1f);
 				
 			}
 		});
+
 		log.info(plProject.toString());
 		
 		

@@ -115,6 +115,7 @@ public class LocalSession extends AbstractSession{
 		try {
 			final FileImporter importer = (FileImporter) ClassUtils.forName(opt.getImporter()).newInstance();
 	    	importer.setFileName(opt.getFileName());
+	    	importer.setFileInputStream(opt.getFileInputStream());
 	    	importer.setResourceMapping(opt.getResourceMapping());
 	    	importer.setProjectFactory(ProjectFactory.getInstance());//used?
 	    	importer.setJobQueue(jobQueue);

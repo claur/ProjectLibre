@@ -55,6 +55,8 @@
  *******************************************************************************/
 package com.projectlibre1.session;
 
+import java.io.InputStream;
+
 import org.apache.commons.collections.Closure;
 
 import com.projectlibre1.exchange.ResourceMappingForm;
@@ -65,6 +67,7 @@ public class LoadOptions {
 	protected boolean subproject;
 	protected boolean sync;
 	protected String fileName;
+	protected InputStream fileInputStream;
 	protected String importer;
 	protected boolean openAs;
 	protected ResourceMappingForm resourceMapping;
@@ -122,6 +125,12 @@ public class LoadOptions {
 	}
 	public void setEndSwingClosure(Closure endSwingClosure) {
 		this.endSwingClosure = endSwingClosure;
+	}
+	public InputStream getFileInputStream() {
+		return fileInputStream;
+	}
+	public void setFileInputStream(InputStream fileInputStream) {
+		this.fileInputStream = fileInputStream;
 	}
 
 }

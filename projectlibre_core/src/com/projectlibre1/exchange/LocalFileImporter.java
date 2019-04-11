@@ -68,6 +68,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Scanner;
 
+import javax.swing.SwingUtilities;
+
 import com.projectlibre1.grouping.core.model.DefaultNodeModel;
 import com.projectlibre1.job.Job;
 import com.projectlibre1.job.JobRunnable;
@@ -76,6 +78,7 @@ import com.projectlibre1.pm.resource.ResourcePoolFactory;
 import com.projectlibre1.pm.task.Project;
 import com.projectlibre1.server.data.DataUtil;
 import com.projectlibre1.server.data.DocumentData;
+import com.projectlibre1.session.LoadOptions;
 import com.projectlibre1.session.LocalSession;
 import com.projectlibre1.session.SessionFactory;
 import com.projectlibre1.strings.Messages;
@@ -88,6 +91,7 @@ import com.projectlibre1.util.Alert;
 public class LocalFileImporter extends FileImporter {
 	public static final String VERSION="1.0.0"; //$NON-NLS-1$
 	private static final String PROJECT_LIBRE_FILE_SEPARATOR="@@@@@@@@@@ProjectLibreSeparator_MSXML@@@@@@@@@@";
+	private static final String OLD_FILE="com.projity.server.data.ProjectData";
 	private static final String XML_FILE_START="<?xml";
 	/**
 	 *
@@ -104,36 +108,43 @@ public class LocalFileImporter extends FileImporter {
 		File f=new File(getFileName());
 		FileInputStream fin=new FileInputStream(f);
 		Exception ex=null;
-        try {
-			DataUtil serializer=new DataUtil();
-			System.out.println("Loading "+getFileName()+"..."); //$NON-NLS-1$ //$NON-NLS-2$
-
-			long t1=System.currentTimeMillis();
-			ObjectInputStream in=new ObjectInputStream(fin);
-			Object obj=in.readObject();
-			if (obj instanceof String) obj=in.readObject(); //check version in the future
-			DocumentData projectData=(DocumentData)obj;
-			projectData.setMaster(true);
-			projectData.setLocal(true);
-			long t2=System.currentTimeMillis();
-			System.out.println("Loading...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
-
-
-			System.out.println("Deserializing..."); //$NON-NLS-1$
-			t1=System.currentTimeMillis();
-//        project=serializer.deserializeProject(projectData,false,true,resourceMap);
-			setProject(serializer.deserializeLocalDocument(projectData));
-			t2=System.currentTimeMillis();
-			System.out.println("Deserializing...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
-		} catch (Exception e) {
-			ex=e;
+		
+		if (/*findString(fin, OLD_FILE)*/false) {
+			System.out.println("Old file: ignoring binary content");
 			project=null;
-		}finally{
-			try {
-				fin.close();
+		}else {
+	        try {
+				DataUtil serializer=new DataUtil();
+				System.out.println("Loading "+getFileName()+"..."); //$NON-NLS-1$ //$NON-NLS-2$
+
+				long t1=System.currentTimeMillis();
+				ObjectInputStream in=new ObjectInputStream(fin);
+				Object obj=in.readObject();
+				if (obj instanceof String) obj=in.readObject(); //check version in the future
+				DocumentData projectData=(DocumentData)obj;
+				projectData.setMaster(true);
+				projectData.setLocal(true);
+				long t2=System.currentTimeMillis();
+				System.out.println("Loading...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
+
+
+				System.out.println("Deserializing..."); //$NON-NLS-1$
+				t1=System.currentTimeMillis();
+//	        project=serializer.deserializeProject(projectData,false,true,resourceMap);
+				setProject(serializer.deserializeLocalDocument(projectData));
+				t2=System.currentTimeMillis();
+				System.out.println("Deserializing...Done in "+(t2-t1)+" ms"); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Exception e) {
-				e.printStackTrace();
+				ex=e;
+				project=null;
+			}finally{
+				try {
+					fin.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
+			
 		}
         
         if (project==null){
@@ -207,20 +218,56 @@ public class LocalFileImporter extends FileImporter {
 				if (found || xmlStartFound) {
 					//xml found
 					System.out.println("XML found");
-					FileImporter importer=LocalSession.getImporter("com.projectlibre1.exchange.MicrosoftImporter");
+					final LoadOptions opt=new LoadOptions();
+					opt.setFileName(fileName);
+					opt.setLocal(true);
+					opt.setSync(false);
+					opt.setImporter(LocalSession.MICROSOFT_PROJECT_IMPORTER);
+					opt.setFileInputStream(in);
 					
-					ResourcePool resourcePool=null;
-					DataFactoryUndoController undoController=new DataFactoryUndoController();
-					resourcePool = ResourcePoolFactory.getInstance().createResourcePool("",undoController);
-					resourcePool.setLocal(true);
-					project = Project.createProject(resourcePool,undoController);						
-					((DefaultNodeModel)project.getTaskOutline()).setDataFactory(project);		
-					importer.setProject(project);
+					SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							projectFactory.openProject(opt);
+							
+						}
+					});
+//					project=projectFactory.openProject(opt);
+
 					
-					importer.loadProject(in);
+//					FileImporter importer=LocalSession.getImporter("com.projectlibre1.exchange.MicrosoftImporter");
+//					
+//					ResourcePool resourcePool=null;
+//					DataFactoryUndoController undoController=new DataFactoryUndoController();
+//					resourcePool = ResourcePoolFactory.getInstance().createResourcePool("",undoController);
+//					resourcePool.setLocal(true);
+//					project = Project.createProject(resourcePool,undoController);						
+//					((DefaultNodeModel)project.getTaskOutline()).setDataFactory(project);		
+//					importer.setProject(project);
+//					
+//					importer.loadProject(in);
 					System.out.println("Recovered with XML");
 				}else{
-					//unable to recover from xml
+					//unable to recover from xml 
+		    		if ( ex!=null &&
+		    				ex instanceof ClassNotFoundException &&
+		    				ex.getMessage().equals("com.projity.server.data.ProjectData")) {
+		    			SwingUtilities.invokeLater(new Runnable(){
+		    				public void run(){
+				    			Alert.error(Messages.getString("Message.ImportOldFormatError"));
+		    				}
+		    			});
+		    		}else {
+		    			SwingUtilities.invokeLater(new Runnable(){
+		    				public void run(){
+				    			Alert.error(Messages.getString("Message.ImportError"));
+		    				}
+		    			});
+		    			
+		    		}
+					
+					
 					if (ex!=null) throw ex;
 				}
 			} catch (Exception e) {
@@ -236,6 +283,45 @@ public class LocalFileImporter extends FileImporter {
 			}
         }
 	}
+
+	
+	private static boolean findString(InputStream fin, String stringToSearch) {
+		BufferedInputStream in=null;
+		try {
+			byte[] keyBuf=stringToSearch.getBytes();
+			int bufSize=100;
+			if (bufSize<keyBuf.length) bufSize=keyBuf.length;
+			byte[] buf= new byte[bufSize];
+			in=new BufferedInputStream(fin); //use default 8192 bytes size
+			
+			int keyPos=0;
+			int n;
+			in.mark(bufSize);
+			while ( (n=in.read( buf, 0, bufSize )) != -1 ){
+			    for (int i=0; i<n; i++ ){
+			    	if (keyBuf[keyPos]==buf[i]){
+			    		if (keyPos==keyBuf.length-1){
+			    			//found keyword
+			    			return true;
+			    		}else{
+			    			keyPos++;
+			    		}
+			    	}else keyPos=0;
+			    }
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (in!=null){
+				try {
+					in.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+		return false;
+    }
 
 
 
