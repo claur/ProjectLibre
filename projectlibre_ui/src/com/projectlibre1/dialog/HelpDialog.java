@@ -81,10 +81,12 @@ import com.projectlibre1.util.VersionUtils;
 
 public final class HelpDialog extends AbstractDialog {
 	private static final long serialVersionUID = 1L;
-	private static final String helpUrl = "http://www.projectlibre.com/projectlibre-documentation"; //$NON-NLS-1$
+	private static final String helpUrl = "https://www.projectlibre.com/projectlibre-documentation"; //$NON-NLS-1$
+	private static final String helpLoginUrl = "https://www.projectlibre.com/user/login";
 	private static final String videosUrl = Settings.SITE_HOME; //$NON-NLS-1$
-	public static final String donateUrl = "http://www.projectlibre.com";
+	public static final String donateUrl = "https://www.projectlibre.com";
 	JButton link;
+	JButton registerToHelp;
     JButton videos;
     JButton tipOfTheDay;
     JButton license;
@@ -105,7 +107,17 @@ public final class HelpDialog extends AbstractDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				BrowserControl.displayURL(helpUrl);
 			}
-		});		
+		});
+		
+		
+		registerToHelp = new JButton(Messages.getString("HelpDialog.RegisterToOnlineHelp")); //$NON-NLS-1$
+		registerToHelp.setEnabled(true);
+		registerToHelp.setToolTipText(helpUrl);
+		registerToHelp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				BrowserControl.displayURL(helpLoginUrl);
+			}
+		});
 //		videos = new JButton(Messages.getString("HelpDialog.WatchHowToVideos")); //$NON-NLS-1$
 //		videos.setEnabled(true);
 //		videos.setToolTipText(helpUrl);
@@ -153,7 +165,7 @@ public final class HelpDialog extends AbstractDialog {
 		//TODO set minimum size
 		FormLayout layout = new FormLayout("120px,180px,120px" , // cols //$NON-NLS-1$
 			
-				"p, 6dlu,  p,6dlu,p,6dlu,p,6dlu,p,6dlu,p"); // rows //$NON-NLS-1$
+				"p, 6dlu, p, 6dlu, p, 1dlu, p, 6dlu, p, 6dlu, p, 6dlu, p, 10dlu, p, 6dlu, p, 6dlu, p"); // rows //$NON-NLS-1$
 
 		// Create a builder that assists in adding components to the container.
 		// Wrap the panel with a standardized border.
@@ -170,6 +182,16 @@ public final class HelpDialog extends AbstractDialog {
 		builder.nextLine(2);
 		builder.nextColumn();
 		builder.append(link);
+		builder.nextLine(2);
+		builder.nextColumn();
+		builder.addLabel(Messages.getString("HelpDialog.RegisterToOnlineHelp1"),cc.xyw(1,  5, 3));
+		builder.nextLine(2);
+		builder.nextColumn();
+		builder.addLabel(Messages.getString("HelpDialog.RegisterToOnlineHelp2"),cc.xyw(1,  7, 3));
+		builder.nextLine(2);
+		builder.nextColumn();
+		builder.append(registerToHelp);
+
 //		builder.nextLine(2);
 //		builder.append(videos);
 		if (Environment.isProjectLibre()) {
@@ -183,9 +205,9 @@ public final class HelpDialog extends AbstractDialog {
 		
 		builder.nextLine(2);
 		String version=VersionUtils.getVersion();
-		builder.addLabel(Messages.getContextString("Text.ShortTitle")+" "+"Version "+(version==null?"Unknown":version),cc.xyw(1,  9, 3));
+		builder.addLabel(Messages.getContextString("Text.ShortTitle")+" "+"Version "+(version==null?"Unknown":version),cc.xyw(1,  15, 3));
 		builder.nextLine(2);
-		builder.addLabel(Messages.getString("AboutDialog.copyright"),cc.xyw(1,  11, 3));
+		builder.addLabel(Messages.getString("AboutDialog.copyright"),cc.xyw(1,  17, 3));
 
 		
 		if (false || Environment.isProjectLibre()) { // removed donation link

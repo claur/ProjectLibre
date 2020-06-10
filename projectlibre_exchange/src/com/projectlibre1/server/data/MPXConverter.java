@@ -377,7 +377,8 @@ private static int autoId = 0;
 		mpxTask.setFixedCost(projectlibreTask.getFixedCost());
 		mpxTask.setFixedCostAccrual(AccrueType.getInstance(projectlibreTask.getFixedCostAccrual()));
 		mpxTask.setMilestone(projectlibreTask.isMarkTaskAsMilestone());
-//		mpxTask.setPercentageComplete(projectlibreTask.getPercentComplete()/100.0D);
+		mpxTask.setPercentageComplete(projectlibreTask.getPercentComplete()*100.0D); //claur uncommented
+		mpxTask.setPercentageWorkComplete(projectlibreTask.getPercentWorkComplete()*100.0D); 
 		mpxTask.setLevelingDelay(toMPXDuration(projectlibreTask.getLevelingDelay()));
 		if (projectlibreTask.getDeadline() != 0)
 			mpxTask.setDeadline(DateTime.fromGmt(new Date(projectlibreTask.getDeadline())));
@@ -389,8 +390,9 @@ private static int autoId = 0;
 		mpxTask.setRemainingDuration(toMPXDuration(projectlibreTask.getRemainingDuration()));
 		if (projectlibreTask.getStop() != 0)
 			mpxTask.setStop(DateTime.fromGmt(new Date(projectlibreTask.getStop())));
-//		if (projectlibreTask.getResume() != 0)
-//			mpxTask.setResume(DateTime.fromGmt(new Date(projectlibreTask.getResume())));
+		
+		if (projectlibreTask.getResume() != 0) //claur uncommented
+			mpxTask.setResume(DateTime.fromGmt(new Date(projectlibreTask.getResume())));
 
 		WorkCalendar cal = projectlibreTask.getWorkCalendar();
 
@@ -431,7 +433,7 @@ private static int autoId = 0;
 		
 		//merge [ba296a] and [6fe45f] 
 		double durationValue = Duration.getValue(duration);
-		int type = Duration.getType(duration);
+		int type = Duration.getEffectiveType(duration);
 		TimeUnit timeUnit = projity2mpxTimeUnit(type);
 		if (timeUnit == TimeUnit.PERCENT || timeUnit == TimeUnit.ELAPSED_PERCENT) {
 			durationValue = durationValue * 100.0;

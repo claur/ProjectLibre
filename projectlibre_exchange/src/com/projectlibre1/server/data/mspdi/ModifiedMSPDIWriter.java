@@ -204,12 +204,12 @@ public class ModifiedMSPDIWriter extends MSPDIWriter {
 
 		Assignment projectlibreAssignment = (Assignment) projectlibreAssignmentMap.get(mpx);
 		Calendar stop = DateTime.calendarInstance();
-		stop.setTimeInMillis(projectlibreAssignment.getStop());
+		stop.setTimeInMillis(DateTime.fromGmt(projectlibreAssignment.getStop())); //claur adding fromGmt to fix time zone
 		xml.setStop(stop);
 		Calendar resume = DateTime.calendarInstance();
-		resume.setTimeInMillis(projectlibreAssignment.getResume());
+		resume.setTimeInMillis(DateTime.fromGmt(projectlibreAssignment.getResume())); //claur adding fromGmt to fix time zone
 		xml.setResume(resume);
-		writeAssigmentBaselinesAndTimephased(xml, mpx,projectlibreAssignment.getStart(),projectlibreAssignment.getFinish());
+		writeAssigmentBaselinesAndTimephased(xml, mpx,DateTime.fromGmt(projectlibreAssignment.getStart()),DateTime.fromGmt(projectlibreAssignment.getFinish()));
 
 		return (xml);
 	}
