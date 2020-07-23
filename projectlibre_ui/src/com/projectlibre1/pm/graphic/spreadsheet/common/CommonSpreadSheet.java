@@ -505,6 +505,8 @@ public class CommonSpreadSheet extends CommonTable implements CacheListener, Sav
      			JViewport viewport = scrollPane.getViewport();
      			if (viewport == null || viewport.getView() != this) return;
 
+                scrollPane.setAutoscrolls(true);
+                scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
      			configureScrollPaneHeaders(scrollPane);
 
      			Border border = scrollPane.getBorder();
