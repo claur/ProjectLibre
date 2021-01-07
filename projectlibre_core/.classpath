@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="/projectlibre_contrib/lib/l2fprod-common-totd.jar"/>
 	<classpathentry kind="lib" path="/projectlibre_contrib/lib/nachocalendar.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="/projectlibre_contrib/lib/exchange/jaxb-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

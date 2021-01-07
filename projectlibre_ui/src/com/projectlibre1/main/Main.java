@@ -79,6 +79,8 @@ public class Main {
 		System.setProperty("projectlibre.firstRun", firstRun+"");
 		System.setProperty("projectlibre.projectLibreRunNumber", getProjectLibreRunNumber()+"");
 		System.setProperty("projectlibre.projectLibreFirstRun", getProjectLibreFirstRun()+"");
+		
+//		System.setProperty("file.encoding", "UTF-8");
 
 		Environment.setStandAlone(true);
 		String[] formatedArgs;

@@ -57,9 +57,19 @@ package com.projectlibre1.preference;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 import java.util.StringTokenizer;
+import java.util.prefs.Preferences;
+
+import com.projectlibre1.session.FileHelper;
 
 public class ConfigurationFile {
 	   
@@ -86,6 +96,12 @@ public class ConfigurationFile {
 	private static final String OPENPROJ_CONF_FILE="projectlibre.conf";
 	private static Properties confProps;
 	public static String getProperty(String key){
+		if ("locale".equals(key)) {
+			String locale=Preferences.userNodeForPackage(ConfigurationFile.class).get("locale","default");
+			if (!"default".equals(locale)) {
+				return locale;
+			}
+		}
 		if (confProps==null){
 			File confDir=getConfDir();
 			if (confDir==null) return null;
@@ -106,32 +122,55 @@ public class ConfigurationFile {
 		if (locale==null){
 			String l=getProperty("locale");
 			if (l==null) locale=Locale.getDefault();
-			else{
-				String language=null;
-				String country=null;
-				String variant=null;
-				StringTokenizer st=new StringTokenizer(l,"_-");
-				if (!st.hasMoreTokens()) locale=Locale.getDefault();
-				else{
-					language=st.nextToken();
-					if (!st.hasMoreTokens()) locale=new Locale(language);
-					else{
-						country=st.nextToken();
-						if (!st.hasMoreTokens()) locale=new Locale(language,country);
-						else{
-							variant=st.nextToken();
-							locale=new Locale(language,country,variant);
-						}
-						
-					}
-					
-				}
-				
-			}
+			else locale=getLocale(l);
 		}
 		return locale;
 	}
-	
+	public static Locale getLocale(String code){
+		Locale defaultLocale=Locale.getDefault();
+		String language=null;
+		String country=null;
+		String variant=null;
+		StringTokenizer st=new StringTokenizer(code,"_-");
+		if (!st.hasMoreTokens()) locale=defaultLocale;
+		else{
+			language=st.nextToken();
+			if (!st.hasMoreTokens()) locale=new Locale(language,defaultLocale.getCountry());
+			else{
+				country=st.nextToken();
+				if (!st.hasMoreTokens()) locale=new Locale(language,country);
+				else{
+					variant=st.nextToken();
+					locale=new Locale(language,country,variant);
+				}
+				
+			}
+			
+		}
+		return locale;
+	}
+	public static String[] getLocaleCodes(String code){
+		Locale defaultLocale=Locale.getDefault();
+		String language=null;
+		String country=null;
+		String variant=null;
+		StringTokenizer st=new StringTokenizer(code,"_-");
+		if (!st.hasMoreTokens()) locale=defaultLocale;
+		else{
+			language=st.nextToken();
+			if (!st.hasMoreTokens()) locale=new Locale(language,defaultLocale.getCountry());
+			else{
+				country=st.nextToken();
+				if (!st.hasMoreTokens()) locale=new Locale(language,country);
+				else{
+					variant=st.nextToken();
+				}
+				
+			}
+			
+		}
+		return new String[] {language, country, variant};
+	}
 	
 	private static final String OPENPROJ_RUN_CONF_FILE="run.conf";
 	private static Properties runProps;
@@ -149,6 +188,65 @@ public class ConfigurationFile {
 			} catch (Exception e) {}
 		}
 		return runProps.getProperty(key);
+	}
+	
+	public static File getGeneratedDirectory(String externalDirectory) {
+		File directory=new File(externalDirectory,"import");
+		return directory.isDirectory()?directory:null;
+
+		//		File directory=null;
+//		Preferences pref=Preferences.userNodeForPackage(ConfigurationFile.class);
+//		if (pref.getBoolean("useExternalLocales",false)) {
+//			String dir=pref.get("externalLocalesDirectory","");
+//			directory=new File(dir,"generated");
+//			if (!directory.isDirectory())
+//				return null;
+//		}		
+//		return directory;
+	}
+	
+	public static File getExportDirectory(String externalDirectory) {
+		File directory=new File(externalDirectory,"export");
+		return directory.isDirectory()?directory:null;
+	}
+	
+
+	
+	public static ResourceBundle getDirectoryBundle(String name) {
+		File directory=null;
+		Preferences pref=Preferences.userNodeForPackage(ConfigurationFile.class);
+		if (pref.getBoolean("useExternalLocales",false)) {
+			String dir=pref.get("externalLocalesDirectory","");
+			directory=new File(dir,"import");
+			if (!directory.isDirectory())
+				return null;
+		}
+//		if (directory==null)
+//			directory=getConfDir();
+			
+		try {
+			URL[] urls={directory.toURI().toURL()};
+			ClassLoader cl=new URLClassLoader(urls);
+			ResourceBundle rb=ResourceBundle.getBundle(name, Locale.getDefault(), cl);
+			return rb;
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		}
+		
+//			Locale locale=Locale.getDefault();
+//			try {
+////				FileReader in = new FileReader(dir+File.separator+"client_"+locale+".properties");
+//				FileInputStream in = new FileInputStream(dir+File.separator+name+"_"+locale+".properties");
+//				return new PropertyResourceBundle(in);
+//			} catch (FileNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+		
+		return null;
 	}
 
 

@@ -56,11 +56,8 @@
 package com.projectlibre1.strings;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Properties;
@@ -68,8 +65,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.collections.CollectionUtils;
-
+import com.projectlibre1.preference.ConfigurationFile;
 import com.projectlibre1.util.ClassLoaderUtils;
 import com.projectlibre1.util.Environment;
 
@@ -99,7 +95,6 @@ public class Messages {
 	}
 
 	static LinkedList<ResourceBundle> bundles = null;
-	static DirectoryClassLoader directoryClassLoader=new DirectoryClassLoader();
 	static Lock lock=new ReentrantLock();
 
 	private static ResourceBundle[] bundleArray = null;
@@ -114,30 +109,37 @@ public class Messages {
 				if (bundles==null){ //if it hasn't been initialized by an other thread
 					String bundleNames[] = getMetaString("ResourceBundles").split(";");
 					String directoryBundleNames[] = getMetaString("DirectoryResourceBundles").split(";");
-					if (directoryClassLoader.isValid()){
-						//foundBundles=new ArrayList<String>(bundleNames.length+directoryBundleNames.length);
-						
-						for (int i =0; i < directoryBundleNames.length;i++) {
-							try {
-								ResourceBundle bundle=ResourceBundle.getBundle(directoryBundleNames[i],Locale.getDefault(),directoryClassLoader);
-								buns.add(bundle);
-								foundBundles.add("com.projectlibre1.strings."+directoryBundleNames[i]);
-							}catch (Exception e) {}
+
+					for (int i =0; i < directoryBundleNames.length;i++) {
+						try {
+							ResourceBundle bundle=ConfigurationFile.getDirectoryBundle(directoryBundleNames[i]);
+							if (bundle==null)
+								continue;
+							buns.add(bundle);
+							foundBundles.add("com.projectlibre1.strings."+directoryBundleNames[i]);
+						}catch (Exception e) {
+							e.printStackTrace();
 						}
-					}else buns=new LinkedList<ResourceBundle>();
+					}
+
 					for (int i =bundleNames.length-1; i >=0; i--) { // reverse order since the later ones should be searched first
 						String bname=bundleNames[i];
 						
 						//find right position to insert in bundles
-						int j=0;
+
 						int pos=0;
+						boolean found=false;
 						for (String b : foundBundles){
-							if (bname.equals(b))
+							if (bname.equals(b)) {
+								found=true;
 								break;
+							}
 							pos++;
 						}
-						buns.add(pos,ResourceBundle.getBundle(bname,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader()/*Messages.class.getClassLoader()*/));
-						foundBundles.add(pos,bname);
+						if (!found) { 
+							buns.add(pos,ResourceBundle.getBundle(bname,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader()/*Messages.class.getClassLoader()*/));
+							foundBundles.add(pos,bname);
+						}
 					}
 				}
 			} finally {

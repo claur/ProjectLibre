@@ -227,6 +227,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 												// "Panel.background");
 
 	protected int fileSelectorOffsetX = 300;
+	
+	protected int languageSelectorWidth = 50;
 
 	protected int projectViewsOffsetX = 600;
 
@@ -489,6 +491,8 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 //		ribbon.add(ribbon.getProjectLibreLogo());
 
 		ribbon.add(ribbon.getFileSelector());
+		
+		ribbon.add(ribbon.getLanguageSelector());
 
 		ribbon.add(ribbon.getProjectViews());
 		
@@ -560,6 +564,9 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 
 		if (ribbon.getFileSelector() != null)
 			ribbon.remove(ribbon.getFileSelector());
+		
+		if (ribbon.getLanguageSelector() != null)
+			ribbon.remove(ribbon.getLanguageSelector());
 
 		if (ribbon.getProjectViews() != null)
 			ribbon.remove(ribbon.getProjectViews());
@@ -948,8 +955,14 @@ public class ProjectLibreRibbonUI extends RibbonUI {
 				taskBarPanel.setBounds(0, 0, 0, 0);
 			}
 
+
 			ribbon.getFileSelector().setBounds(fileSelectorOffsetX, ins.top,
-					width - ins.right - fileSelectorOffsetX, taskbarHeight);
+					width - ins.right - fileSelectorOffsetX - languageSelectorWidth, taskbarHeight);
+			
+			if (languageSelectorWidth>0)
+				ribbon.getLanguageSelector().setBounds(width - ins.right - languageSelectorWidth , ins.top,
+					languageSelectorWidth, taskbarHeight);
+			
 			// projectViews.setBounds(width-ins.right-300, ins.top, 280,
 			// taskbarHeight);
 

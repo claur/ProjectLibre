@@ -74,13 +74,12 @@ import javax.swing.JToolBar;
 
 import org.apache.batik.util.gui.resource.ActionMap;
 import org.apache.batik.util.gui.resource.ButtonFactory;
-import org.apache.batik.util.gui.resource.RibbonFactory;
 import org.pushingpixels.flamingo.api.common.AbstractCommandButton;
 import org.pushingpixels.flamingo.api.ribbon.RibbonTask;
 
 import com.projectlibre.ui.ribbon.CustomRibbonBandGenerator;
 import com.projectlibre1.pm.graphic.TabbedNavigation;
-import com.projectlibre1.strings.DirectoryClassLoader;
+import com.projectlibre1.preference.ConfigurationFile;
 import com.projectlibre1.util.ClassLoaderUtils;
 import com.projectlibre1.util.Environment;
 
@@ -121,12 +120,10 @@ public class MenuManager {
 	private MenuManager(ActionMap rootActionMap) {
 		this.rootActionMap = rootActionMap;
 		ResourceBundle internalBundle=null,bundle=null;
+				
 		if (bundle==null){
 			try{
-				DirectoryClassLoader dir=new DirectoryClassLoader();
-				if (dir.isValid()){
-					bundle=ResourceBundle.getBundle(MENU_BUNDLE_CONF_DIR,Locale.getDefault(),dir);
-				}
+				bundle=ConfigurationFile.getDirectoryBundle(MENU_BUNDLE_CONF_DIR);
 			}catch(Exception e){}
 			if (internalBundle==null) internalBundle =  ResourceBundle.getBundle(MENU_INTERNAL_BUNDLE,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader());
 			if (bundle==null) bundle =  ResourceBundle.getBundle(MENU_BUNDLE,Locale.getDefault(),ClassLoaderUtils.getLocalClassLoader());

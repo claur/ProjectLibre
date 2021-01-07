@@ -69,6 +69,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
@@ -89,15 +91,20 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JApplet;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -123,6 +130,7 @@ import javax.swing.undo.CannotUndoException;
 import org.apache.batik.util.gui.resource.ActionMap;
 import org.apache.batik.util.gui.resource.MissingListenerException;
 import org.apache.commons.collections.Closure;
+import org.projectlibre.strings.Strings;
 import org.pushingpixels.flamingo.api.common.AbstractCommandButton;
 import org.pushingpixels.flamingo.api.ribbon.JRibbon;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
@@ -133,12 +141,14 @@ import com.projectlibre.ui.ribbon.CustomRibbonBandGenerator;
 import com.projectlibre.ui.ribbon.ProjectLibreRibbonUI;
 import com.projectlibre1.configuration.Configuration;
 import com.projectlibre1.configuration.FieldDictionary;
+import com.projectlibre1.configuration.Settings;
 import com.projectlibre1.contrib.ClassLoaderUtils;
 import com.projectlibre1.dialog.AboutDialog;
 import com.projectlibre1.dialog.AbstractDialog;
 import com.projectlibre1.dialog.BaselineDialog;
 import com.projectlibre1.dialog.FindDialog;
 import com.projectlibre1.dialog.HelpDialog;
+import com.projectlibre1.dialog.LocaleDialog;
 import com.projectlibre1.dialog.OpenProjectDialog;
 import com.projectlibre1.dialog.ProjectDialog;
 import com.projectlibre1.dialog.ProjectInformationDialog;
@@ -1028,6 +1038,7 @@ public class GraphicManager implements  FrameHolder, NamedFrameListener, WindowS
 		actionsMap.addHandler(ACTION_CALENDAR_OPTIONS, new CalendarOptionsAction());
 		actionsMap.addHandler(ACTION_SAVE_BASELINE, new SaveBaselineAction());
 		actionsMap.addHandler(ACTION_CLEAR_BASELINE, new ClearBaselineAction());
+		actionsMap.addHandler(ACTION_LOCALE, new LocaleAction());
 		actionsMap.addHandler(ACTION_LINK, new LinkAction());
 		actionsMap.addHandler(ACTION_UNLINK, new UnlinkAction());
 		actionsMap.addHandler(ACTION_ZOOM_IN, new ZoomInAction());
@@ -1606,6 +1617,17 @@ public class GraphicManager implements  FrameHolder, NamedFrameListener, WindowS
 			return isDocumentWritable();
 		}
 	}
+	
+	public class LocaleAction extends MenuActionsMap.DocumentMenuAction {
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent arg0) {
+			setMeAsLastGraphicManager();
+			
+			LocaleDialog localeDialog = LocaleDialog.getInstance(getGraphicManager());
+			localeDialog.doModal();
+		}
+	}
+
 	public class LinkAction extends MenuActionsMap.DocumentMenuAction {
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent arg0) {
@@ -2419,9 +2441,65 @@ protected boolean loadLocalDocument(String fileName,boolean merge){ //uses serve
 		JComponent filesComponent=((DefaultFrameManager)getFrameManager()).getProjectComboPanel();
 		filesComponent.setBackground(ProjectLibreRibbonUI.RIBBON_MENU_COLOR);
 		fileSelector.add(filesComponent,BorderLayout.EAST);
-		projectViews.setBorder(new EmptyBorder(0,0,0,0));		
-		
 
+		
+		JPanel languageSelector=ribbon.getLanguageSelector();
+		languageSelector.setLayout(new BorderLayout());
+		languageSelector.setBackground(ProjectLibreRibbonUI.RIBBON_MENU_COLOR);
+		
+		JButton localeButton=new JButton(IconManager.getIcon("menu16.locale"));
+		localeButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LocaleDialog localeDialog = LocaleDialog.getInstance(getGraphicManager());
+				localeDialog.doModal();
+			}
+		});
+		localeButton.setBorderPainted(false);
+		localeButton.setFocusPainted(false);
+		localeButton.setContentAreaFilled(false);
+		languageSelector.add(localeButton,BorderLayout.EAST);
+		
+//		String[] slocales=Settings.LANGUAGES.split(";");
+//		String[] translatedLocales=new String[slocales.length];
+//		Map<String, String> transOri=new HashMap<>();
+//		Map<String, String> oriTrans=new HashMap<>();
+//		for (int i=0; i<slocales.length;i++) {
+//			if ("default".equals(slocales[i]))
+//					translatedLocales[i]=Messages.getString("Spreadsheet.Project.default"); //re-use existing key
+//			else if ("custom".equals(slocales[i]))
+//				translatedLocales[i]=Messages.getString("PageSetupDialog.PaperFormat.Custom"); //re-use existing key
+//			else translatedLocales[i]=slocales[i];
+//			oriTrans.put(slocales[i], translatedLocales[i]);
+//			transOri.put(translatedLocales[i], slocales[i]);
+//		}
+//		String[] currentTranslatedLocale=new String[] {oriTrans.get(Preferences.userNodeForPackage(ConfigurationFile.class).get("locale","default"))};
+//        JComboBox languageCombo=new JComboBox(translatedLocales);
+//        languageCombo.setSelectedItem(currentTranslatedLocale[0]);
+//        languageCombo.addActionListener(new ActionListener() {
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				JComboBox cb = (JComboBox)e.getSource();
+//		        String language = (String)cb.getSelectedItem();
+//		         if (JOptionPane.YES_OPTION == Alert.confirmYesNo(Messages.getString("Message.languageChange"))){
+//		        	 currentTranslatedLocale[0]=language;
+//		        	 Preferences.userNodeForPackage(ConfigurationFile.class).put("locale",transOri.get(language));	        	 
+//		         }else {
+//		        	 languageCombo.setSelectedItem(currentTranslatedLocale[0]);
+//		         }
+//				
+//			}
+//		});
+//
+//
+//        languageCombo.setBackground(ProjectLibreRibbonUI.RIBBON_MENU_COLOR);
+//		languageSelector.add(languageCombo,BorderLayout.EAST);
+		
+		projectViews.setBorder(new EmptyBorder(0,0,0,0));	
+
+		
 
     	
     }

@@ -90,6 +90,13 @@
 			<name>com.projectlibre1.util.SpecialDateFormat.DATE_FORMAT</name>
 			<value>EEE MM/dd/yy H:mm</value>
 		</String>
+		<String>
+			<name>
+				com.projectlibre1.configuration.Settings.LANGUAGES
+			</name>
+			<value>default;ar;cs;da;de;el;en;es;fa;fi;fr;gl;hi;it;ja;kh;km;ko;nl;pt;ru;sk;sv;ta;th;tr;uk;ur;vi;zh</value>
+		</String>
+		
 	</constants>
 
 

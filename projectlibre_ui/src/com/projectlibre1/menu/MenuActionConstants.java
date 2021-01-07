@@ -144,6 +144,7 @@ public interface MenuActionConstants {
 	public static final String ACTION_UPDATE_PROJECT          = "UpdateProject";
 	public static final String ACTION_SAVE_BASELINE           = "SaveBaseline";
 	public static final String ACTION_CLEAR_BASELINE          = "ClearBaseline";
+	public static final String ACTION_LOCALE		          = "LocaleAction";
 	public static final String ACTION_CALENDAR_OPTIONS        = "CalendarOptions";
 
 

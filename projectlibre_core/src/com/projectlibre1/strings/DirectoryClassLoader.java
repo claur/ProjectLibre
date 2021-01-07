@@ -60,6 +60,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Locale;
 
 import com.projectlibre1.preference.ConfigurationFile;
 
@@ -82,13 +83,14 @@ public class DirectoryClassLoader extends ClassLoader{
     protected Class findClass(String name) throws ClassNotFoundException{
     	if (directory==null) throw new ClassNotFoundException(name);
         try {
-			File file = new File(directory, name);
+			File file = new File(directory, name+".properties");
 			DataInputStream in = new DataInputStream(new FileInputStream(file));
 			byte b[] = new byte[(int)file.length()];
 			in.readFully(b);
 			in.close();
 			return defineClass(name, b, 0, b.length);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ClassNotFoundException(name);
 		}
         
@@ -96,7 +98,7 @@ public class DirectoryClassLoader extends ClassLoader{
 	public InputStream getResourceAsStream(String name) { //used by resourceBundle
     	if (directory==null) return null;
         try {
-			File file = new File(directory, name);
+			File file = new File(directory, name+"_"+Locale.getDefault()+".properties");
 			DataInputStream in = new DataInputStream(new FileInputStream(file));
 			return in;
 		} catch (Exception e) {

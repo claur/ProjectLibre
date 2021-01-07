@@ -95,4 +95,6 @@ public class Settings {
     public static boolean SHOW_HELP_LINKS = true;
     public static String VERSION_TYPE_STANDALONE="standalone";
     public static String VERSION_TYPE_SERVER="server";
+    
+    public static String LANGUAGES = "default"; //defaults are set in configuration.xml
  }

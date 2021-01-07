@@ -247,6 +247,7 @@ public class JRibbon extends JComponent {
 	
 	//projectlibre
 	protected JPanel fileSelector;
+	protected JPanel languageSelector;
 	protected JPanel projectViews;
 	protected JLabel projectlibreLogo;
 
@@ -269,6 +270,7 @@ public class JRibbon extends JComponent {
 		
 		//projectlibre
 		fileSelector=new JPanel();
+		languageSelector=new JPanel();
 		projectViews=new JPanel();
 		projectlibreLogo=new JLabel();
 
@@ -862,6 +864,11 @@ public class JRibbon extends JComponent {
 	//projectlibre
 	public JPanel getFileSelector() {
 		return fileSelector;
+	}
+	
+	
+	public JPanel getLanguageSelector() {
+		return languageSelector;
 	}
 
 
