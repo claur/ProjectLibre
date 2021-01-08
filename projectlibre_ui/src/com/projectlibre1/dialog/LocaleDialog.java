@@ -130,6 +130,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.projectlibre.ui.ribbon.ProjectLibreRibbonUI;
 import com.projectlibre1.pm.graphic.frames.GraphicManager;
 import com.projectlibre1.configuration.Settings;
+import com.projectlibre1.menu.MenuManager;
 import com.projectlibre1.pm.snapshot.SnapshottableImpl;
 import com.projectlibre1.preference.ConfigurationFile;
 import com.projectlibre1.strings.Messages;
@@ -570,14 +571,55 @@ public final class LocaleDialog extends AbstractDialog {
 //		refreshFiles();
 	}
 	
-	public void exportResourceFile(String packageDir, String file) {
+//	public void exportResourceFile(String packageDir, String file) {
+//        File generatedDir=ConfigurationFile.getGeneratedDirectory(directoryField.getText());
+//        if (generatedDir==null)
+//        	return;
+//		
+//        ClassLoader cl = getClass().getClassLoader();
+//        try {
+//        	InputStream in = cl.getResourceAsStream(packageDir+"/"+file+".properties");
+//            if (in == null)
+//                throw new FileNotFoundException();
+//            
+//            byte[] buf = new byte[in.available()];
+//            in.read(buf);
+//            File target = new File(generatedDir,file+".properties");
+//            OutputStream out = new FileOutputStream(target);
+//            out.write(buf);
+//            out.close();            	   
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//	public void exportResourceFileUTF8(String packageDir, String file) {
+//        File generatedDir=ConfigurationFile.getExportDirectory(directoryField.getText());
+//        if (generatedDir==null)
+//        	return;
+//		
+//        ClassLoader cl = getClass().getClassLoader();
+//        try {
+//        	InputStream in = cl.getResourceAsStream(packageDir+"/"+file+".properties");        	
+//            if (in == null)
+//            	throw new FileNotFoundException();
+//            
+//            String text=getFileContent(in, "ISO-8859-1",true);
+//            File target = new File(generatedDir,file+".txt");
+//            FileWriter out = new FileWriter(target);
+//            out.write(text);
+//            out.close();            	   
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+	public void exportResourceFile(Class sibling, String file) {
         File generatedDir=ConfigurationFile.getGeneratedDirectory(directoryField.getText());
         if (generatedDir==null)
         	return;
 		
         ClassLoader cl = getClass().getClassLoader();
         try {
-        	InputStream in = cl.getResourceAsStream(packageDir+"/"+file+".properties");
+        	InputStream in = sibling.getResourceAsStream(file+".properties");
             if (in == null)
                 throw new FileNotFoundException();
             
@@ -588,17 +630,16 @@ public final class LocaleDialog extends AbstractDialog {
             out.write(buf);
             out.close();            	   
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
-	public void exportResourceFileUTF8(String packageDir, String file) {
+	public void exportResourceFileUTF8(Class sibling, String file) {
         File generatedDir=ConfigurationFile.getExportDirectory(directoryField.getText());
         if (generatedDir==null)
         	return;
 		
         ClassLoader cl = getClass().getClassLoader();
         try {
-        	InputStream in = cl.getResourceAsStream(packageDir+"/"+file+".properties");        	
+        	InputStream in = sibling.getResourceAsStream(file+".properties");        	
             if (in == null)
             	throw new FileNotFoundException();
             
@@ -608,7 +649,6 @@ public final class LocaleDialog extends AbstractDialog {
             out.write(text);
             out.close();            	   
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 	
@@ -667,7 +707,7 @@ public final class LocaleDialog extends AbstractDialog {
 		});
 		
 		
-		exportResourceFile("com/projectlibre1/strings/","client");
+		exportResourceFile(Messages.class,"client");
 		
 		Map<String, LanguageProperties> fileMap=new TreeMap<String, LanguageProperties>();
 		for (File file:clientFiles) {
@@ -698,7 +738,7 @@ public final class LocaleDialog extends AbstractDialog {
 		}
 		
 		
-		exportResourceFile("com/projectlibre1/menu/","menu");
+		exportResourceFile(MenuManager.class,"menu");
 		
 		for (File file:menuFiles) {
 			Matcher m = menuPattern.matcher(file.getName());
@@ -762,13 +802,13 @@ public final class LocaleDialog extends AbstractDialog {
 				return;								
 			}
 		}
-		exportResourceFileUTF8("com/projectlibre1/strings/","client");
-		exportResourceFileUTF8("com/projectlibre1/menu/","menu");
+		exportResourceFileUTF8(Messages.class,"client");
+		exportResourceFileUTF8(MenuManager.class,"menu");
 		for (String locale:slocales) {
 			if ("default".equals(locale))
 				continue;
-			exportResourceFileUTF8("com/projectlibre1/strings/","client_"+locale);
-			exportResourceFileUTF8("com/projectlibre1/menu/","menu_"+locale);
+			exportResourceFileUTF8(Messages.class,"client_"+locale);
+			exportResourceFileUTF8(MenuManager.class,"menu_"+locale);
 		}
 	}
 
